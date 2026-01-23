@@ -1,0 +1,99 @@
+// =============================================================================
+// NetworkManagerTemplate.cs - Network Manager (Netcode for GameObjects)
+// Template for minimal NGO setup with Host/Client connection handling
+// =============================================================================
+
+using Unity.Netcode;
+using UnityEngine;
+
+namespace YourGame.Networking
+{
+    /// <summary>
+    /// Simple UI/Manager wrapper to start Host or Client sessions using Unity Netcode.
+    /// Requires "Unity Netcode for GameObjects" package.
+    /// </summary>
+    public class NetworkManagerTemplate : MonoBehaviour
+    {
+        private void OnGUI()
+        {
+            GUILayout.BeginArea(new Rect(10, 10, 300, 300));
+            
+            if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+            {
+                StartButtons();
+            }
+            else
+            {
+                StatusLabels();
+            }
+            
+            GUILayout.EndArea();
+        }
+        
+        private void StartButtons()
+        {
+            if (GUILayout.Button("Host")) NetworkManager.Singleton.StartHost();
+            if (GUILayout.Button("Client")) NetworkManager.Singleton.StartClient();
+            if (GUILayout.Button("Server")) NetworkManager.Singleton.StartServer();
+        }
+        
+        private void StatusLabels()
+        {
+            string mode = NetworkManager.Singleton.IsHost ? "Host" : NetworkManager.Singleton.IsServer ? "Server" : "Client";
+            
+            GUILayout.Label($"Transport: {NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetType().Name}");
+            GUILayout.Label($"Mode: {mode}");
+            
+            if (GUILayout.Button("Disconnect"))
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Example of a NetworkBehaviour with ServerRpc and NetworkVariable.
+    /// </summary>
+    public class NetworkPlayerExample : NetworkBehaviour
+    {
+        // Synced variable, only writable by Server
+        public NetworkVariable<int> Health = new NetworkVariable<int>(100);
+
+        public override void OnNetworkSpawn()
+        {
+            if (IsOwner)
+            {
+                // Move player to random start pos
+                MoveServerRpc(new Vector3(Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f)));
+            }
+        }
+
+        [ServerRpc]
+        public void MoveServerRpc(Vector3 position)
+        {
+            // Validating inputs on server side
+            transform.position = position;
+        }
+
+        private void Update()
+        {
+            if (IsOwner && Input.GetKeyDown(KeyCode.Space))
+            {
+                TakeDamageServerRpc(10);
+            }
+        }
+
+        [ServerRpc]
+        public void TakeDamageServerRpc(int damage)
+        {
+            Health.Value -= damage;
+            Debug.Log($"Player {OwnerClientId} Health: {Health.Value}");
+            
+            if (Health.Value <= 0)
+            {
+                // Despawn logic
+                NetworkObject.Despawn();
+            }
+        }
+    }
+}

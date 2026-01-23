@@ -1,0 +1,169 @@
+// =============================================================================
+// HealthComponent.cs - Reusable Health MonoBehaviour
+// Part of: damage-health-framework skill
+// =============================================================================
+
+using System;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Combat
+{
+    /// <summary>
+    /// Reusable health component. Attach to any GameObject that needs health.
+    /// Fires events for UI/VFX/Audio integration.
+    /// </summary>
+    public class HealthComponent : MonoBehaviour, IDamageable
+    {
+        [Header("Health Configuration")]
+        [SerializeField] private float _maxHealth = 100f;
+        [SerializeField] private float _startingHealth = -1f; // -1 = use max
+        
+        [Header("Damage Modifiers")]
+        [SerializeField] private bool _invulnerable = false;
+        [SerializeField] private float _damageMultiplier = 1f;
+        [SerializeField] private DamageResistances _resistances;
+        
+        [Header("Death Settings")]
+        [SerializeField] private bool _destroyOnDeath = false;
+        [SerializeField] private float _destroyDelay = 0f;
+        
+        private float _currentHealth;
+        
+        // Public Properties
+        public float CurrentHealth => _currentHealth;
+        public float MaxHealth => _maxHealth;
+        public float HealthPercent => _maxHealth > 0 ? _currentHealth / _maxHealth : 0f;
+        public bool IsAlive => _currentHealth > 0f;
+        public bool CanBeDamaged => IsAlive && !_invulnerable;
+        
+        // Events
+        public event Action<DamageResult> OnDamaged;
+        public event Action<float> OnHealed;
+        public event Action<float, float> OnHealthChanged; // current, max
+        public event Action OnDeath;
+        public event Action OnRevive;
+
+        protected virtual void Awake()
+        {
+            _currentHealth = _startingHealth > 0 ? _startingHealth : _maxHealth;
+        }
+
+        public virtual DamageResult TakeDamage(DamageInfo info)
+        {
+            var result = new DamageResult
+            {
+                DamageType = info.Type,
+                WasCritical = info.IsCritical
+            };
+            
+            if (!CanBeDamaged)
+            {
+                result.DamageBlocked = info.GetFinalDamage();
+                return result;
+            }
+            
+            // Calculate resistance
+            float resistance = _resistances.GetResistance(info.Type);
+            float rawDamage = info.GetFinalDamage() * _damageMultiplier;
+            float finalDamage = rawDamage * (1f - resistance);
+            
+            result.DamageDealt = finalDamage;
+            result.DamageBlocked = rawDamage - finalDamage;
+            
+            // Apply damage
+            float previousHealth = _currentHealth;
+            _currentHealth = Mathf.Max(0f, _currentHealth - finalDamage);
+            
+            OnDamaged?.Invoke(result);
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            
+            // Check death
+            if (previousHealth > 0f && _currentHealth <= 0f)
+            {
+                result.WasKilled = true;
+                HandleDeath();
+            }
+            
+            return result;
+        }
+
+        public virtual void Heal(float amount)
+        {
+            if (!IsAlive) return;
+            
+            float previousHealth = _currentHealth;
+            _currentHealth = Mathf.Min(_maxHealth, _currentHealth + amount);
+            float actualHeal = _currentHealth - previousHealth;
+            
+            if (actualHeal > 0f)
+            {
+                OnHealed?.Invoke(actualHeal);
+                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+        }
+
+        public virtual void Kill()
+        {
+            if (!IsAlive) return;
+            
+            _currentHealth = 0f;
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            HandleDeath();
+        }
+
+        public virtual void Revive(float healthPercent = 1f)
+        {
+            if (IsAlive) return;
+            
+            _currentHealth = _maxHealth * Mathf.Clamp01(healthPercent);
+            OnRevive?.Invoke();
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        protected virtual void HandleDeath()
+        {
+            OnDeath?.Invoke();
+            
+            if (_destroyOnDeath)
+            {
+                Destroy(gameObject, _destroyDelay);
+            }
+        }
+
+        public void SetInvulnerable(bool invulnerable) => _invulnerable = invulnerable;
+        public void SetMaxHealth(float max, bool healToFull = false)
+        {
+            _maxHealth = max;
+            if (healToFull) _currentHealth = max;
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+    }
+
+    /// <summary>
+    /// Damage type resistances configuration.
+    /// </summary>
+    [System.Serializable]
+    public class DamageResistances
+    {
+        [Range(-1f, 1f)] public float Physical = 0f;
+        [Range(-1f, 1f)] public float Fire = 0f;
+        [Range(-1f, 1f)] public float Ice = 0f;
+        [Range(-1f, 1f)] public float Lightning = 0f;
+        [Range(-1f, 1f)] public float Poison = 0f;
+        [Range(-1f, 1f)] public float Holy = 0f;
+        [Range(-1f, 1f)] public float Dark = 0f;
+        
+        public float GetResistance(DamageType type) => type switch
+        {
+            DamageType.Physical => Physical,
+            DamageType.Fire => Fire,
+            DamageType.Ice => Ice,
+            DamageType.Lightning => Lightning,
+            DamageType.Poison => Poison,
+            DamageType.Holy => Holy,
+            DamageType.Dark => Dark,
+            DamageType.True => 0f, // True damage ignores resistance
+            _ => 0f
+        };
+    }
+}

@@ -1,42 +1,263 @@
-using UnityEngine;
+// =============================================================================
+// SaveManager.cs - Central Save/Load Controller
+// Part of: save-load-serialization skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using UnityEngine;
 
-namespace {NAMESPACE}
+namespace {{NAMESPACE}}.SaveSystem
 {
-    public class {SYSTEM_NAME} : MonoBehaviour
+    /// <summary>
+    /// Central manager for saving and loading game state.
+    /// Collects all ISaveable objects and persists their state.
+    /// </summary>
+    public class SaveManager : MonoBehaviour
     {
-        private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
+        [Header("Configuration")]
+        [SerializeField] private string _saveFileName = "savegame";
+        [SerializeField] private string _saveFileExtension = ".json";
+        [SerializeField] private bool _useEncryption = false;
         
-        public GameData CurrentData { get; private set; }
+        private static SaveManager _instance;
+        public static SaveManager Instance => _instance;
+        
+        public event Action OnSaveStarted;
+        public event Action OnSaveCompleted;
+        public event Action OnLoadStarted;
+        public event Action OnLoadCompleted;
+        public event Action<string> OnError;
 
-        public void NewGame()
+        private void Awake()
         {
-            CurrentData = new GameData();
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
         }
 
-        public void SaveGame()
+        /// <summary>
+        /// Save game to default slot.
+        /// </summary>
+        public void Save() => SaveToSlot(0);
+
+        /// <summary>
+        /// Save game to specific slot.
+        /// </summary>
+        public void SaveToSlot(int slotIndex)
         {
-            if (CurrentData == null) NewGame();
+            OnSaveStarted?.Invoke();
             
-            CurrentData.LastUpdated = System.DateTime.Now.ToBinary();
-            string json = JsonUtility.ToJson(CurrentData, true);
-            File.WriteAllText(SavePath, json);
-            Debug.Log($"Game Saved to {SavePath}");
+            try
+            {
+                var saveData = new SaveData
+                {
+                    Timestamp = DateTime.UtcNow.ToString("o"),
+                    Version = Application.version,
+                    SaveStates = new Dictionary<string, object>()
+                };
+                
+                // Collect all saveables
+                var saveables = FindAllSaveables();
+                foreach (var saveable in saveables)
+                {
+                    try
+                    {
+                        saveData.SaveStates[saveable.SaveId] = saveable.CaptureState();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"[SaveManager] Failed to capture {saveable.SaveId}: {ex.Message}");
+                    }
+                }
+                
+                // Serialize
+                string json = JsonUtility.ToJson(new SaveDataWrapper(saveData), true);
+                
+                if (_useEncryption)
+                    json = Encrypt(json);
+                
+                // Write to file
+                string path = GetSavePath(slotIndex);
+                File.WriteAllText(path, json);
+                
+                Debug.Log($"[SaveManager] Saved to {path}");
+                OnSaveCompleted?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SaveManager] Save failed: {ex.Message}");
+                OnError?.Invoke(ex.Message);
+            }
         }
 
-        public void LoadGame()
+        /// <summary>
+        /// Load game from default slot.
+        /// </summary>
+        public void Load() => LoadFromSlot(0);
+
+        /// <summary>
+        /// Load game from specific slot.
+        /// </summary>
+        public void LoadFromSlot(int slotIndex)
         {
-            if (File.Exists(SavePath))
+            OnLoadStarted?.Invoke();
+            
+            try
             {
-                string json = File.ReadAllText(SavePath);
-                CurrentData = JsonUtility.FromJson<GameData>(json);
-                Debug.Log("Game Loaded");
+                string path = GetSavePath(slotIndex);
+                
+                if (!File.Exists(path))
+                {
+                    Debug.LogWarning($"[SaveManager] No save file at {path}");
+                    return;
+                }
+                
+                string json = File.ReadAllText(path);
+                
+                if (_useEncryption)
+                    json = Decrypt(json);
+                
+                var wrapper = JsonUtility.FromJson<SaveDataWrapper>(json);
+                var saveData = wrapper.ToSaveData();
+                
+                // Restore all saveables in priority order
+                var saveables = FindAllSaveables()
+                    .OrderBy(s => s.LoadPriority)
+                    .ToList();
+                
+                foreach (var saveable in saveables)
+                {
+                    if (saveData.SaveStates.TryGetValue(saveable.SaveId, out var state))
+                    {
+                        try
+                        {
+                            saveable.RestoreState(state);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"[SaveManager] Failed to restore {saveable.SaveId}: {ex.Message}");
+                        }
+                    }
+                }
+                
+                Debug.Log($"[SaveManager] Loaded from {path}");
+                OnLoadCompleted?.Invoke();
             }
-            else
+            catch (Exception ex)
             {
-                Debug.LogWarning("No save file found.");
-                NewGame();
+                Debug.LogError($"[SaveManager] Load failed: {ex.Message}");
+                OnError?.Invoke(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Check if a save slot exists.
+        /// </summary>
+        public bool HasSave(int slotIndex = 0)
+        {
+            return File.Exists(GetSavePath(slotIndex));
+        }
+
+        /// <summary>
+        /// Delete a save slot.
+        /// </summary>
+        public void DeleteSave(int slotIndex = 0)
+        {
+            string path = GetSavePath(slotIndex);
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+
+        private List<ISaveable> FindAllSaveables()
+        {
+            return FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                .OfType<ISaveable>()
+                .ToList();
+        }
+
+        private string GetSavePath(int slotIndex)
+        {
+            string fileName = slotIndex == 0 
+                ? $"{_saveFileName}{_saveFileExtension}"
+                : $"{_saveFileName}_{slotIndex}{_saveFileExtension}";
+            return Path.Combine(Application.persistentDataPath, fileName);
+        }
+
+        private string Encrypt(string data)
+        {
+            // Simple XOR encryption - replace with proper encryption in production
+            return Convert.ToBase64String(
+                System.Text.Encoding.UTF8.GetBytes(data)
+            );
+        }
+
+        private string Decrypt(string data)
+        {
+            return System.Text.Encoding.UTF8.GetString(
+                Convert.FromBase64String(data)
+            );
+        }
+    }
+
+    [System.Serializable]
+    public class SaveData
+    {
+        public string Timestamp;
+        public string Version;
+        public Dictionary<string, object> SaveStates;
+    }
+
+    // Wrapper for Unity's JsonUtility (doesn't support Dictionary)
+    [System.Serializable]
+    public class SaveDataWrapper
+    {
+        public string Timestamp;
+        public string Version;
+        public List<SaveEntry> Entries = new();
+
+        public SaveDataWrapper() { }
+        
+        public SaveDataWrapper(SaveData data)
+        {
+            Timestamp = data.Timestamp;
+            Version = data.Version;
+            foreach (var kvp in data.SaveStates)
+            {
+                Entries.Add(new SaveEntry 
+                { 
+                    Key = kvp.Key, 
+                    Value = JsonUtility.ToJson(kvp.Value) 
+                });
+            }
+        }
+
+        public SaveData ToSaveData()
+        {
+            var data = new SaveData
+            {
+                Timestamp = Timestamp,
+                Version = Version,
+                SaveStates = new Dictionary<string, object>()
+            };
+            foreach (var entry in Entries)
+            {
+                data.SaveStates[entry.Key] = entry.Value; // Still JSON string
+            }
+            return data;
+        }
+    }
+
+    [System.Serializable]
+    public class SaveEntry
+    {
+        public string Key;
+        public string Value;
     }
 }

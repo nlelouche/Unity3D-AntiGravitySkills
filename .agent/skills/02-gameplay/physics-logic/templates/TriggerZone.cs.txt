@@ -1,0 +1,148 @@
+// =============================================================================
+// TriggerZone.cs - Reusable Trigger Detection
+// Part of: physics-logic skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Physics
+{
+    /// <summary>
+    /// Reusable trigger zone component.
+    /// Fires events when objects enter/exit and tracks occupants.
+    /// </summary>
+    [RequireComponent(typeof(Collider))]
+    public class TriggerZone : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private LayerMask _detectLayers = -1;
+        [SerializeField] private string _requiredTag = "";
+        
+        [Header("Debug")]
+        [SerializeField] private bool _logEvents = false;
+        [SerializeField] private Color _gizmoColor = new Color(0, 1, 0, 0.3f);
+        
+        private HashSet<Collider> _occupants = new();
+        
+        public IReadOnlyCollection<Collider> Occupants => _occupants;
+        public int OccupantCount => _occupants.Count;
+        public bool IsOccupied => _occupants.Count > 0;
+        
+        public event Action<Collider> OnEntered;
+        public event Action<Collider> OnExited;
+        public event Action OnBecameOccupied;
+        public event Action OnBecameEmpty;
+
+        private void Awake()
+        {
+            var col = GetComponent<Collider>();
+            col.isTrigger = true;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!IsValidTarget(other)) return;
+            
+            bool wasEmpty = _occupants.Count == 0;
+            
+            if (_occupants.Add(other))
+            {
+                if (_logEvents)
+                    Debug.Log($"[TriggerZone] {name}: {other.name} entered");
+                
+                OnEntered?.Invoke(other);
+                
+                if (wasEmpty)
+                    OnBecameOccupied?.Invoke();
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (_occupants.Remove(other))
+            {
+                if (_logEvents)
+                    Debug.Log($"[TriggerZone] {name}: {other.name} exited");
+                
+                OnExited?.Invoke(other);
+                
+                if (_occupants.Count == 0)
+                    OnBecameEmpty?.Invoke();
+            }
+        }
+
+        private bool IsValidTarget(Collider other)
+        {
+            // Check layer
+            if ((_detectLayers & (1 << other.gameObject.layer)) == 0)
+                return false;
+            
+            // Check tag
+            if (!string.IsNullOrEmpty(_requiredTag) && !other.CompareTag(_requiredTag))
+                return false;
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Check if a specific collider is in the zone.
+        /// </summary>
+        public bool Contains(Collider collider)
+        {
+            return _occupants.Contains(collider);
+        }
+
+        /// <summary>
+        /// Check if a GameObject is in the zone.
+        /// </summary>
+        public bool Contains(GameObject obj)
+        {
+            foreach (var occupant in _occupants)
+            {
+                if (occupant.gameObject == obj)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Get all occupants with a specific component.
+        /// </summary>
+        public List<T> GetOccupants<T>() where T : Component
+        {
+            var results = new List<T>();
+            foreach (var occupant in _occupants)
+            {
+                if (occupant.TryGetComponent<T>(out var component))
+                    results.Add(component);
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Force clear all occupants.
+        /// </summary>
+        public void Clear()
+        {
+            _occupants.Clear();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = _gizmoColor;
+            
+            var col = GetComponent<Collider>();
+            if (col is BoxCollider box)
+            {
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Gizmos.DrawCube(box.center, box.size);
+            }
+            else if (col is SphereCollider sphere)
+            {
+                Gizmos.DrawSphere(transform.position + sphere.center, sphere.radius);
+            }
+        }
+    }
+}

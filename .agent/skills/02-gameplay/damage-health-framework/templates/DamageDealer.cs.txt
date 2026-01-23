@@ -1,0 +1,114 @@
+// =============================================================================
+// DamageDealer.cs - Generic Damage Source Component
+// Part of: damage-health-framework skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Combat
+{
+    /// <summary>
+    /// Attach to anything that deals damage: weapons, projectiles, hazards.
+    /// Automatically damages IDamageable targets on contact.
+    /// </summary>
+    public class DamageDealer : MonoBehaviour
+    {
+        [Header("Damage Configuration")]
+        [SerializeField] private float _baseDamage = 10f;
+        [SerializeField] private DamageType _damageType = DamageType.Physical;
+        
+        [Header("Critical Hits")]
+        [SerializeField] private bool _canCrit = false;
+        [SerializeField, Range(0f, 1f)] private float _critChance = 0.1f;
+        [SerializeField] private float _critMultiplier = 1.5f;
+        
+        [Header("Behavior")]
+        [SerializeField] private bool _damageOnTriggerEnter = true;
+        [SerializeField] private bool _damageOnCollisionEnter = false;
+        [SerializeField] private bool _destroyOnHit = false;
+        [SerializeField] private LayerMask _targetLayers = -1;
+        
+        [Header("Cooldown (for continuous damage)")]
+        [SerializeField] private float _damageCooldown = 0f;
+        
+        private float _lastDamageTime;
+
+        /// <summary>
+        /// Manually deal damage to a target.
+        /// </summary>
+        public DamageResult DealDamage(IDamageable target, Vector3 hitPoint = default)
+        {
+            if (target == null) return default;
+            
+            var info = CreateDamageInfo(hitPoint);
+            return target.TakeDamage(info);
+        }
+
+        private DamageInfo CreateDamageInfo(Vector3 hitPoint)
+        {
+            bool isCrit = _canCrit && Random.value < _critChance;
+            
+            return new DamageInfo
+            {
+                Amount = _baseDamage,
+                Type = _damageType,
+                Source = gameObject,
+                HitPoint = hitPoint,
+                HitNormal = Vector3.up,
+                IsCritical = isCrit,
+                CriticalMultiplier = _critMultiplier
+            };
+        }
+
+        private void TryDamage(GameObject target, Vector3 hitPoint)
+        {
+            // Check cooldown
+            if (_damageCooldown > 0f && Time.time - _lastDamageTime < _damageCooldown)
+                return;
+            
+            // Check layer
+            if ((_targetLayers & (1 << target.layer)) == 0)
+                return;
+            
+            // Try to damage
+            if (target.TryGetComponent<IDamageable>(out var damageable))
+            {
+                var result = DealDamage(damageable, hitPoint);
+                _lastDamageTime = Time.time;
+                
+                OnDamageDealt(result, target);
+                
+                if (_destroyOnHit)
+                    Destroy(gameObject);
+            }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (_damageOnTriggerEnter)
+                TryDamage(other.gameObject, other.ClosestPoint(transform.position));
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (_damageOnCollisionEnter)
+            {
+                var contact = collision.contacts[0];
+                TryDamage(collision.gameObject, contact.point);
+            }
+        }
+
+        /// <summary>
+        /// Override for custom behavior when damage is dealt.
+        /// </summary>
+        protected virtual void OnDamageDealt(DamageResult result, GameObject target)
+        {
+            // Override in subclass for VFX, sounds, etc.
+        }
+
+        // Public setters for runtime modification
+        public void SetDamage(float damage) => _baseDamage = damage;
+        public void SetDamageType(DamageType type) => _damageType = type;
+        public void SetCritChance(float chance) => _critChance = Mathf.Clamp01(chance);
+    }
+}

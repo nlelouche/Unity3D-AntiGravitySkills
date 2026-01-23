@@ -1,0 +1,242 @@
+// =============================================================================
+// AudioMixerController.cs - Dynamic Audio Mixer Management
+// Template for runtime AudioMixer control with snapshots and exposed parameters
+// =============================================================================
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.Audio;
+
+namespace YourGame.Audio
+{
+    /// <summary>
+    /// Runtime controller for AudioMixer.
+    /// Handles volume control, snapshots, and dynamic audio effects.
+    /// </summary>
+    public class AudioMixerController : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Audio Mixer")]
+        [SerializeField] private AudioMixer _audioMixer;
+        
+        [Header("Parameter Names")]
+        [SerializeField] private string _masterVolumeParam = "MasterVolume";
+        [SerializeField] private string _musicVolumeParam = "MusicVolume";
+        [SerializeField] private string _sfxVolumeParam = "SFXVolume";
+        [SerializeField] private string _voiceVolumeParam = "VoiceVolume";
+        
+        [Header("Snapshots")]
+        [SerializeField] private AudioMixerSnapshot _defaultSnapshot;
+        [SerializeField] private AudioMixerSnapshot _duckingSnapshot;
+        [SerializeField] private AudioMixerSnapshot _pauseSnapshot;
+        [SerializeField] private AudioMixerSnapshot _underwaterSnapshot;
+        
+        [Header("Transition Settings")]
+        [SerializeField] private float _defaultTransitionTime = 0.5f;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private AudioMixerSnapshot _currentSnapshot;
+        private Coroutine _transitionCoroutine;
+        
+        #endregion
+        
+        #region Properties
+        
+        public AudioMixerSnapshot CurrentSnapshot => _currentSnapshot;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            _currentSnapshot = _defaultSnapshot;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Volume Control
+        
+        /// <summary>
+        /// Sets master volume (0-1).
+        /// </summary>
+        public void SetMasterVolume(float value)
+        {
+            SetVolume(_masterVolumeParam, value);
+        }
+        
+        /// <summary>
+        /// Sets music volume (0-1).
+        /// </summary>
+        public void SetMusicVolume(float value)
+        {
+            SetVolume(_musicVolumeParam, value);
+        }
+        
+        /// <summary>
+        /// Sets SFX volume (0-1).
+        /// </summary>
+        public void SetSFXVolume(float value)
+        {
+            SetVolume(_sfxVolumeParam, value);
+        }
+        
+        /// <summary>
+        /// Sets voice volume (0-1).
+        /// </summary>
+        public void SetVoiceVolume(float value)
+        {
+            SetVolume(_voiceVolumeParam, value);
+        }
+        
+        /// <summary>
+        /// Gets a volume value (0-1).
+        /// </summary>
+        public float GetVolume(string parameterName)
+        {
+            if (_audioMixer.GetFloat(parameterName, out float dB))
+            {
+                return DecibelToLinear(dB);
+            }
+            return 1f;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Snapshots
+        
+        /// <summary>
+        /// Transitions to default snapshot.
+        /// </summary>
+        public void ToDefault(float? transitionTime = null)
+        {
+            TransitionToSnapshot(_defaultSnapshot, transitionTime);
+        }
+        
+        /// <summary>
+        /// Transitions to ducking snapshot (for dialogue).
+        /// </summary>
+        public void ToDucking(float? transitionTime = null)
+        {
+            TransitionToSnapshot(_duckingSnapshot, transitionTime ?? 0.3f);
+        }
+        
+        /// <summary>
+        /// Transitions to pause snapshot.
+        /// </summary>
+        public void ToPause(float? transitionTime = null)
+        {
+            TransitionToSnapshot(_pauseSnapshot, transitionTime);
+        }
+        
+        /// <summary>
+        /// Transitions to underwater snapshot.
+        /// </summary>
+        public void ToUnderwater(float? transitionTime = null)
+        {
+            TransitionToSnapshot(_underwaterSnapshot, transitionTime);
+        }
+        
+        /// <summary>
+        /// Transitions to a specific snapshot.
+        /// </summary>
+        public void TransitionToSnapshot(AudioMixerSnapshot snapshot, float? transitionTime = null)
+        {
+            if (snapshot == null) return;
+            
+            float time = transitionTime ?? _defaultTransitionTime;
+            snapshot.TransitionTo(time);
+            _currentSnapshot = snapshot;
+        }
+        
+        /// <summary>
+        /// Blends between multiple snapshots.
+        /// </summary>
+        public void BlendSnapshots(AudioMixerSnapshot[] snapshots, float[] weights, float transitionTime)
+        {
+            _audioMixer.TransitionToSnapshots(snapshots, weights, transitionTime);
+        }
+        
+        #endregion
+        
+        #region Public Methods - Save/Load
+        
+        /// <summary>
+        /// Gets all volume settings for saving.
+        /// </summary>
+        public AudioSettings GetSettings()
+        {
+            return new AudioSettings
+            {
+                MasterVolume = GetVolume(_masterVolumeParam),
+                MusicVolume = GetVolume(_musicVolumeParam),
+                SFXVolume = GetVolume(_sfxVolumeParam),
+                VoiceVolume = GetVolume(_voiceVolumeParam)
+            };
+        }
+        
+        /// <summary>
+        /// Applies saved volume settings.
+        /// </summary>
+        public void ApplySettings(AudioSettings settings)
+        {
+            SetMasterVolume(settings.MasterVolume);
+            SetMusicVolume(settings.MusicVolume);
+            SetSFXVolume(settings.SFXVolume);
+            SetVoiceVolume(settings.VoiceVolume);
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void SetVolume(string parameterName, float linearValue)
+        {
+            float dB = LinearToDecibel(linearValue);
+            _audioMixer.SetFloat(parameterName, dB);
+        }
+        
+        /// <summary>
+        /// Converts linear 0-1 to decibels (-80 to 0).
+        /// </summary>
+        private static float LinearToDecibel(float linear)
+        {
+            return linear > 0.0001f ? Mathf.Log10(linear) * 20f : -80f;
+        }
+        
+        /// <summary>
+        /// Converts decibels (-80 to 0) to linear 0-1.
+        /// </summary>
+        private static float DecibelToLinear(float dB)
+        {
+            return Mathf.Pow(10f, dB / 20f);
+        }
+        
+        #endregion
+        
+        #region Data Structures
+        
+        [System.Serializable]
+        public struct AudioSettings
+        {
+            public float MasterVolume;
+            public float MusicVolume;
+            public float SFXVolume;
+            public float VoiceVolume;
+            
+            public static AudioSettings Default => new()
+            {
+                MasterVolume = 1f,
+                MusicVolume = 0.8f,
+                SFXVolume = 1f,
+                VoiceVolume = 1f
+            };
+        }
+        
+        #endregion
+    }
+}

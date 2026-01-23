@@ -1,0 +1,61 @@
+// =============================================================================
+// InterfaceExtensions.cs - Safe Interface Access Utilities
+// Part of: interface-driven-development skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Interfaces
+{
+    /// <summary>
+    /// Extension methods for safe interface-based access.
+    /// Prevents NullReferenceExceptions when working with interfaces.
+    /// </summary>
+    public static class InterfaceExtensions
+    {
+        /// <summary>
+        /// Safely try to damage a target if it implements IDamageable.
+        /// </summary>
+        public static bool TryDamage(this GameObject target, float amount, GameObject source = null)
+        {
+            if (target.TryGetComponent<IDamageable>(out var damageable))
+            {
+                damageable.TakeDamage(amount, source);
+                return true;
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Safely try to interact with a target if it implements IInteractable.
+        /// </summary>
+        public static bool TryInteract(this GameObject target, GameObject interactor)
+        {
+            if (target.TryGetComponent<IInteractable>(out var interactable))
+            {
+                if (interactable.CanInteract)
+                {
+                    interactable.Interact(interactor);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Get all components implementing an interface from children.
+        /// </summary>
+        public static T[] GetInterfacesInChildren<T>(this GameObject target) where T : class
+        {
+            return target.GetComponentsInChildren<T>();
+        }
+        
+        /// <summary>
+        /// Check if a GameObject implements a specific interface.
+        /// </summary>
+        public static bool Implements<T>(this GameObject target) where T : class
+        {
+            return target.TryGetComponent<T>(out _);
+        }
+    }
+}

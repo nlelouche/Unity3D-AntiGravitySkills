@@ -1,0 +1,35 @@
+// =============================================================================
+// IPoolable.cs - Object Pool Lifecycle Interface
+// Part of: interface-driven-development skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Interfaces
+{
+    /// <summary>
+    /// Interface for objects managed by an object pool.
+    /// Implemented by: Projectiles, VFX, Enemies, Pickups, etc.
+    /// 
+    /// Allows the pool to properly reset and configure objects
+    /// without knowing their concrete types.
+    /// </summary>
+    public interface IPoolable
+    {
+        /// <summary>
+        /// Called when object is retrieved from pool.
+        /// Use to initialize/reset state for new use.
+        /// </summary>
+        void OnSpawnFromPool();
+        
+        /// <summary>
+        /// Called when object is returned to pool.
+        /// Use to cleanup, stop effects, reset state.
+        /// </summary>
+        void OnReturnToPool();
+        
+        /// <summary>
+        /// Request this object to be returned to its pool.
+        /// The object should call its pool's Return() method.
+        /// </summary>
+        void ReturnToPool();
+    }
+}

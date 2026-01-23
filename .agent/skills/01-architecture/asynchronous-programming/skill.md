@@ -1,39 +1,212 @@
 ---
-name: unity-asynchronous-programming
-description: Lead Architect for Non-Blocking Operations and Concurrency. Activate this skill for handling "loading sequences", "network/API calls", "gameplay timers", "heavy CPU calculations", or "Main Thread optimization".
+name: asynchronous-programming
+description: "Master async/await patterns in Unity. Handle loading, network requests, and non-blocking operations correctly."
+version: 1.0.0
+tags: ["architecture", "async", "await", "Task", "coroutines", "UniTask"]
+argument-hint: "operation='LoadScene' OR task='NetworkRequest'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
 ---
 
-# Asynchronous Programming (Agentic Production Standard)
+# Asynchronous Programming
 
-## ?? Context & Goal
-The objective is to ensure 60+ FPS gameplay by offloading time-consuming tasks from the Unity Main Thread without compromising memory safety. [cite_start]This skill mandates the use of **UniTask** and **async/await** patterns to eliminate frame stutters, managing the complex lifecycle of game objects and avoiding "zombie" background tasks through strict cancellation protocols[cite: 8].
+## Overview
+Handle long-running operations (loading, network, file I/O) without blocking the main thread. Master async/await patterns adapted for Unity's unique lifecycle.
 
-## ?? Thinking Process (Mandatory Internal Reasoning)
-[cite_start]Before generating any code, the agent MUST perform and document the following analysis to calibrate user trust[cite: 27]:
-1. **Task Classification**: Is the task I/O-bound (file/network) or CPU-bound (complex math)?
-2. **Context Awareness**: Does the task require returning to the Main Thread to interact with Unity's API (e.g., `Transform`, `GameObject`)?
-3. [cite_start]**Cancellation Strategy**: Identify the "Owner" of the task and determine which `CancellationToken` (e.g., `GetCancellationTokenOnDestroy`) will prevent memory leaks[cite: 88].
-4. [cite_start]**GC Pressure Assessment**: Verify if the operation minimizes heap allocations by using value-type `UniTask` instead of the standard `Task`.
+## When to Use
+- Use when loading assets or scenes
+- Use when making network/web requests
+- Use when performing file I/O
+- Use when waiting for user input with timeouts
+- Use when orchestrating sequential async operations
 
-## ??? Operational Procedure (Step-by-Step)
-1.  [cite_start]**Artifact Generation (Concurrency & Lifecycle Plan)**: Emit a structured plan detailing the task's entry point, wait points (`await`), and error-handling strategy before writing implementation code[cite: 32].
-2.  **UniTask Implementation**: Prioritize `UniTask` over C# `Task` for zero-allocation performance in Unity loops.
-3.  [cite_start]**Token Plumbing**: Pass a `CancellationToken` through every asynchronous method in the chain[cite: 89].
-4.  **Thread Migration**: For heavy calculations (e.g., City Builder economy or Horde pathfinding), use `await UniTask.RunOnThreadPool()` to offload work.
-5.  **Main Thread Re-entry**: Use `await UniTask.SwitchToMainThread()` before accessing any `UnityEngine` components.
+## Async Options in Unity
 
-## ?? Constraints & Prohibitions (Hard Rules)
-- **FORBIDDEN**: Using `async void`. You must use `async UniTaskVoid` for fire-and-forget or `async UniTask` for trackable tasks.
-- [cite_start]**FORBIDDEN**: Calling `.Result` or `.Wait()` on tasks, as this causes immediate deadlocks in the Unity Editor and Player[cite: 88].
-- **MANDATORY**: Wrap asynchronous blocks in `try-catch` and specifically handle `OperationCanceledException` to ensure clean task termination.
-- **MANDATORY**: Check `if (this == null)` or use the `CancellationToken` after every `await` point to ensure the object still exists before proceeding.
+| Approach | Best For | Unity Integration |
+|----------|----------|-------------------|
+| **Coroutines** | Simple delays, legacy code | Native `yield return` |
+| **async/await (Task)** | C# standard, complex flows | Requires care with main thread |
+| **UniTask** | Zero-allocation, Unity-optimized | Recommended for production |
 
-## ?? Artifact: Concurrency & Performance Audit
-[cite_start]The agent must verify the output against this checklist[cite: 30]:
-- [ ] **Memory Safety**: Is the task properly linked to the object's lifecycle via a `CancellationToken`?
-- [ ] **Zero-Allocation**: Is `UniTask` used instead of `Task` to avoid GC spikes?
-- [ ] **Fluidity**: Does the task avoid blocking the Main Thread for more than 1ms?
+## Key Patterns
 
-## ?? Few-Shot Examples
-- **User Input**: "Create a system that saves the game state to a file without freezing the screen."
-- **Agent Output**: Generates a **Concurrency Plan**, then implements a `public async UniTask SaveGameAsync(CancellationToken ct)` using `UniTask.RunOnThreadPool()` for serialization and `await File.WriteAllTextAsync(...)`.
+### Pattern 1: Coroutines (Legacy)
+```csharp
+IEnumerator LoadLevel()
+{
+    _loadingScreen.SetActive(true);
+    
+    yield return new WaitForSeconds(0.5f);
+    
+    var operation = SceneManager.LoadSceneAsync("Level1");
+    while (!operation.isDone)
+    {
+        _progressBar.value = operation.progress;
+        yield return null;
+    }
+}
+```
+
+### Pattern 2: async/await with Task
+```csharp
+async Task LoadLevelAsync()
+{
+    _loadingScreen.SetActive(true);
+    
+    await Task.Delay(500);
+    
+    var operation = SceneManager.LoadSceneAsync("Level1");
+    while (!operation.isDone)
+    {
+        _progressBar.value = operation.progress;
+        await Task.Yield();
+    }
+}
+```
+
+### Pattern 3: UniTask (Recommended)
+```csharp
+async UniTaskVoid LoadLevelAsync()
+{
+    _loadingScreen.SetActive(true);
+    
+    await UniTask.Delay(500);
+    
+    await SceneManager.LoadSceneAsync("Level1").ToUniTask(
+        Progress.Create<float>(p => _progressBar.value = p)
+    );
+}
+```
+
+## Best Practices
+- ✅ Use `CancellationToken` for cancellable operations
+- ✅ Handle exceptions with try/catch in async methods
+- ✅ Use `async void` ONLY for event handlers (prefer `async UniTaskVoid`)
+- ✅ Check `destroyCancellationToken` for MonoBehaviour lifetime
+- ✅ Consider UniTask for zero-allocation async
+- ❌ **NEVER** use `Task.Run` for Unity API calls (not thread-safe!)
+- ❌ **NEVER** forget to await async calls (fire-and-forget = silent errors)
+- ❌ **NEVER** block with `.Result` or `.Wait()` (causes deadlock)
+
+## Cancellation Pattern
+```csharp
+private CancellationTokenSource _cts;
+
+async void Start()
+{
+    _cts = new CancellationTokenSource();
+    
+    try
+    {
+        await LoadDataAsync(_cts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        Debug.Log("Operation cancelled");
+    }
+}
+
+void OnDestroy()
+{
+    _cts?.Cancel();
+    _cts?.Dispose();
+}
+
+async Task LoadDataAsync(CancellationToken token)
+{
+    token.ThrowIfCancellationRequested();
+    // ... async work
+}
+```
+
+## Coroutine vs Async Comparison
+
+| Feature | Coroutine | async/await |
+|---------|-----------|-------------|
+| Return values | No | Yes |
+| Exception handling | Limited | Full try/catch |
+| Cancellation | Manual flags | CancellationToken |
+| Composition | Difficult | Easy (await chain) |
+| Unit testing | Hard | Easy |
+| Allocations | WaitForSeconds allocates | Task allocates (UniTask = zero) |
+
+## Few-Shot Examples
+
+### Example 1: Sequential Loading
+**User**: "Load player data, then inventory, then spawn player."
+
+**Agent**:
+```csharp
+async UniTaskVoid InitializeGame()
+{
+    var playerData = await LoadPlayerDataAsync();
+    var inventory = await LoadInventoryAsync(playerData.Id);
+    await SpawnPlayerAsync(playerData, inventory);
+    
+    Debug.Log("Game initialized!");
+}
+```
+
+### Example 2: Parallel Loading
+**User**: "Load multiple assets simultaneously."
+
+**Agent**:
+```csharp
+async UniTask LoadAllAssets()
+{
+    var (textures, sounds, prefabs) = await UniTask.WhenAll(
+        LoadTexturesAsync(),
+        LoadSoundsAsync(),
+        LoadPrefabsAsync()
+    );
+}
+```
+
+### Example 3: Timeout Pattern
+**User**: "Network request with 5 second timeout."
+
+**Agent**:
+```csharp
+async UniTask<string> FetchWithTimeout(string url)
+{
+    var cts = new CancellationTokenSource();
+    cts.CancelAfter(TimeSpan.FromSeconds(5));
+    
+    try
+    {
+        return await FetchDataAsync(url, cts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        return "Request timed out";
+    }
+}
+```
+
+## Unity Main Thread Safety
+```csharp
+// BAD: Called from background thread
+Task.Run(() => 
+{
+    transform.position = Vector3.zero; // CRASH!
+});
+
+// GOOD: Return to main thread
+await UniTask.SwitchToMainThread();
+transform.position = Vector3.zero; // Safe
+```
+
+## Related Skills
+- `@advanced-game-bootstrapper` - Async initialization
+- `@addressables-asset-management` - Async asset loading
+- `@multiplayer-netcode` - Async network operations
+
+## Recommended Package
+```
+UniTask - https://github.com/Cysharp/UniTask
+```
+Zero-allocation async/await for Unity with full lifecycle integration.

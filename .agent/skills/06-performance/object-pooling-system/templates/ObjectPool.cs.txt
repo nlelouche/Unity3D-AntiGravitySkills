@@ -1,0 +1,181 @@
+// =============================================================================
+// ObjectPool.cs - Generic Object Pool Implementation
+// Template for high-performance object pooling with IPoolable support
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.Performance
+{
+    /// <summary>
+    /// Generic object pool for MonoBehaviours implementing IPoolable.
+    /// Eliminates GC allocations from Instantiate/Destroy cycles.
+    /// </summary>
+    public class ObjectPool<T> where T : MonoBehaviour, IPoolable
+    {
+        #region Private Fields
+        
+        private readonly T _prefab;
+        private readonly Queue<T> _available;
+        private readonly List<T> _active;
+        private readonly Transform _parent;
+        private readonly int _maxSize;
+        private readonly bool _expandable;
+        
+        #endregion
+        
+        #region Properties
+        
+        public int AvailableCount => _available.Count;
+        public int ActiveCount => _active.Count;
+        public int TotalCount => AvailableCount + ActiveCount;
+        
+        #endregion
+        
+        #region Constructor
+        
+        /// <summary>
+        /// Creates a new object pool.
+        /// </summary>
+        public ObjectPool(T prefab, int initialSize, Transform parent = null, 
+            int maxSize = 100, bool expandable = true)
+        {
+            _prefab = prefab;
+            _parent = parent;
+            _maxSize = maxSize;
+            _expandable = expandable;
+            _available = new Queue<T>(initialSize);
+            _active = new List<T>(initialSize);
+            
+            WarmUp(initialSize);
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Gets an object from the pool at the specified position.
+        /// </summary>
+        public T Get(Vector3 position, Quaternion rotation)
+        {
+            T obj = GetFromPool();
+            
+            if (obj == null) return null;
+            
+            obj.transform.SetPositionAndRotation(position, rotation);
+            obj.gameObject.SetActive(true);
+            obj.OnSpawn();
+            _active.Add(obj);
+            
+            return obj;
+        }
+        
+        /// <summary>
+        /// Gets an object from the pool.
+        /// </summary>
+        public T Get()
+        {
+            return Get(Vector3.zero, Quaternion.identity);
+        }
+        
+        /// <summary>
+        /// Returns an object to the pool.
+        /// </summary>
+        public void Return(T obj)
+        {
+            if (obj == null) return;
+            
+            obj.OnDespawn();
+            obj.gameObject.SetActive(false);
+            obj.transform.SetParent(_parent);
+            
+            _active.Remove(obj);
+            _available.Enqueue(obj);
+        }
+        
+        /// <summary>
+        /// Returns all active objects to the pool.
+        /// </summary>
+        public void ReturnAll()
+        {
+            for (int i = _active.Count - 1; i >= 0; i--)
+            {
+                Return(_active[i]);
+            }
+        }
+        
+        /// <summary>
+        /// Pre-warms the pool with inactive objects.
+        /// </summary>
+        public void WarmUp(int count)
+        {
+            for (int i = 0; i < count && TotalCount < _maxSize; i++)
+            {
+                CreateInstance();
+            }
+        }
+        
+        /// <summary>
+        /// Clears all pooled objects (destroys them).
+        /// </summary>
+        public void Clear()
+        {
+            ReturnAll();
+            
+            while (_available.Count > 0)
+            {
+                var obj = _available.Dequeue();
+                UnityEngine.Object.Destroy(obj.gameObject);
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private T GetFromPool()
+        {
+            if (_available.Count > 0)
+            {
+                return _available.Dequeue();
+            }
+            
+            if (_expandable && TotalCount < _maxSize)
+            {
+                return CreateInstance();
+            }
+            
+            Debug.LogWarning($"Pool exhausted: {typeof(T).Name}");
+            return null;
+        }
+        
+        private T CreateInstance()
+        {
+            T obj = UnityEngine.Object.Instantiate(_prefab, _parent);
+            obj.gameObject.SetActive(false);
+            _available.Enqueue(obj);
+            return obj;
+        }
+        
+        #endregion
+    }
+    
+    #region Interfaces
+    
+    /// <summary>
+    /// Interface for poolable objects with spawn/despawn lifecycle.
+    /// </summary>
+    public interface IPoolable
+    {
+        /// <summary>Called when object is retrieved from pool.</summary>
+        void OnSpawn();
+        
+        /// <summary>Called when object is returned to pool.</summary>
+        void OnDespawn();
+    }
+    
+    #endregion
+}

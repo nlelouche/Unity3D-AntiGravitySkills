@@ -1,0 +1,148 @@
+---
+name: audio-soundscape-architect
+description: "Unity audio system specialist for immersive soundscapes, music, and audio management."
+version: 1.0.0
+tags: ["audio", "sound", "music", "AudioMixer", "FMOD", "Wwise"]
+argument-hint: "sound_type='sfx' OR mixer_group='Music' ducking='true'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
+---
+
+# Audio & Soundscape Architect
+
+## Overview
+Unity audio systems for immersive soundscapes. Covers AudioSource, AudioMixer, spatial audio, and integration with middleware (FMOD, Wwise).
+
+## When to Use
+- Use when implementing game audio systems
+- Use when setting up spatial 3D audio
+- Use when creating AudioMixer setups
+- Use when managing music transitions
+- Use when optimizing audio performance
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AUDIO SYSTEM                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  AUDIO SOURCES         AUDIO MIXER         OUTPUT           │
+│  ┌──────────┐         ┌──────────┐        ┌──────────┐     │
+│  │ SFX      │────────▶│ SFX Group│───────▶│          │     │
+│  │ Music    │────────▶│Music Grp │───────▶│  Master  │     │
+│  │ Ambient  │────────▶│Ambient Gr│───────▶│          │     │
+│  │ Voice    │────────▶│Voice Grp │───────▶│          │     │
+│  └──────────┘         └──────────┘        └──────────┘     │
+│                             │                               │
+│                       [Effects]                             │
+│                    Lowpass, Reverb                          │
+│                    Ducking, Compress                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Audio Categories
+
+| Category | Use | Settings |
+|----------|-----|----------|
+| **SFX** | One-shot effects | 2D/3D, pooled |
+| **Music** | Background tracks | Loop, crossfade |
+| **Ambient** | Environment | 3D spatial, loop |
+| **Voice** | Dialogue, narration | Priority, ducking |
+| **UI** | Interface feedback | 2D, low latency |
+
+## AudioMixer Best Practices
+
+| Feature | Purpose |
+|---------|---------|
+| **Groups** | Organize audio types |
+| **Snapshots** | Preset mixer states |
+| **Ducking** | Lower music during dialogue |
+| **Exposed Parameters** | Runtime volume control |
+| **Send/Receive** | Shared effects (reverb) |
+
+## Best Practices
+- ✅ Use object pooling for frequent SFX
+- ✅ Use AudioMixer groups for volume control
+- ✅ Compress audio appropriately (Vorbis/ADPCM)
+- ✅ Use spatial blend for 3D positioning
+- ✅ Implement audio occlusion for realism
+- ❌ **NEVER** load all audio at startup
+- ❌ **NEVER** use uncompressed audio for large files
+- ❌ **NEVER** skip AudioMixer for direct volume
+
+## Few-Shot Examples
+
+### Example 1: Audio Manager Setup
+**User**: "Create a simple audio manager."
+
+**Agent**:
+```csharp
+public class AudioManager : MonoBehaviour
+{
+    [SerializeField] private AudioMixerGroup _sfxGroup;
+    [SerializeField] private AudioMixerGroup _musicGroup;
+    
+    public void PlaySFX(AudioClip clip, Vector3 position)
+    {
+        var source = GetPooledSource();
+        source.clip = clip;
+        source.outputAudioMixerGroup = _sfxGroup;
+        source.transform.position = position;
+        source.Play();
+    }
+}
+```
+
+### Example 2: Music Crossfade
+**User**: "Fade between music tracks."
+
+**Agent**:
+```csharp
+public async UniTask CrossfadeMusic(AudioClip newTrack, float duration)
+{
+    var fadeOut = _currentSource.DOFade(0, duration).ToUniTask();
+    _nextSource.clip = newTrack;
+    _nextSource.volume = 0;
+    _nextSource.Play();
+    var fadeIn = _nextSource.DOFade(1, duration).ToUniTask();
+    await UniTask.WhenAll(fadeOut, fadeIn);
+    (_currentSource, _nextSource) = (_nextSource, _currentSource);
+}
+```
+
+### Example 3: Ducking Setup
+**User**: "Lower music during dialogue."
+
+**Agent**:
+```
+AudioMixer setup:
+1. Create "Ducking" snapshot
+2. Lower Music group by -10dB
+3. Expose "MusicVolume" parameter
+
+Code:
+_mixer.TransitionToSnapshots(
+    new[] { duckingSnapshot }, 
+    new[] { 1f }, 
+    0.3f);
+```
+
+## Middleware Comparison
+
+| Feature | Unity Audio | FMOD | Wwise |
+|---------|:-----------:|:----:|:-----:|
+| Cost | Free | Indie free | $$ |
+| Ease | Easy | Medium | Advanced |
+| Features | Basic | Rich | Enterprise |
+| 3D Audio | Good | Excellent | Excellent |
+
+## Related Skills
+- `@juice-game-feel` - Audio feedback
+- `@vfx-graph-shuriken` - Audio-reactive VFX
+- `@scriptableobject-architecture` - Audio event SO

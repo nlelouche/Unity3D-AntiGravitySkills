@@ -1,7 +1,9 @@
 ---
 name: unity-build-commander
-description: Executes a headless Unity build for the target platform (Windows/Android/iOS), parses the Editor.log for compilation errors, and reports the build status. Use this when the user asks to "build the game" or "check for compile errors".
-argument-hint: "target='StandaloneWindows64' build_path='Builds/Win64'"
+description: "Executes a headless Unity build for the target platform (Windows/Android/iOS), parses the Editor.log for compilation errors, and reports the build status. Use this when the user asks to "build the game" or "check for compile errors"."
+version: 1.0.0
+tags: []
+argument-hint: target='StandaloneWindows64' build_path='Builds/Win64'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,13 @@ allowed-tools:
 
 ## Goal
 To autonomously execute a Unity build process via the CLI, capture the output logs, parse them for errors, and provide a definitive success/failure report. This allows the agent to verify its own code changes.
+
+## When to Use
+- Use when automated builds
+- Use when CI/CD
+- Use when build pipeline
+- Use when custom inspectors
+- Use when editor windows
 
 ## Constraints
 - **Safety**: Do not overwrite critical project settings files.

@@ -1,0 +1,100 @@
+// =============================================================================
+// UnitTestsTemplate.cs - NUnit Test Templates
+// Examples for both EditMode (Logic) and PlayMode (Integration) tests
+// =============================================================================
+
+using System.Collections;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace YourGame.Tests
+{
+    /// <summary>
+    /// EDIT MODE SPECIFIC
+    /// Tests pure C# logic without needing the Unity Runtime.
+    /// Fast, synchronous, good for algorithms and state machines.
+    /// </summary>
+    public class EditModeLogicTests
+    {
+        [Test]
+        public void CalculateDamage_MultiplierApplied_ReturnsCorrectValue()
+        {
+            // Arrange
+            float baseDamage = 10f;
+            float multiplier = 2.5f;
+            
+            // Act
+            float result = baseDamage * multiplier; // Replace with actual method call
+            
+            // Assert
+            Assert.AreEqual(25f, result);
+        }
+
+        [TestCase(100, 10, 90)]
+        [TestCase(50, 50, 0)]
+        public void Health_TakeDamage_UpdatesCurrentHealth(int initial, int damage, int expected)
+        {
+            // Arrange
+            // var health = new HealthComponent(initial);
+            
+            // Act
+            // health.TakeDamage(damage);
+            
+            // Assert
+            // Assert.AreEqual(expected, health.CurrentHealth);
+        }
+    }
+
+    /// <summary>
+    /// PLAY MODE SPECIFIC
+    /// Tests MonoBehaviours, Physics, Coroutines, and Engine features.
+    /// Slower, real-time, good for integration testing.
+    /// </summary>
+    public class PlayModeIntegrationTests
+    {
+        private GameObject _testObject;
+
+        [SetUp]
+        public void Setup()
+        {
+            // Created before each test
+            _testObject = new GameObject("TestObject");
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            // Cleaned up after each test
+            if (_testObject != null)
+            {
+                Object.Destroy(_testObject);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator Physics_Gravity_MovesObjectDown()
+        {
+            // Arrange
+            var rb = _testObject.AddComponent<Rigidbody>();
+            rb.useGravity = true;
+            Vector3 startPos = _testObject.transform.position;
+
+            // Act
+            yield return new WaitForSeconds(0.5f); // Simulate physics time
+
+            // Assert
+            Assert.Less(_testObject.transform.position.y, startPos.y);
+        }
+
+        [UnityTest]
+        public IEnumerator AsyncOperation_CompletesFunctionally()
+        {
+            // Act
+            yield return null; // Wait one frame
+            
+            // Assert
+            Assert.Pass(); // Verify async operation completion
+        }
+    }
+}

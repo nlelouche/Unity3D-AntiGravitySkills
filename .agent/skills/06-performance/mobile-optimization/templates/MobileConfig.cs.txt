@@ -1,20 +1,240 @@
+// =============================================================================
+// MobileConfig.cs - Mobile Performance Configuration
+// Template for mobile-specific optimization settings
+// =============================================================================
+
 using UnityEngine;
 
-namespace {NAMESPACE}
+namespace YourGame.Performance
 {
-    public class {CLASS_NAME} : MonoBehaviour
+    /// <summary>
+    /// Mobile performance configuration manager.
+    /// Handles framerate, resolution, and quality settings for mobile devices.
+    /// </summary>
+    public class MobileConfig : MonoBehaviour
     {
-        [SerializeField] private int _targetFrameRate = 60;
-        [SerializeField] private bool _vSync = false;
-        [SerializeField] private int _sleepTimeout = SleepTimeout.NeverSleep;
-
-        private void Start()
+        #region Serialized Fields
+        
+        [Header("Frame Rate")]
+        [SerializeField] private int _targetFPS = 60;
+        [SerializeField] private bool _adaptiveFPS = true;
+        [SerializeField] private int _lowEndFPS = 30;
+        
+        [Header("Resolution")]
+        [SerializeField, Range(0.5f, 1f)] private float _resolutionScale = 1f;
+        [SerializeField] private bool _dynamicResolution = true;
+        
+        [Header("Quality")]
+        [SerializeField] private QualityPreset _defaultPreset = QualityPreset.Medium;
+        [SerializeField] private bool _autoDetectQuality = true;
+        
+        [Header("Battery")]
+        [SerializeField] private bool _batterySaverAvailable = true;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private static MobileConfig _instance;
+        private QualityPreset _currentPreset;
+        private bool _batterySaverEnabled;
+        
+        #endregion
+        
+        #region Properties
+        
+        public static MobileConfig Instance => _instance;
+        public QualityPreset CurrentPreset => _currentPreset;
+        public bool BatterySaverEnabled => _batterySaverEnabled;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
         {
-            Application.targetFrameRate = _targetFrameRate;
-            QualitySettings.vSyncCount = _vSync ? 1 : 0;
-            Screen.sleepTimeout = _sleepTimeout;
-            
-            Debug.Log($"Mobile Settings Applied: {_targetFrameRate} FPS");
+            var go = new GameObject("[MobileConfig]");
+            _instance = go.AddComponent<MobileConfig>();
+            DontDestroyOnLoad(go);
         }
+        
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            _instance = this;
+            LoadSettings();
+            ApplySettings();
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Sets the quality preset.
+        /// </summary>
+        public void SetQuality(QualityPreset preset)
+        {
+            _currentPreset = preset;
+            
+            switch (preset)
+            {
+                case QualityPreset.Low:
+                    ApplyLowQuality();
+                    break;
+                case QualityPreset.Medium:
+                    ApplyMediumQuality();
+                    break;
+                case QualityPreset.High:
+                    ApplyHighQuality();
+                    break;
+            }
+            
+            SaveSettings();
+        }
+        
+        /// <summary>
+        /// Enables or disables battery saver mode.
+        /// </summary>
+        public void SetBatterySaver(bool enabled)
+        {
+            _batterySaverEnabled = enabled;
+            
+            if (enabled)
+            {
+                Application.targetFrameRate = _lowEndFPS;
+                SetResolutionScale(0.7f);
+                Screen.brightness = 0.5f;
+            }
+            else
+            {
+                ApplySettings();
+                Screen.brightness = 1f;
+            }
+            
+            SaveSettings();
+        }
+        
+        /// <summary>
+        /// Sets the target frame rate.
+        /// </summary>
+        public void SetTargetFPS(int fps)
+        {
+            _targetFPS = fps;
+            Application.targetFrameRate = fps;
+        }
+        
+        /// <summary>
+        /// Sets the resolution scale (0.5 - 1.0).
+        /// </summary>
+        public void SetResolutionScale(float scale)
+        {
+            _resolutionScale = Mathf.Clamp(scale, 0.5f, 1f);
+            
+            int width = (int)(Screen.currentResolution.width * _resolutionScale);
+            int height = (int)(Screen.currentResolution.height * _resolutionScale);
+            Screen.SetResolution(width, height, true);
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void ApplySettings()
+        {
+            Application.targetFrameRate = _targetFPS;
+            
+            if (_resolutionScale < 1f)
+            {
+                SetResolutionScale(_resolutionScale);
+            }
+            
+            if (_autoDetectQuality)
+            {
+                AutoDetectQuality();
+            }
+            else
+            {
+                SetQuality(_defaultPreset);
+            }
+        }
+        
+        private void AutoDetectQuality()
+        {
+            int systemMemory = SystemInfo.systemMemorySize;
+            int shaderLevel = SystemInfo.graphicsShaderLevel;
+            
+            if (systemMemory >= 4096 && shaderLevel >= 45)
+            {
+                SetQuality(QualityPreset.High);
+            }
+            else if (systemMemory >= 2048 && shaderLevel >= 35)
+            {
+                SetQuality(QualityPreset.Medium);
+            }
+            else
+            {
+                SetQuality(QualityPreset.Low);
+            }
+        }
+        
+        private void ApplyLowQuality()
+        {
+            QualitySettings.SetQualityLevel(0);
+            Application.targetFrameRate = _lowEndFPS;
+            SetResolutionScale(0.75f);
+            QualitySettings.shadows = ShadowQuality.Disable;
+            QualitySettings.antiAliasing = 0;
+        }
+        
+        private void ApplyMediumQuality()
+        {
+            QualitySettings.SetQualityLevel(2);
+            Application.targetFrameRate = _targetFPS;
+            SetResolutionScale(0.85f);
+            QualitySettings.shadows = ShadowQuality.HardOnly;
+            QualitySettings.antiAliasing = 0;
+        }
+        
+        private void ApplyHighQuality()
+        {
+            QualitySettings.SetQualityLevel(4);
+            Application.targetFrameRate = _targetFPS;
+            SetResolutionScale(1f);
+            QualitySettings.shadows = ShadowQuality.All;
+            QualitySettings.antiAliasing = 2;
+        }
+        
+        private void SaveSettings()
+        {
+            PlayerPrefs.SetInt("QualityPreset", (int)_currentPreset);
+            PlayerPrefs.SetInt("BatterySaver", _batterySaverEnabled ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+        
+        private void LoadSettings()
+        {
+            _currentPreset = (QualityPreset)PlayerPrefs.GetInt("QualityPreset", (int)_defaultPreset);
+            _batterySaverEnabled = PlayerPrefs.GetInt("BatterySaver", 0) == 1;
+        }
+        
+        #endregion
     }
+    
+    #region Enums
+    
+    public enum QualityPreset
+    {
+        Low,
+        Medium,
+        High
+    }
+    
+    #endregion
 }

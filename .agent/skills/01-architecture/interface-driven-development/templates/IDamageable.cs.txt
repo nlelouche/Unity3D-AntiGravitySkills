@@ -1,0 +1,39 @@
+// =============================================================================
+// IDamageable.cs - Common Interface Example
+// Part of: interface-driven-development skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Interfaces
+{
+    /// <summary>
+    /// Interface for any entity that can receive damage.
+    /// Implemented by: Player, Enemy, DestructibleWall, Barrel, etc.
+    /// 
+    /// This is the canonical example of Interface-Driven Development:
+    /// The weapon doesn't care WHAT it's hitting, only that it CAN be damaged.
+    /// </summary>
+    public interface IDamageable
+    {
+        /// <summary>
+        /// Current health of the entity.
+        /// </summary>
+        float CurrentHealth { get; }
+        
+        /// <summary>
+        /// Maximum health of the entity.
+        /// </summary>
+        float MaxHealth { get; }
+        
+        /// <summary>
+        /// Whether the entity is still alive.
+        /// </summary>
+        bool IsAlive { get; }
+        
+        /// <summary>
+        /// Apply damage to this entity.
+        /// </summary>
+        /// <param name="amount">Amount of damage to apply.</param>
+        /// <param name="damageSource">Optional source of the damage for feedback.</param>
+        void TakeDamage(float amount, UnityEngine.GameObject damageSource = null);
+    }
+}

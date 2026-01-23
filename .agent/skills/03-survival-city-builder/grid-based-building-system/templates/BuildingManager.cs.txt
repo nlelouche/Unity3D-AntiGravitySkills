@@ -1,0 +1,126 @@
+// =============================================================================
+// BuildingManager.cs - Grid Placement System
+// Template for placing prefabs on a virtual grid
+// =============================================================================
+
+using UnityEngine;
+
+namespace YourGame.Construction
+{
+    public class BuildingManager : MonoBehaviour
+    {
+        #region Settings
+        
+        [Header("Grid Settings")]
+        [SerializeField] private float _cellSize = 1.0f;
+        [SerializeField] private LayerMask _groundLayer;
+        [SerializeField] private LayerMask _obstacleLayer;
+        
+        [Header("Preview")]
+        [SerializeField] private Material _validMat;
+        [SerializeField] private Material _invalidMat;
+        
+        #endregion
+        
+        #region State
+        
+        private GameObject _activeGhost;
+        private bool _isValidPlacement;
+        private GameObject _currentPrefab;
+        
+        #endregion
+        
+        private void Update()
+        {
+            if (_activeGhost == null) return;
+            
+            HandleGhostMovement();
+            HandleClick();
+            HandleRotation();
+        }
+        
+        public void SetBuildingPrefab(GameObject prefab)
+        {
+            if (_activeGhost != null) Destroy(_activeGhost);
+            
+            _currentPrefab = prefab;
+            _activeGhost = Instantiate(prefab);
+            
+            // Strip colliders/physics from ghost for visualization only
+            // (In a real implementation, you'd swap materials here)
+        }
+        
+        private void HandleGhostMovement()
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, _groundLayer))
+            {
+                Vector3 gridPos = GetGridPosition(hit.point);
+                _activeGhost.transform.position = gridPos;
+                
+                _isValidPlacement = CheckValidity(gridPos);
+                UpdateGhostVisuals();
+            }
+        }
+        
+        private void HandleClick()
+        {
+            if (Input.GetMouseButtonDown(0) && _isValidPlacement)
+            {
+                PlaceBuilding();
+            }
+            
+            if (Input.GetMouseButtonDown(1))
+            {
+                CancelBuild();
+            }
+        }
+        
+        private void HandleRotation()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                _activeGhost.transform.Rotate(0, 90, 0);
+            }
+        }
+        
+        private Vector3 GetGridPosition(Vector3 worldPos)
+        {
+            int x = Mathf.FloorToInt(worldPos.x / _cellSize);
+            int z = Mathf.FloorToInt(worldPos.z / _cellSize);
+            
+            return new Vector3(x * _cellSize + (_cellSize * 0.5f), 0, z * _cellSize + (_cellSize * 0.5f));
+        }
+        
+        private bool CheckValidity(Vector3 targetPos)
+        {
+            // Simple overlap check (Sphere)
+            // Ideally, use a Grid Data Structure [,] for strict checks
+            return !Physics.CheckSphere(targetPos, _cellSize * 0.4f, _obstacleLayer);
+        }
+        
+        private void UpdateGhostVisuals()
+        {
+            // Simplified material swap logic
+            var renderers = _activeGhost.GetComponentsInChildren<Renderer>();
+            foreach (var r in renderers)
+            {
+                r.material = _isValidPlacement ? _validMat : _invalidMat;
+            }
+        }
+        
+        private void PlaceBuilding()
+        {
+            Instantiate(_currentPrefab, _activeGhost.transform.position, _activeGhost.transform.rotation);
+            // Resource deduction would go here
+            // Grid Data update would go here
+        }
+        
+        private void CancelBuild()
+        {
+            if (_activeGhost != null) Destroy(_activeGhost);
+            _activeGhost = null;
+            _currentPrefab = null;
+        }
+    }
+}

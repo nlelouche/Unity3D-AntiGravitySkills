@@ -1,7 +1,9 @@
 ---
 name: ui-toolkit-architect
-description: Generates UI Toolkit assets (UXML, USS) and C# Controllers following MVVM. Use when creating "menus", "HUDs", or "interface panels".
-argument-hint: "panel_name='MainMenu' namespace='Game.UI'"
+description: "Generates UI Toolkit assets (UXML, USS) and C# Controllers following MVVM. Use when creating "menus", "HUDs", or "interface panels"."
+version: 1.0.0
+tags: []
+argument-hint: panel_name='MainMenu' namespace='Game.UI'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,13 @@ allowed-tools:
 # UI Toolkit Architect
 
 ## Goal
+
+## When to Use
+- Use when defining contracts between systems
+- Use when implementing dependency injection
+- Use when creating testable code
+- Use when menu systems
+- Use when UI navigation
 To create modern, scalable user interfaces using Unity's **UI Toolkit**. We strictly separate structure (UXML), style (USS), and logic (C# Controller/ViewModel).
 
 ## Architecture: MVVM (Model-View-ViewModel)

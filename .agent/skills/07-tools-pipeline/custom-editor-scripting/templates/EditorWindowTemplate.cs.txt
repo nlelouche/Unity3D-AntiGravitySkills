@@ -1,0 +1,150 @@
+// =============================================================================
+// EditorWindowTemplate.cs - Custom Editor Window Base
+// Template for creating professional Unity Editor tools
+// =============================================================================
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEngine;
+
+namespace YourGame.Editor
+{
+    /// <summary>
+    /// Base template for custom Editor Windows.
+    /// Includes styling, serialization, and common UI patterns.
+    /// </summary>
+    public class EditorWindowTemplate : EditorWindow
+    {
+        #region Serialized Fields
+        
+        [SerializeField] private string _toolName = "New Tool";
+        [SerializeField] private float _scale = 1.0f;
+        [SerializeField] private Color _color = Color.white;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private SerializedObject _serializedObject;
+        private Vector2 _scrollPosition;
+        private GUIStyle _headerStyle;
+        
+        #endregion
+        
+        #region Menu Item
+        
+        [MenuItem("Tools/YourGame/Template Window")]
+        public static void ShowWindow()
+        {
+            var window = GetWindow<EditorWindowTemplate>("Template Tool");
+            window.minSize = new Vector2(300, 400);
+        }
+        
+        #endregion
+        
+        #region Lifecycle
+        
+        private void OnEnable()
+        {
+            // Wrap this window class in a serialized object to allow easy PropertyField usage
+            _serializedObject = new SerializedObject(this);
+            
+            SetupStyles();
+        }
+        
+        private void SetupStyles()
+        {
+            _headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 18,
+                alignment = TextAnchor.MiddleCenter,
+                margin = new RectOffset(0, 0, 10, 10)
+            };
+        }
+        
+        #endregion
+        
+        #region GUI
+        
+        private void OnGUI()
+        {
+            // Update serialized object
+            _serializedObject.Update();
+            
+            DrawHeader();
+            DrawScrollArea();
+            DrawActionButtons();
+            
+            // Apply changes
+            _serializedObject.ApplyModifiedProperties();
+        }
+        
+        private void DrawHeader()
+        {
+            GUILayout.Space(10);
+            GUILayout.Label("Tool Header", _headerStyle);
+            EditorGUILayout.HelpBox("This is a template for creating custom tools.", MessageType.Info);
+            GUILayout.Space(10);
+        }
+        
+        private void DrawScrollArea()
+        {
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+            
+            EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
+            
+            // Using SerializedProperties handles Undo/Redo automatically
+            EditorGUILayout.PropertyField(_serializedObject.FindProperty("_toolName"));
+            EditorGUILayout.PropertyField(_serializedObject.FindProperty("_scale"));
+            EditorGUILayout.PropertyField(_serializedObject.FindProperty("_color"));
+            
+            GUILayout.Space(20);
+            
+            EditorGUILayout.EndScrollView();
+        }
+        
+        private void DrawActionButtons()
+        {
+            GUILayout.FlexibleSpace();
+            
+            EditorGUILayout.BeginHorizontal();
+            
+            if (GUILayout.Button("Reset", GUILayout.Height(30)))
+            {
+                ResetSettings();
+            }
+            
+            GUI.backgroundColor = Color.green;
+            if (GUILayout.Button("Process", GUILayout.Height(30)))
+            {
+                RunToolLogic();
+            }
+            GUI.backgroundColor = Color.white;
+            
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(10);
+        }
+        
+        #endregion
+        
+        #region Logic
+        
+        private void ResetSettings()
+        {
+            Undo.RecordObject(this, "Reset Tool");
+            _toolName = "New Tool";
+            _scale = 1.0f;
+            _color = Color.white;
+            Debug.Log("Settings reset.");
+        }
+        
+        private void RunToolLogic()
+        {
+            Debug.Log($"Processing '{_toolName}' with Scale {_scale}");
+            // Add your tool logic here
+        }
+        
+        #endregion
+    }
+}
+#endif

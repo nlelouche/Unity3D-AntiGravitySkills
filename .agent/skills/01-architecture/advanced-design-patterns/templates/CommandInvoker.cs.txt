@@ -1,0 +1,106 @@
+// =============================================================================
+// CommandInvoker.cs - Command Pattern Invoker Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Patterns.Command
+{
+    /// <summary>
+    /// Command Invoker: Manages command execution and undo/redo history.
+    /// </summary>
+    public class CommandInvoker : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private int _maxHistorySize = 100;
+
+        private readonly Stack<IReversibleCommand> _undoStack = new Stack<IReversibleCommand>();
+        private readonly Stack<IReversibleCommand> _redoStack = new Stack<IReversibleCommand>();
+
+        /// <summary>
+        /// Execute a command and add to history if reversible.
+        /// </summary>
+        public void ExecuteCommand(ICommand command)
+        {
+            command.Execute();
+
+            // Add to undo stack if reversible
+            if (command is IReversibleCommand reversible)
+            {
+                _undoStack.Push(reversible);
+                
+                // Clear redo stack on new command
+                _redoStack.Clear();
+
+                // Enforce max history size
+                while (_undoStack.Count > _maxHistorySize)
+                {
+                    // Remove oldest (bottom of stack) - requires converting to list
+                    TrimOldestUndo();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Undo the last reversible command.
+        /// </summary>
+        public void Undo()
+        {
+            if (_undoStack.Count == 0)
+            {
+                Debug.Log("[CommandInvoker] Nothing to undo.");
+                return;
+            }
+
+            var command = _undoStack.Pop();
+            if (command.CanUndo)
+            {
+                command.Undo();
+                _redoStack.Push(command);
+            }
+        }
+
+        /// <summary>
+        /// Redo the last undone command.
+        /// </summary>
+        public void Redo()
+        {
+            if (_redoStack.Count == 0)
+            {
+                Debug.Log("[CommandInvoker] Nothing to redo.");
+                return;
+            }
+
+            var command = _redoStack.Pop();
+            command.Execute();
+            _undoStack.Push(command);
+        }
+
+        /// <summary>
+        /// Clear all command history.
+        /// </summary>
+        public void ClearHistory()
+        {
+            _undoStack.Clear();
+            _redoStack.Clear();
+        }
+
+        public bool CanUndo => _undoStack.Count > 0;
+        public bool CanRedo => _redoStack.Count > 0;
+        public int UndoCount => _undoStack.Count;
+        public int RedoCount => _redoStack.Count;
+
+        private void TrimOldestUndo()
+        {
+            // Convert to array, remove first element, rebuild stack
+            var commands = _undoStack.ToArray();
+            _undoStack.Clear();
+            for (int i = commands.Length - 2; i >= 0; i--)
+            {
+                _undoStack.Push(commands[i]);
+            }
+        }
+    }
+}

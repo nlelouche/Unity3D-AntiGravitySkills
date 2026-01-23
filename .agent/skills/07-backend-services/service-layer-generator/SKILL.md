@@ -1,7 +1,9 @@
 ---
 name: service-layer-generator
-description: Generates Backend Service interfaces and implementations. Use to "create auth service", "mock network layer", or "add playfab service".
-argument-hint: "service_name='AuthService' namespace='Game.Services'"
+description: "Generates Backend Service interfaces and implementations. Use to "create auth service", "mock network layer", or "add playfab service"."
+version: 1.0.0
+tags: []
+argument-hint: service_name='AuthService' namespace='Game.Services'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,13 @@ allowed-tools:
 
 ## Goal
 To decouple game logic from external APIs (PlayFab, Firebase, Custom Backend). We generate an **Interface** (`IService`) and an **Implementation** (`Service`) that can be injected via VContainer.
+
+## When to Use
+- Use when defining contracts between systems
+- Use when implementing dependency injection
+- Use when creating testable code
+- Use when PlayFab integration
+- Use when backend services
 
 ## Architecture
 - **Interface**: Defines *what* the service does.

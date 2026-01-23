@@ -1,0 +1,69 @@
+// =============================================================================
+// Repository.cs - Repository Pattern Template
+// Part of: oop-patterns-architect skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+
+namespace {{NAMESPACE}}.Domain
+{
+    /// <summary>
+    /// Generic repository interface.
+    /// Abstracts data access from domain logic.
+    /// </summary>
+    public interface IRepository<T, TId> where T : class
+    {
+        T GetById(TId id);
+        IEnumerable<T> GetAll();
+        void Add(T entity);
+        void Update(T entity);
+        void Delete(TId id);
+        bool Exists(TId id);
+    }
+
+    /// <summary>
+    /// In-memory repository implementation.
+    /// Useful for testing and prototyping.
+    /// </summary>
+    public class InMemoryRepository<T, TId> : IRepository<T, TId> where T : class
+    {
+        private readonly Dictionary<TId, T> _store = new();
+        private readonly Func<T, TId> _idSelector;
+        
+        public InMemoryRepository(Func<T, TId> idSelector)
+        {
+            _idSelector = idSelector;
+        }
+        
+        public T GetById(TId id)
+        {
+            return _store.TryGetValue(id, out var entity) ? entity : null;
+        }
+        
+        public IEnumerable<T> GetAll() => _store.Values;
+        
+        public void Add(T entity)
+        {
+            var id = _idSelector(entity);
+            if (_store.ContainsKey(id))
+                throw new InvalidOperationException($"Entity with ID {id} already exists");
+            _store[id] = entity;
+        }
+        
+        public void Update(T entity)
+        {
+            var id = _idSelector(entity);
+            if (!_store.ContainsKey(id))
+                throw new InvalidOperationException($"Entity with ID {id} not found");
+            _store[id] = entity;
+        }
+        
+        public void Delete(TId id)
+        {
+            _store.Remove(id);
+        }
+        
+        public bool Exists(TId id) => _store.ContainsKey(id);
+    }
+}

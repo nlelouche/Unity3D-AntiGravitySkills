@@ -1,0 +1,216 @@
+// =============================================================================
+// AbilityManager.cs - Main Ability Controller
+// Part of: ability-skill-system skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Abilities
+{
+    /// <summary>
+    /// Main controller for a character's abilities.
+    /// Manages cooldowns, resource costs, and ability slots.
+    /// </summary>
+    public class AbilityManager : MonoBehaviour, IResourceProvider
+    {
+        [Header("Ability Slots")]
+        [SerializeField] private AbilitySlot[] _abilitySlots;
+        
+        [Header("Resources")]
+        [SerializeField] private float _maxMana = 100f;
+        [SerializeField] private float _manaRegenRate = 5f;
+        
+        private Dictionary<string, float> _cooldowns = new();
+        private Dictionary<ResourceType, float> _resources = new();
+        
+        public event Action<AbilityDataSO, float> OnCooldownStarted;
+        public event Action<AbilityDataSO> OnCooldownFinished;
+        public event Action<ResourceType, float, float> OnResourceChanged;
+
+        private void Awake()
+        {
+            InitializeResources();
+        }
+
+        private void Update()
+        {
+            UpdateCooldowns();
+            RegenerateMana();
+        }
+
+        private void InitializeResources()
+        {
+            _resources[ResourceType.Mana] = _maxMana;
+            _resources[ResourceType.Energy] = 100f;
+            _resources[ResourceType.Stamina] = 100f;
+        }
+
+        /// <summary>
+        /// Try to use an ability from a specific slot.
+        /// </summary>
+        public bool TryUseAbility(int slotIndex, AbilityContext context)
+        {
+            if (slotIndex < 0 || slotIndex >= _abilitySlots.Length) return false;
+            
+            var slot = _abilitySlots[slotIndex];
+            if (slot.AbilityData == null) return false;
+            
+            return TryUseAbility(slot.AbilityData, context);
+        }
+
+        /// <summary>
+        /// Try to use a specific ability.
+        /// </summary>
+        public bool TryUseAbility(AbilityDataSO ability, AbilityContext context)
+        {
+            // Check cooldown
+            if (IsOnCooldown(ability))
+            {
+                Debug.Log($"[AbilityManager] {ability.DisplayName} is on cooldown");
+                return false;
+            }
+            
+            // Check and spend costs
+            if (!TrySpendCosts(ability))
+            {
+                Debug.Log($"[AbilityManager] Not enough resources for {ability.DisplayName}");
+                return false;
+            }
+            
+            // Start cooldown
+            StartCooldown(ability);
+            
+            // Execute ability
+            context.Caster = transform;
+            context.ResourceProvider = this;
+            
+            var executor = GetOrCreateExecutor(ability);
+            executor.StartCast(context);
+            
+            return true;
+        }
+
+        private bool TrySpendCosts(AbilityDataSO ability)
+        {
+            foreach (var cost in ability.Costs)
+            {
+                if (!HasResource(cost.Type, cost.Amount))
+                    return false;
+            }
+            
+            foreach (var cost in ability.Costs)
+            {
+                TrySpendResource(cost.Type, cost.Amount);
+            }
+            
+            return true;
+        }
+
+        private void StartCooldown(AbilityDataSO ability)
+        {
+            string key = ability.SharesCooldownGroup ? ability.CooldownGroupId : ability.AbilityId;
+            _cooldowns[key] = ability.CooldownDuration;
+            OnCooldownStarted?.Invoke(ability, ability.CooldownDuration);
+        }
+
+        public bool IsOnCooldown(AbilityDataSO ability)
+        {
+            string key = ability.SharesCooldownGroup ? ability.CooldownGroupId : ability.AbilityId;
+            return _cooldowns.TryGetValue(key, out float remaining) && remaining > 0f;
+        }
+
+        public float GetCooldownRemaining(AbilityDataSO ability)
+        {
+            string key = ability.SharesCooldownGroup ? ability.CooldownGroupId : ability.AbilityId;
+            return _cooldowns.TryGetValue(key, out float remaining) ? remaining : 0f;
+        }
+
+        private void UpdateCooldowns()
+        {
+            var keys = new List<string>(_cooldowns.Keys);
+            foreach (var key in keys)
+            {
+                _cooldowns[key] -= Time.deltaTime;
+                if (_cooldowns[key] <= 0f)
+                {
+                    _cooldowns.Remove(key);
+                }
+            }
+        }
+
+        private void RegenerateMana()
+        {
+            if (_resources.TryGetValue(ResourceType.Mana, out float current))
+            {
+                float newValue = Mathf.Min(_maxMana, current + _manaRegenRate * Time.deltaTime);
+                if (!Mathf.Approximately(current, newValue))
+                {
+                    _resources[ResourceType.Mana] = newValue;
+                    OnResourceChanged?.Invoke(ResourceType.Mana, newValue, _maxMana);
+                }
+            }
+        }
+
+        private AbilityExecutor GetOrCreateExecutor(AbilityDataSO ability)
+        {
+            // Simplified - in production, use factory or pool
+            var executor = gameObject.AddComponent<GenericAbilityExecutor>();
+            executor.Initialize(ability);
+            return executor;
+        }
+
+        #region IResourceProvider
+        public float GetResource(ResourceType type)
+        {
+            return _resources.TryGetValue(type, out float value) ? value : 0f;
+        }
+
+        public bool HasResource(ResourceType type, float amount)
+        {
+            return GetResource(type) >= amount;
+        }
+
+        public bool TrySpendResource(ResourceType type, float amount)
+        {
+            if (!HasResource(type, amount)) return false;
+            _resources[type] -= amount;
+            OnResourceChanged?.Invoke(type, _resources[type], GetMaxResource(type));
+            return true;
+        }
+
+        public void AddResource(ResourceType type, float amount)
+        {
+            float max = GetMaxResource(type);
+            _resources[type] = Mathf.Min(max, GetResource(type) + amount);
+            OnResourceChanged?.Invoke(type, _resources[type], max);
+        }
+
+        private float GetMaxResource(ResourceType type) => type switch
+        {
+            ResourceType.Mana => _maxMana,
+            _ => 100f
+        };
+        #endregion
+    }
+
+    [System.Serializable]
+    public class AbilitySlot
+    {
+        public AbilityDataSO AbilityData;
+        public KeyCode Hotkey = KeyCode.Alpha1;
+    }
+
+    /// <summary>
+    /// Generic executor for simple damage abilities.
+    /// </summary>
+    public class GenericAbilityExecutor : AbilityExecutor
+    {
+        protected override void Execute(AbilityContext context)
+        {
+            Debug.Log($"[GenericAbilityExecutor] Executed {AbilityData.DisplayName}");
+            // Override in specific ability executors for custom behavior
+        }
+    }
+}

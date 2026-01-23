@@ -1,0 +1,97 @@
+// =============================================================================
+// EventBus.cs - Global Event Bus System
+// Part of: event-bus-system skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Events
+{
+    /// <summary>
+    /// Marker interface for all events.
+    /// All events should be structs for zero-allocation broadcasting.
+    /// </summary>
+    public interface IEvent { }
+
+    /// <summary>
+    /// Static Event Bus for global decoupled communication.
+    /// Use for cross-system events like "PlayerDied", "LevelCompleted", etc.
+    /// 
+    /// IMPORTANT: Unsubscribe in OnDisable to prevent memory leaks!
+    /// </summary>
+    public static class EventBus
+    {
+        private static readonly Dictionary<Type, Delegate> _handlers = new();
+
+        /// <summary>
+        /// Subscribe to an event type.
+        /// </summary>
+        public static void Subscribe<T>(Action<T> handler) where T : struct, IEvent
+        {
+            var type = typeof(T);
+            
+            if (_handlers.TryGetValue(type, out var existing))
+            {
+                _handlers[type] = Delegate.Combine(existing, handler);
+            }
+            else
+            {
+                _handlers[type] = handler;
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribe from an event type.
+        /// ALWAYS call this in OnDisable/OnDestroy!
+        /// </summary>
+        public static void Unsubscribe<T>(Action<T> handler) where T : struct, IEvent
+        {
+            var type = typeof(T);
+            
+            if (_handlers.TryGetValue(type, out var existing))
+            {
+                var result = Delegate.Remove(existing, handler);
+                
+                if (result == null)
+                    _handlers.Remove(type);
+                else
+                    _handlers[type] = result;
+            }
+        }
+
+        /// <summary>
+        /// Publish an event to all subscribers.
+        /// </summary>
+        public static void Publish<T>(T evt) where T : struct, IEvent
+        {
+            var type = typeof(T);
+            
+            if (_handlers.TryGetValue(type, out var handler))
+            {
+                (handler as Action<T>)?.Invoke(evt);
+            }
+        }
+
+        /// <summary>
+        /// Clear all handlers. Use for scene cleanup or testing.
+        /// </summary>
+        public static void Clear()
+        {
+            _handlers.Clear();
+        }
+
+        /// <summary>
+        /// Get count of registered handlers for debugging.
+        /// </summary>
+        public static int GetHandlerCount<T>() where T : struct, IEvent
+        {
+            if (_handlers.TryGetValue(typeof(T), out var handler))
+            {
+                return handler.GetInvocationList().Length;
+            }
+            return 0;
+        }
+    }
+}

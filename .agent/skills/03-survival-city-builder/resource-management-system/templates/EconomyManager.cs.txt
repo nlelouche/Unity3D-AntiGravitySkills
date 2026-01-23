@@ -1,0 +1,101 @@
+// =============================================================================
+// EconomyManager.cs - Resource Management System
+// Template for Data-driven economy using ScriptableObject keys
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.Economy
+{
+    // -------------------------------------------------------------------------
+    // 1. Resource Definition (Scriptable Object)
+    // -------------------------------------------------------------------------
+    // Create this file via Create -> Economy -> Resource
+    [CreateAssetMenu(menuName = "Economy/Resource")]
+    public class ResourceType : ScriptableObject
+    {
+        public string DisplayName;
+        public Sprite Icon;
+        // e.g., MaxCapacity, etc.
+    }
+
+    [Serializable]
+    public struct ResourceAmount
+    {
+        public ResourceType Type;
+        public int Amount;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Manager
+    // -------------------------------------------------------------------------
+    public class EconomyManager : MonoBehaviour
+    {
+        #region Singleton
+        public static EconomyManager Instance { get; private set; }
+        
+        private void Awake()
+        {
+            if (Instance == null) Instance = this;
+            else Destroy(gameObject);
+        }
+        #endregion
+
+        #region State
+        
+        private Dictionary<ResourceType, int> _inventory = new Dictionary<ResourceType, int>();
+        
+        #endregion
+
+        #region Events
+        
+        public event Action<ResourceType, int> OnResourceChanged;
+        
+        #endregion
+
+        #region Public API
+        
+        public int GetAmount(ResourceType type)
+        {
+            if (type == null) return 0;
+            return _inventory.ContainsKey(type) ? _inventory[type] : 0;
+        }
+
+        public void AddResource(ResourceType type, int amount)
+        {
+            if (amount == 0 || type == null) return;
+
+            if (!_inventory.ContainsKey(type)) _inventory[type] = 0;
+            
+            _inventory[type] += amount;
+            
+            // Notify Listeners
+            OnResourceChanged?.Invoke(type, _inventory[type]);
+            // Debug.Log($"Added {amount} {type.name}. Total: {_inventory[type]}");
+        }
+
+        public bool CanAfford(List<ResourceAmount> costs)
+        {
+            foreach (var cost in costs)
+            {
+                if (GetAmount(cost.Type) < cost.Amount) return false;
+            }
+            return true;
+        }
+
+        public bool TrySpend(List<ResourceAmount> costs)
+        {
+            if (!CanAfford(costs)) return false;
+            
+            foreach (var cost in costs)
+            {
+                AddResource(cost.Type, -cost.Amount);
+            }
+            return true;
+        }
+        
+        #endregion
+    }
+}

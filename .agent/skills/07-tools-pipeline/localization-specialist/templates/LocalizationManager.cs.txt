@@ -1,0 +1,80 @@
+// =============================================================================
+// LocalizationManager.cs - Localization Helper
+// Helper for managing Unity Localization package at runtime
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
+
+namespace YourGame.Core
+{
+    /// <summary>
+    /// Manager for handling language switching and string retrieval.
+    /// </summary>
+    public class LocalizationManager : MonoBehaviour
+    {
+        #region Singleton
+        
+        public static LocalizationManager Instance { get; private set; }
+        
+        private void Awake()
+        {
+            if (Instance == null) Instance = this;
+            else Destroy(gameObject);
+        }
+        
+        #endregion
+        
+        #region Public Interface
+        
+        /// <summary>
+        /// Gets a localized string asynchronously from a table.
+        /// </summary>
+        public async void GetString(string tableName, string key, System.Action<string> onComplete)
+        {
+            var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(tableName, key);
+            await operation.Task;
+            
+            if (operation.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                onComplete?.Invoke(operation.Result);
+            }
+            else
+            {
+                Debug.LogError($"Could not localize key '{key}' in table '{tableName}'");
+                onComplete?.Invoke($"[{key}]");
+            }
+        }
+        
+        /// <summary>
+        /// Gets a localized string synchronously (if already loaded).
+        /// Warning: May stall if not preloaded.
+        /// </summary>
+        public string GetStringImmediate(string tableName, string key)
+        {
+            var table = LocalizationSettings.StringDatabase.GetTable(tableName);
+            if (table != null)
+            {
+                var entry = table.GetEntry(key);
+                return entry != null ? entry.GetLocalizedString() : $"[{key}]";
+            }
+            return $"[{tableName}:{key}]";
+        }
+
+        /// <summary>
+        /// Changes the current locale/language.
+        /// </summary>
+        public void SetLanguage(int localeIndex)
+        {
+            if (localeIndex >= 0 && localeIndex < LocalizationSettings.AvailableLocales.Locales.Count)
+            {
+                LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[localeIndex];
+            }
+        }
+        
+        #endregion
+    }
+}

@@ -1,0 +1,100 @@
+// =============================================================================
+// CoroutineToTask.cs - Coroutine to Task Bridge
+// Part of: asynchronous-programming skill
+// =============================================================================
+
+using System;
+using System.Collections;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Async
+{
+    /// <summary>
+    /// Bridge utilities to convert between Coroutines and Tasks.
+    /// Useful for integrating legacy coroutine code with async/await.
+    /// </summary>
+    public static class CoroutineToTask
+    {
+        /// <summary>
+        /// Convert a coroutine to a Task.
+        /// Note: Requires a MonoBehaviour to run the coroutine.
+        /// </summary>
+        public static Task ToTask(this IEnumerator coroutine, MonoBehaviour runner)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            
+            runner.StartCoroutine(RunCoroutine(coroutine, tcs));
+            
+            return tcs.Task;
+        }
+
+        private static IEnumerator RunCoroutine(IEnumerator coroutine, TaskCompletionSource<bool> tcs)
+        {
+            while (true)
+            {
+                try
+                {
+                    if (!coroutine.MoveNext())
+                    {
+                        tcs.SetResult(true);
+                        yield break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                    yield break;
+                }
+                
+                yield return coroutine.Current;
+            }
+        }
+
+        /// <summary>
+        /// Create a YieldInstruction that waits for a Task to complete.
+        /// Use in coroutines: yield return task.ToYield();
+        /// </summary>
+        public static CustomYieldInstruction ToYield(this Task task)
+        {
+            return new WaitForTask(task);
+        }
+
+        private class WaitForTask : CustomYieldInstruction
+        {
+            private readonly Task _task;
+            
+            public override bool keepWaiting => !_task.IsCompleted;
+            
+            public WaitForTask(Task task)
+            {
+                _task = task;
+            }
+        }
+
+        /// <summary>
+        /// Wait for seconds using Task.Delay (no allocation unlike WaitForSeconds).
+        /// </summary>
+        public static Task WaitForSecondsAsync(float seconds)
+        {
+            return Task.Delay(TimeSpan.FromSeconds(seconds));
+        }
+
+        /// <summary>
+        /// Wait until end of frame using async.
+        /// </summary>
+        public static async Task WaitForEndOfFrameAsync()
+        {
+            await Task.Yield();
+        }
+        
+        /// <summary>
+        /// Wait for next fixed update.
+        /// </summary>
+        public static async Task WaitForFixedUpdateAsync()
+        {
+            // Fixed update typically runs at 50Hz
+            await Task.Delay(TimeSpan.FromSeconds(Time.fixedDeltaTime));
+        }
+    }
+}

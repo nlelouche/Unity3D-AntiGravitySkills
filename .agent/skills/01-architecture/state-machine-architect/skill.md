@@ -1,39 +1,145 @@
 ---
-name: unity-state-machine-architect
-description: Principal Architect for State-Based Logic (FSM/HFSM). Activate this skill when the user requests "enemy AI behaviors," "gameplay flow management," "villager/production cycles," or when refactoring complex if-else blocks.
+name: state-machine-architect
+description: "Generates a flexible State Machine system for player controllers, AI, or any state-based logic. Supports hierarchical states and transitions."
+version: 1.0.0
+tags: ["architecture", "state-machine", "FSM", "player-controller", "AI"]
+argument-hint: "name='PlayerController' namespace='Game.Player' states='Idle,Walk,Run,Jump'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
 ---
 
-# State Machine Architect (Agentic Production Standard 2.0)
+# State Machine Architect
 
-## ?? Context & Goal
-[cite_start]The objective is to structure dynamic behaviors through discrete states and controlled transitions. [cite_start]This skill mandates the decomposition of logic into self-contained entities, eliminating "spaghetti code" and allowing the agent to autonomously add new states (e.g., a "Panic" state for villagers) without affecting existing system stability[cite: 8, 237].
+## Overview
+Generate flexible, modular state machines for player controllers, AI, UI systems, or any state-based logic. Uses the State Pattern with generic typing for maximum reusability.
 
-## ?? Thinking Process (Mandatory Internal Reasoning)
-[cite_start]Before generating code, the agent MUST perform a logical deconstruction to ensure trust calibration[cite: 27]:
-1. [cite_start]**State Identification**: Define the minimum set of required states (e.g., `Idle`, `Search`, `Execute`, `Deliver`)[cite: 239].
-2. **Transition Mapping**: Identify the specific triggers (e.g., "target lost," "inventory full") that cause state changes.
-3. **Hierarchy Assessment**: Determine if the system requires a Hierarchical State Machine (HFSM) to group shared behaviors and reduce redundancy.
-4. **Lifecycle Management**: Plan the cleanup logic for each state to prevent "zombie" processes or memory leaks.
+## When to Use
+- Use when implementing player character states (Idle, Walk, Run, Jump)
+- Use when creating AI behavior states (Patrol, Chase, Attack, Flee)
+- Use when managing UI screen flow (MainMenu, Settings, Gameplay)
+- Use when game states need clear boundaries (Playing, Paused, GameOver)
+- Use instead of complex if/else or switch statements
 
-## ??? Operational Procedure (Step-by-Step)
-1.  [cite_start]**Artifact Generation (State Transition Map)**: Emit a structured plan or a Mermaid diagram visualizing all states and their transition conditions for human verification before implementation[cite: 32, 64].
-2.  **State Abstraction**: Define an `IState` interface or abstract base class with mandatory hooks: `Enter()`, `Update()`, `FixedUpdate()`, and `Exit()`.
-3.  **Machine Driver Implementation**: Create the controller component that manages the current state reference and executes transition logic.
-4.  **Memory Optimization**: Use the Flyweight pattern to pre-instantiate states during initialization, preventing heap allocations (`new State()`) during gameplay.
-5.  **Self-Correction Audit**: Verify the implementation against the "Constraints" section of this skill.
+## Architecture
 
-## ?? Constraints & Prohibitions (Hard Rules)
-- [cite_start]**FORBIDDEN**: Using massive `switch` statements or `if-else` chains inside a MonoBehaviour's `Update` for complex AI logic[cite: 237].
-- [cite_start]**FORBIDDEN**: Changing states by directly manipulating external variables; transitions must be managed exclusively by the State Machine[cite: 8].
-- [cite_start]**MANDATORY**: Implement thorough cleanup of events, timers, or UniTasks within the `Exit()` method of every state[cite: 88].
-- [cite_start]**MANDATORY**: Use the **Progressive Disclosure** principle��keep state classes focused only on their specific behavior to minimize context saturation[cite: 41, 46].
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    StateMachine<TContext>                   │
+├─────────────────────────────────────────────────────────────┤
+│  AddState<TState>(state)                                    │
+│  ChangeState<TState>()                                      │
+│  Update() / FixedUpdate()                                   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ↓               ↓               ↓
+      ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+      │  IdleState  │ │  WalkState  │ │  JumpState  │
+      │ : IState<T> │ │ : IState<T> │ │ : IState<T> │
+      └─────────────┘ └─────────────┘ └─────────────┘
+```
 
-## ?? Artifact: State Machine & Transition Audit
-The agent must verify the output against this checklist:
-- [ ] [cite_start]**Visualization**: Has a transition map been generated for architectural review? [cite: 32]
-- [ ] **Encapsulation**: Does each state have a single, clear responsibility?
-- [ ] **Decoupling**: Are individual states independent of each other's internal logic?
+## Components
 
-## ?? Few-Shot Examples
-- **User Input**: "Create an enemy that patrols a path but chases the player if they enter a detection radius."
-- [cite_start]**Agent Output**: Generates a **State Transition Map** with `Patrol` and `Chase` states, followed by a decoupled FSM implementation where the `Chase` state only knows it must move toward a target[cite: 237].
+| Component | Purpose |
+|-----------|---------|
+| `IState<TContext>` | Interface for all states |
+| `StateMachine<TContext>` | Manages state instances and transitions |
+| `StateBase<TContext>` | Abstract base class with boilerplate |
+
+## Procedure
+1. **Define Context**: The owner object (usually MonoBehaviour)
+2. **Create States**: Implement `IState<TContext>` or inherit `StateBase<TContext>`
+3. **Initialize Machine**: Create `StateMachine<TContext>` with context
+4. **Register States**: Call `AddState<T>(new TState())` for each
+5. **Set Initial State**: Call `ChangeState<TInitialState>()`
+6. **Update Loop**: Call `machine.Update()` in MonoBehaviour.Update()
+
+## Best Practices
+- ✅ Use the Context object to access shared data
+- ✅ Keep states focused (Single Responsibility)
+- ✅ Use `OnStateChanged` event for debugging/logging
+- ✅ Consider state history for "return to previous state"
+- ✅ Use `StateBase<T>` for cleaner code
+- ❌ **NEVER** put transition logic outside states
+- ❌ **NEVER** use strings for state identification (use types)
+- ❌ **NEVER** access private MonoBehaviour members directly
+
+## Few-Shot Examples
+
+### Example 1: Player Controller
+**User**: "Create a state machine for player movement with Idle, Walk, Run, Jump."
+
+**Agent**:
+```csharp
+// Context is the PlayerController MonoBehaviour
+public class IdleState : StateBase<PlayerController>
+{
+    public override void Enter(PlayerController ctx)
+    {
+        ctx.Animator.Play("Idle");
+    }
+    
+    public override void Update(PlayerController ctx)
+    {
+        if (ctx.Input.MoveVector.magnitude > 0.1f)
+            TransitionTo<WalkState>();
+        if (ctx.Input.JumpPressed)
+            TransitionTo<JumpState>();
+    }
+}
+
+// In PlayerController.cs
+private StateMachine<PlayerController> _stateMachine;
+
+void Start()
+{
+    _stateMachine = new StateMachine<PlayerController>(this);
+    _stateMachine.AddState(new IdleState());
+    _stateMachine.AddState(new WalkState());
+    _stateMachine.AddState(new JumpState());
+    _stateMachine.ChangeState<IdleState>();
+}
+
+void Update() => _stateMachine.Update();
+void FixedUpdate() => _stateMachine.FixedUpdate();
+```
+
+### Example 2: AI Enemy
+**User**: "Create enemy AI with Patrol, Chase, Attack states."
+
+**Agent**:
+```csharp
+public class PatrolState : StateBase<EnemyAI>
+{
+    public override void Update(EnemyAI ctx)
+    {
+        ctx.MoveToNextWaypoint();
+        if (ctx.CanSeePlayer)
+            TransitionTo<ChaseState>();
+    }
+}
+```
+
+### Example 3: Game Flow
+**User**: "State machine for MainMenu, Playing, Paused, GameOver."
+
+**Agent**:
+```csharp
+// GameManager as context
+// States control Time.timeScale, UI visibility, etc.
+```
+
+## Related Skills
+- `@advanced-design-patterns` - State pattern fundamentals
+- `@ai-behavior-trees` - More complex AI decision making
+- `@advanced-character-controller` - Uses state machine internally
+
+## Template Files
+- `templates/IState.cs.txt` - Core state interface
+- `templates/StateMachine.cs.txt` - Generic state machine
+- `templates/StateBase.cs.txt` - Abstract state base class

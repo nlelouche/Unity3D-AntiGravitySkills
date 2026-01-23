@@ -1,0 +1,38 @@
+// =============================================================================
+// IFactory.cs - Factory Pattern Interface Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Patterns.Factory
+{
+    /// <summary>
+    /// Factory Pattern: Creates objects without exposing the instantiation logic.
+    /// The factory method returns an interface or abstract type.
+    /// 
+    /// Use Cases:
+    /// - Creating enemies with different configurations
+    /// - Spawning projectiles from a weapon system
+    /// - Generating procedural content (rooms, items)
+    /// </summary>
+    /// <typeparam name="TProduct">The type of object the factory creates.</typeparam>
+    public interface IFactory<out TProduct>
+    {
+        /// <summary>
+        /// Create a new instance of the product.
+        /// </summary>
+        TProduct Create();
+    }
+
+    /// <summary>
+    /// Factory with creation parameters.
+    /// </summary>
+    /// <typeparam name="TProduct">The type of object the factory creates.</typeparam>
+    /// <typeparam name="TParams">Parameters for object creation.</typeparam>
+    public interface IFactory<out TProduct, in TParams>
+    {
+        /// <summary>
+        /// Create a new instance of the product with parameters.
+        /// </summary>
+        TProduct Create(TParams parameters);
+    }
+}

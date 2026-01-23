@@ -1,0 +1,237 @@
+// =============================================================================
+// UIScreen.cs - Screen for Navigation System with UI Toolkit
+// Template for navigable screens with lifecycle and transitions
+// =============================================================================
+
+using System;
+using System.Threading.Tasks;
+using UnityEngine.UIElements;
+
+namespace YourGame.UI
+{
+    /// <summary>
+    /// Base class for navigable UI screens.
+    /// Used with NavigationManager for stack-based navigation.
+    /// </summary>
+    public abstract class UIScreen
+    {
+        #region Properties
+        
+        /// <summary>
+        /// Root visual element of this screen.
+        /// </summary>
+        public VisualElement Root { get; private set; }
+        
+        /// <summary>
+        /// Unique identifier for this screen.
+        /// </summary>
+        public string ScreenId { get; private set; }
+        
+        /// <summary>
+        /// Whether the screen is currently visible.
+        /// </summary>
+        public bool IsVisible { get; private set; }
+        
+        /// <summary>
+        /// Whether the screen is focused (top of stack).
+        /// </summary>
+        public bool IsFocused { get; private set; }
+        
+        #endregion
+        
+        #region Events
+        
+        public event Action OnScreenShown;
+        public event Action OnScreenHidden;
+        
+        #endregion
+        
+        #region Initialization
+        
+        /// <summary>
+        /// Initializes the screen with its root element.
+        /// Called once when the screen is created.
+        /// </summary>
+        public void Initialize(VisualElement root, string screenId)
+        {
+            Root = root;
+            ScreenId = screenId;
+            
+            QueryElements();
+            BindEvents();
+            OnInitialize();
+        }
+        
+        /// <summary>
+        /// Disposes the screen and cleans up resources.
+        /// </summary>
+        public void Dispose()
+        {
+            UnbindEvents();
+            OnDispose();
+        }
+        
+        #endregion
+        
+        #region Lifecycle Methods
+        
+        /// <summary>
+        /// Shows the screen with optional transition.
+        /// </summary>
+        public virtual async Task ShowAsync(bool animate = true)
+        {
+            Root.style.display = DisplayStyle.Flex;
+            
+            if (animate)
+            {
+                await PlayShowAnimation();
+            }
+            
+            IsVisible = true;
+            OnShow();
+            OnScreenShown?.Invoke();
+        }
+        
+        /// <summary>
+        /// Hides the screen with optional transition.
+        /// </summary>
+        public virtual async Task HideAsync(bool animate = true)
+        {
+            if (animate)
+            {
+                await PlayHideAnimation();
+            }
+            
+            Root.style.display = DisplayStyle.None;
+            IsVisible = false;
+            OnHide();
+            OnScreenHidden?.Invoke();
+        }
+        
+        /// <summary>
+        /// Synchronous show (for quick transitions).
+        /// </summary>
+        public void Show()
+        {
+            Root.style.display = DisplayStyle.Flex;
+            IsVisible = true;
+            OnShow();
+            OnScreenShown?.Invoke();
+        }
+        
+        /// <summary>
+        /// Synchronous hide (for quick transitions).
+        /// </summary>
+        public void Hide()
+        {
+            Root.style.display = DisplayStyle.None;
+            IsVisible = false;
+            OnHide();
+            OnScreenHidden?.Invoke();
+        }
+        
+        /// <summary>
+        /// Called when screen becomes top of navigation stack.
+        /// </summary>
+        public virtual void OnFocus()
+        {
+            IsFocused = true;
+            
+            // Focus first focusable element for gamepad navigation
+            var focusable = Root.Query<Button>().First();
+            focusable?.Focus();
+        }
+        
+        /// <summary>
+        /// Called when screen is no longer top of stack.
+        /// </summary>
+        public virtual void OnUnfocus()
+        {
+            IsFocused = false;
+        }
+        
+        #endregion
+        
+        #region Abstract Methods
+        
+        /// <summary>
+        /// Query and cache UI elements.
+        /// </summary>
+        protected abstract void QueryElements();
+        
+        /// <summary>
+        /// Bind UI events (button clicks, etc.).
+        /// </summary>
+        protected abstract void BindEvents();
+        
+        /// <summary>
+        /// Unbind UI events.
+        /// </summary>
+        protected abstract void UnbindEvents();
+        
+        #endregion
+        
+        #region Virtual Methods
+        
+        /// <summary>
+        /// Called after initialization.
+        /// </summary>
+        protected virtual void OnInitialize() { }
+        
+        /// <summary>
+        /// Called during disposal.
+        /// </summary>
+        protected virtual void OnDispose() { }
+        
+        /// <summary>
+        /// Called when screen becomes visible.
+        /// </summary>
+        protected virtual void OnShow() { }
+        
+        /// <summary>
+        /// Called when screen becomes hidden.
+        /// </summary>
+        protected virtual void OnHide() { }
+        
+        /// <summary>
+        /// Plays show animation. Override for custom transitions.
+        /// </summary>
+        protected virtual Task PlayShowAnimation()
+        {
+            // Default: fade in
+            Root.style.opacity = 0;
+            Root.experimental.animation.Start(
+                new StyleValues { opacity = 1f },
+                300
+            );
+            return Task.Delay(300);
+        }
+        
+        /// <summary>
+        /// Plays hide animation. Override for custom transitions.
+        /// </summary>
+        protected virtual Task PlayHideAnimation()
+        {
+            // Default: fade out
+            Root.experimental.animation.Start(
+                new StyleValues { opacity = 0f },
+                200
+            );
+            return Task.Delay(200);
+        }
+        
+        #endregion
+        
+        #region Helper Methods
+        
+        /// <summary>
+        /// Query element by name.
+        /// </summary>
+        protected T Q<T>(string name = null) where T : VisualElement
+        {
+            return Root.Q<T>(name);
+        }
+        
+        #endregion
+    }
+}

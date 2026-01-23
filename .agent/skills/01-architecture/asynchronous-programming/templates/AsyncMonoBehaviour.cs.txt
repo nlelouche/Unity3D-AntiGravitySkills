@@ -1,0 +1,97 @@
+// =============================================================================
+// AsyncMonoBehaviour.cs - MonoBehaviour with Async Support
+// Part of: asynchronous-programming skill
+// =============================================================================
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Async
+{
+    /// <summary>
+    /// Base MonoBehaviour with built-in async support and proper lifecycle.
+    /// Automatically handles cancellation when the object is destroyed.
+    /// </summary>
+    public abstract class AsyncMonoBehaviour : MonoBehaviour
+    {
+        private CancellationTokenSource _destroyCts;
+        
+        /// <summary>
+        /// Token that cancels when this MonoBehaviour is destroyed.
+        /// Use this for all async operations tied to this object's lifetime.
+        /// </summary>
+        protected CancellationToken DestroyCancellationToken => _destroyCts?.Token ?? CancellationToken.None;
+
+        protected virtual void Awake()
+        {
+            _destroyCts = new CancellationTokenSource();
+        }
+        
+        protected virtual void OnDestroy()
+        {
+            _destroyCts?.Cancel();
+            _destroyCts?.Dispose();
+            _destroyCts = null;
+        }
+
+        /// <summary>
+        /// Run an async action safely, handling cancellation and errors.
+        /// </summary>
+        protected async void RunAsync(Func<CancellationToken, Task> action)
+        {
+            try
+            {
+                await action(DestroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when object is destroyed
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[{GetType().Name}] Async error: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+        
+        /// <summary>
+        /// Run an async function safely, returning a default value on failure.
+        /// </summary>
+        protected async Task<T> RunAsync<T>(Func<CancellationToken, Task<T>> action, T defaultValue = default)
+        {
+            try
+            {
+                return await action(DestroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return defaultValue;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[{GetType().Name}] Async error: {ex.Message}");
+                return defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// Delay for a number of seconds, respecting destroy cancellation.
+        /// </summary>
+        protected Task DelayAsync(float seconds)
+        {
+            return Task.Delay(TimeSpan.FromSeconds(seconds), DestroyCancellationToken);
+        }
+        
+        /// <summary>
+        /// Wait until a condition is true.
+        /// </summary>
+        protected async Task WaitUntilAsync(Func<bool> condition)
+        {
+            while (!condition() && !DestroyCancellationToken.IsCancellationRequested)
+            {
+                await Task.Yield();
+            }
+        }
+    }
+}

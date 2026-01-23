@@ -1,0 +1,85 @@
+// =============================================================================
+// PopulationManager.cs - Optimized Unit Manager
+// Template for centralized, time-sliced unit updates
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.AI
+{
+    // Interface required for any unit managed by this system
+    public interface IPopulationAgent
+    {
+        void ManagedUpdate(float deltaTime);
+    }
+
+    public class PopulationManager : MonoBehaviour
+    {
+        #region Singleton
+        public static PopulationManager Instance { get; private set; }
+        
+        private void Awake()
+        {
+            Instance = this;
+        }
+        #endregion
+        
+        #region Settings
+        
+        [Tooltip("How many units to update per frame")]
+        [SerializeField] private int _batchSize = 50;
+        
+        #endregion
+        
+        #region State
+        
+        private List<IPopulationAgent> _agents = new List<IPopulationAgent>();
+        private int _currentIndex = 0;
+        
+        #endregion
+        
+        private void Update()
+        {
+            if (_agents.Count == 0) return;
+
+            // If we have fewer agents than batch size, update all
+            int count = Mathf.Min(_batchSize, _agents.Count);
+            
+            for (int i = 0; i < count; i++)
+            {
+                // Circular index
+                _currentIndex = (_currentIndex + 1) % _agents.Count;
+                
+                // Perform the update
+                // Note: DeltaTime here is frame time. 
+                // If units need precise physics sync, this might need logic adjustment
+                // or simply pass Time.deltaTime and let them handle smooth interpolation.
+                if (_agents[_currentIndex] != null) // Check for null (destroyed objects)
+                {
+                    _agents[_currentIndex].ManagedUpdate(Time.deltaTime);
+                }
+                else
+                {
+                    // Clean up nulls lazily
+                    _agents.RemoveAt(_currentIndex);
+                    i--; // Step back to not skip one
+                }
+            }
+        }
+        
+        #region Public API
+        
+        public void Register(IPopulationAgent agent)
+        {
+            if (!_agents.Contains(agent)) _agents.Add(agent);
+        }
+        
+        public void Unregister(IPopulationAgent agent)
+        {
+            _agents.Remove(agent);
+        }
+        
+        #endregion
+    }
+}

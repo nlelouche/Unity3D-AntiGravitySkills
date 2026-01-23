@@ -1,0 +1,132 @@
+// =============================================================================
+// AbilityExecutor.cs - Ability Execution Handler
+// Part of: ability-skill-system skill
+// =============================================================================
+
+using System;
+using System.Collections;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Abilities
+{
+    /// <summary>
+    /// Handles the execution of an ability (targeting, casting, effects).
+    /// Base class - inherit for specific ability behaviors.
+    /// </summary>
+    public abstract class AbilityExecutor : MonoBehaviour
+    {
+        public AbilityDataSO AbilityData { get; private set; }
+        
+        public event Action<AbilityDataSO> OnCastStarted;
+        public event Action<AbilityDataSO> OnCastCompleted;
+        public event Action<AbilityDataSO> OnCastCancelled;
+        public event Action<AbilityDataSO, GameObject> OnAbilityHit;
+        
+        private Coroutine _castingCoroutine;
+        private bool _isCasting;
+        
+        public bool IsCasting => _isCasting;
+
+        public void Initialize(AbilityDataSO data)
+        {
+            AbilityData = data;
+        }
+
+        /// <summary>
+        /// Start casting the ability.
+        /// </summary>
+        public void StartCast(AbilityContext context)
+        {
+            if (_isCasting)
+            {
+                Debug.LogWarning($"[AbilityExecutor] Already casting {AbilityData.DisplayName}");
+                return;
+            }
+            
+            _castingCoroutine = StartCoroutine(CastRoutine(context));
+        }
+
+        /// <summary>
+        /// Cancel the current cast.
+        /// </summary>
+        public void CancelCast()
+        {
+            if (!_isCasting || !AbilityData.CanBeCancelled) return;
+            
+            if (_castingCoroutine != null)
+            {
+                StopCoroutine(_castingCoroutine);
+                _castingCoroutine = null;
+            }
+            
+            _isCasting = false;
+            OnCastCancelled?.Invoke(AbilityData);
+        }
+
+        private IEnumerator CastRoutine(AbilityContext context)
+        {
+            _isCasting = true;
+            OnCastStarted?.Invoke(AbilityData);
+            
+            // Cast time
+            if (AbilityData.CastTime > 0f)
+            {
+                yield return new WaitForSeconds(AbilityData.CastTime);
+            }
+            
+            // Execute the ability
+            Execute(context);
+            
+            // Spawn VFX
+            if (AbilityData.VfxPrefab != null)
+            {
+                Instantiate(AbilityData.VfxPrefab, context.TargetPosition, Quaternion.identity);
+            }
+            
+            // Play SFX
+            if (AbilityData.SfxClip != null)
+            {
+                AudioSource.PlayClipAtPoint(AbilityData.SfxClip, context.Caster.position);
+            }
+            
+            _isCasting = false;
+            OnCastCompleted?.Invoke(AbilityData);
+        }
+
+        /// <summary>
+        /// Override to implement ability effect.
+        /// </summary>
+        protected abstract void Execute(AbilityContext context);
+
+        /// <summary>
+        /// Call when ability hits a target.
+        /// </summary>
+        protected void NotifyHit(GameObject target)
+        {
+            OnAbilityHit?.Invoke(AbilityData, target);
+        }
+    }
+
+    /// <summary>
+    /// Context passed to ability execution.
+    /// </summary>
+    public class AbilityContext
+    {
+        public Transform Caster;
+        public GameObject Target;
+        public Vector3 TargetPosition;
+        public Vector3 Direction;
+        public IResourceProvider ResourceProvider;
+    }
+
+    /// <summary>
+    /// Interface for resource management (mana, energy, etc.)
+    /// </summary>
+    public interface IResourceProvider
+    {
+        float GetResource(ResourceType type);
+        bool HasResource(ResourceType type, float amount);
+        bool TrySpendResource(ResourceType type, float amount);
+        void AddResource(ResourceType type, float amount);
+    }
+}

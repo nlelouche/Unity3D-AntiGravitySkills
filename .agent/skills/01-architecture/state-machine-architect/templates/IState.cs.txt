@@ -1,0 +1,39 @@
+// =============================================================================
+// IState.cs - State Machine Core Interface
+// Part of: state-machine-architect skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.StateMachine
+{
+    /// <summary>
+    /// Core interface for all states in the state machine.
+    /// Implement this for each unique state (Idle, Running, Jumping, etc.)
+    /// </summary>
+    /// <typeparam name="TContext">The context object passed to states (usually the owner MonoBehaviour).</typeparam>
+    public interface IState<TContext>
+    {
+        /// <summary>
+        /// Called once when entering this state.
+        /// Use for initialization, playing animations, etc.
+        /// </summary>
+        void Enter(TContext context);
+        
+        /// <summary>
+        /// Called every frame while this state is active.
+        /// Handle state logic and check for transitions.
+        /// </summary>
+        void Update(TContext context);
+        
+        /// <summary>
+        /// Called every physics update while this state is active.
+        /// Handle physics-related logic here.
+        /// </summary>
+        void FixedUpdate(TContext context);
+        
+        /// <summary>
+        /// Called once when exiting this state.
+        /// Use for cleanup, stopping effects, etc.
+        /// </summary>
+        void Exit(TContext context);
+    }
+}
