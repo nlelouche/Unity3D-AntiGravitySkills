@@ -17,6 +17,18 @@
 
 ---
 
+## 🧩 What is a "Skill"?
+In the context of Autonomous AI Agents, a **Skill** is a packaged unit of capability that bridges the gap between general reasoning and domain-specific execution.
+
+Just as a human engineer might consult a technical manual or a senior mentor, an AI Agent "equips" a Skill to gain:
+1.  **Procedural Knowledge**: Step-by-step workflows on *how* to solve a specific problem.
+2.  **Contextual Awareness**: Constraints and rules (e.g., "Always use `StringBuilder` here") to prevent common pitfalls.
+3.  **Tools & Templates**: Pre-verified code assets that ensure the output is production-ready, not just confident-sounding.
+
+For a deep dive into the Skills architecture and protocol, consult the **[Official AntiGravity Documentation](https://antigravity.google/docs/skills)**.
+
+---
+
 ## 🚀 Why AntiGravity?
 
 ### 🧠 Features for AI Agents
