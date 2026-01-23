@@ -1,0 +1,79 @@
+// =============================================================================
+// BuildCommand.cs - Headless Build Script
+// Template for CI/CD automation
+// =============================================================================
+
+using UnityEngine;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+using System.Linq; // For command line args
+
+namespace YourGame.DevOps
+{
+    public static class BuildCommand
+    {
+        // ENTRY POINT for CLI: -executeMethod YourGame.DevOps.BuildCommand.BuildAndroid
+        public static void BuildAndroid()
+        {
+            Debug.Log("Starting Android Build...");
+            PerformBuild(BuildTarget.Android, "Builds/Android/Game.apk");
+        }
+
+        public static void BuildWindows()
+        {
+            Debug.Log("Starting Windows Build...");
+            PerformBuild(BuildTarget.StandaloneWindows64, "Builds/Win64/Game.exe");
+        }
+
+        private static void PerformBuild(BuildTarget target, string outputPath)
+        {
+            // 1. Parse Args (Version, Environment)
+            string version = GetArg("-buildVersion") ?? "1.0.0";
+            PlayerSettings.bundleVersion = version;
+            
+            // 2. Configure Options
+            BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+            buildPlayerOptions.scenes = EditorBuildSettings.scenes
+                .Where(s => s.enabled)
+                .Select(s => s.path)
+                .ToArray();
+            
+            buildPlayerOptions.locationPathName = outputPath;
+            buildPlayerOptions.target = target;
+            buildPlayerOptions.options = BuildOptions.None; // Add BuildOptions.Development for Debug builds
+
+            // 3. Build Content (Addressables) - Optional but recommended
+            // AddressableAssetSettings.BuildPlayerContent();
+
+            // 4. Build Player
+            BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+            BuildSummary summary = report.summary;
+
+            // 5. Report Result
+            if (summary.result == BuildResult.Succeeded)
+            {
+                Debug.Log($"Build Succeeded: {summary.totalSize / 1024 / 1024} MB");
+                EditorApplication.Exit(0);
+            }
+            else
+            {
+                Debug.LogError($"Build Failed: {summary.totalErrors} errors");
+                EditorApplication.Exit(1);
+            }
+        }
+
+        // Helper to grab CLI args
+        private static string GetArg(string name)
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == name && args.Length > i + 1)
+                {
+                    return args[i + 1];
+                }
+            }
+            return null;
+        }
+    }
+}

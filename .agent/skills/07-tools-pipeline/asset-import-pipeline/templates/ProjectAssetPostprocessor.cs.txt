@@ -1,0 +1,113 @@
+// =============================================================================
+// ProjectAssetPostprocessor.cs
+// Template for automated asset validation and optimization
+// =============================================================================
+
+using UnityEngine;
+using UnityEditor;
+
+namespace YourGame.Pipeline
+{
+    public class ProjectAssetPostprocessor : AssetPostprocessor
+    {
+        #region Configuration
+        
+        // Max texture size for generic assets (Characters, Props)
+        private const int MAX_TEXTURE_SIZE = 2048;
+        
+        // Max texture size for UI
+        private const int MAX_UI_SIZE = 1024;
+        
+        #endregion
+        
+        #region Texture Processing
+        
+        // Called before the texture is imported
+        void OnPreprocessTexture()
+        {
+            if (assetPath.Contains("/ThirdParty/")) return; // Don't touch 3rd party assets
+
+            TextureImporter importer = (TextureImporter)assetImporter;
+            
+            // 1. Detect Type based on folder/name
+            if (assetPath.Contains("/UI/") || assetPath.Contains("_UI"))
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.maxTextureSize = MAX_UI_SIZE;
+            }
+            else if (assetPath.Contains("_Normal") || assetPath.Contains("_NRM"))
+            {
+                importer.textureType = TextureImporterType.NormalMap;
+            }
+            else
+            {
+                importer.textureType = TextureImporterType.Default;
+                importer.maxTextureSize = MAX_TEXTURE_SIZE;
+            }
+            
+            // 2. Platform Specific Compression (Mobile Friendly)
+            ApplyPlatformCompression(importer, "Android", TextureImporterFormat.ASTC_6x6);
+            ApplyPlatformCompression(importer, "iPhone", TextureImporterFormat.ASTC_6x6);
+            ApplyPlatformCompression(importer, "Standalone", TextureImporterFormat.DXT5Crunched);
+        }
+        
+        private void ApplyPlatformCompression(TextureImporter importer, string platform, TextureImporterFormat format)
+        {
+            TextureImporterPlatformSettings settings = new TextureImporterPlatformSettings();
+            settings.name = platform;
+            settings.overridden = true;
+            settings.format = format;
+            settings.compressionQuality = 50;
+            
+            importer.SetPlatformTextureSettings(settings);
+        }
+        
+        #endregion
+        
+        #region Model Processing
+        
+        void OnPreprocessModel()
+        {
+            if (assetPath.Contains("/ThirdParty/")) return;
+
+            ModelImporter modelImporter = (ModelImporter)assetImporter;
+            
+            // Enforce Standard
+            modelImporter.materialImportMode = ModelImporterMaterialImportMode.None; // We use our own materials
+            modelImporter.importAnimation = assetPath.Contains("_Anim"); // Only import anims if tagged
+            modelImporter.globalScale = 1.0f;
+            
+            // Optimize Rig
+            if (!assetPath.Contains("/Characters/"))
+            {
+                modelImporter.animationType = ModelImporterAnimationType.None;
+            }
+        }
+        
+        #endregion
+        
+        #region Audio Processing
+        
+        void OnPreprocessAudio()
+        {
+            AudioImporter audioImporter = (AudioImporter)assetImporter;
+            
+            // Force Mono for 3D sounds (spatialization)
+            if (assetPath.Contains("/SFX/"))
+            {
+                audioImporter.forceToMono = true;
+                audioImporter.loadInBackground = true;
+            }
+            
+            // Streaming for Music
+            if (assetPath.Contains("/Music/"))
+            {
+                AudioImporterSampleSettings settings = audioImporter.defaultSampleSettings;
+                settings.loadType = AudioClipLoadType.Streaming;
+                audioImporter.defaultSampleSettings = settings;
+            }
+        }
+        
+        #endregion
+    }
+}
