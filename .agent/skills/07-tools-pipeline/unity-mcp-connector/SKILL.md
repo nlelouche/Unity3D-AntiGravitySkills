@@ -1,52 +1,98 @@
 ---
 name: unity-mcp-connector
-description: "Checks if the Unity Editor is connected via MCP and exposes runtime capabilities. Use to "check editor status", "find selected object", or "list scene objects"."
+description: "Orchestration bridge between AI Agents and the running Unity Editor instance via MCP (Model Context Protocol)."
 version: 1.0.0
-tags: []
-argument-hint: action='check_connection'
+tags: ["mcp", "integration", "editor-api", "automation", "bridge"]
+argument-hint: "action='ping' OR target='selection' scope='scene'"
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
   - mcp_unityMCP_manage_editor
   - mcp_unityMCP_find_gameobjects
   - mcp_unityMCP_manage_scene
+  - mcp_unityMCP_manage_components
   - run_command
   - list_dir
 ---
 
 # Unity MCP Connector
 
-## Goal
-To serve as the **Bridge** between the Agent's file-system view and the running Unity Editor. It enables "Scene Awareness".
+## Overview
+Connects the file-based AI Brain with the live Unity Editor state. Allows the agent to "see" the scene hierarchy, inspect selected objects, and validate the existence of components dynamically.
 
 ## When to Use
-- Use when custom inspectors
-- Use when editor windows
-- Use when tooling
-- Use when Unity MCP
-- Use when AI integration
+- Use to check if Unity Editor is open and listening
+- Use to find the currently selected GameObject context
+- Use to validate scene contents that aren't serialized to disk yet
+- Use to trigger Editor actions (Play, Pause, Refresh)
+- Use to read console logs for errors
 
 ## Capabilities
-1.  **Health Check**: Verifies if `unityMCP` server is responding.
-2.  **Selection Access**: Gets the currently selected GameObject in the Editor (crucial for "Add script to *this* object" workflows).
-3.  **Hierarchy Scanning**: Finds objects by name/tag to validate references.
+
+| Capability | Tool | Description |
+|------------|------|-------------|
+| **Telemetry** | `manage_editor` | Check connection health (Ping) |
+| **Selection** | `manage_editor` | Get/Set user selection |
+| **Hierarchy** | `find_gameobjects` | Search active scene objects |
+| **State** | `manage_editor` | Play/Pause/Stop mode control |
+| **Scene** | `manage_scene` | Open/Save scenes |
 
 ## Procedure
 
-### Scenario A: Check Connection
-1.  **Action**: Call `mcp_unityMCP_manage_editor` with `action='telemetry_ping'`.
-2.  **Result**:
-    - **Success**: "Unity Editor is Connected (Version 2022.3...)".
-    - **Failure**: "Unity Editor is NOT connected. Falling back to File System mode."
+### 1. Connection Check (First Step)
+Always verify the bridge is active before attempting complex operations.
+```json
+{
+  "tool": "mcp_unityMCP_manage_editor",
+  "args": { "action": "telemetry_ping" }
+}
+```
 
-### Scenario B: Contextual Operation
-**User**: "Create a script for the selected object."
-1.  **Check**: `unity-mcp-connector` -> `editor_selection`.
-2.  **Logic**:
-    - If Object is "Player": Agent assumes `PlayerController`.
-    - If Object is "MainCamera": Agent assumes `CameraFollow`.
-3.  **Handoff**: Pass this context to `dots-system-architect` or `oop-patterns-architect`.
+### 2. Context Retrieval
+If the user says "Add script to **this** object", fetch the selection.
+```json
+{
+  "tool": "mcp_unityMCP_manage_editor",
+  "args": { "action": "get_selection" } // (Hypothetical param, usually implied or via finding)
+}
+```
+*Note: Currently `telemetry_status` or specific find commands might be needed depending on server implementation.*
 
-## Hybrid Rules
-- **Non-Blocking**: Failure to connect via MCP should NEVER stop the agent. It must degrade gracefully to asking the user for the file path.
-- **Read-Only Safety**: Prefer reading state (`get_active_scene`, `find_gameobjects`) over modifying state (`delete_gameobject`) unless explicitly commanded.
+### 3. Graceful Fallback
+If MCP tools fails or returns "Not Connected":
+1. **Log**: "Unity Editor not reachable. Proceeding in File-System Mode."
+2. **Ask**: "Please specify the file path or GameObject name manually."
+3. **Continue**: Do not halt the workflow.
+
+## Best Practices
+- ✅ **Ping First**: Always check `telemetry_ping` before deep operations.
+- ✅ **Read-Only Default**: Prefer reading state to modifying state unless explicitly requested.
+- ✅ **Error Handling**: Catch tool failures gracefully (Editor might be compiling).
+- ❌ **NEVER** assume Editor is open.
+- ❌ **NEVER** rely solely on MCP for critical data (File System is truth).
+
+## Few-Shot Examples
+
+### Example 1: Check Status
+**User**: "Is Unity connected?"
+
+**Agent**:
+```javascript
+// Calls mcp_unityMCP_manage_editor with action='telemetry_ping'
+// Output: "pong"
+// Response: "Yes, Unity Editor is connected and responding."
+```
+
+### Example 2: Find Player
+**User**: "Where is the player in the scene?"
+
+**Agent**:
+```javascript
+// Calls mcp_unityMCP_find_gameobjects with search_term='Player'
+// Output: [{ name: "Player", id: 1234, ... }]
+// Response: "Found 'Player' with InstanceID 1234."
+```
+
+## Related Skills
+- `@custom-editor-scripting` - Build tools utilizing this connection
+- `@automated-unit-testing` - Trigger tests via MCP

@@ -1,0 +1,120 @@
+// =============================================================================
+// SurvivalManager.cs - Survival Stats System
+// Template for managing Hunger, Thirst, and Temperature decay
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.Survival
+{
+    [Serializable]
+    public class SurvivalStat
+    {
+        public string Name;
+        public float CurrentValue;
+        public float MaxValue;
+        public float DecayRate; // Per second
+        public float CriticalThreshold; // When damage starts
+        
+        public bool IsCritical => CurrentValue <= CriticalThreshold;
+
+        public SurvivalStat(string name, float max, float decay)
+        {
+            Name = name;
+            MaxValue = max;
+            CurrentValue = max;
+            DecayRate = decay;
+            CriticalThreshold = 0;
+        }
+    }
+
+    public class SurvivalManager : MonoBehaviour
+    {
+        #region Configuration
+        
+        [Header("Stats")]
+        [SerializeField] private SurvivalStat _hunger = new SurvivalStat("Hunger", 100, 0.5f);
+        [SerializeField] private SurvivalStat _thirst = new SurvivalStat("Thirst", 100, 1.0f);
+        [SerializeField] private SurvivalStat _temp = new SurvivalStat("Temperature", 37, 0.0f); // 37 Celsius
+        
+        [Header("Settings")]
+        [SerializeField] private float _tickRate = 1.0f;
+        [SerializeField] private float _damagePerTick = 5.0f;
+        
+        #endregion
+        
+        #region Private State
+        
+        private float _nextTick;
+        
+        #endregion
+        
+        #region Events
+        
+        public event Action<SurvivalStat> OnStatChanged;
+        public event Action<string> OnCriticalDamage;
+        
+        #endregion
+        
+        private void Update()
+        {
+            if (Time.time >= _nextTick)
+            {
+                Tick();
+                _nextTick = Time.time + _tickRate;
+            }
+        }
+        
+        private void Tick()
+        {
+            ProcessStat(_hunger);
+            ProcessStat(_thirst);
+            
+            // Temperature logic is often environmental, simple normalization here
+            // _temp.CurrentValue = Mathf.MoveTowards(_temp.CurrentValue, 37f, Time.deltaTime);
+            
+            CheckCritical(_hunger);
+            CheckCritical(_thirst);
+        }
+        
+        private void ProcessStat(SurvivalStat stat)
+        {
+            if (stat.CurrentValue > 0)
+            {
+                stat.CurrentValue -= stat.DecayRate * _tickRate;
+                stat.CurrentValue = Mathf.Max(0, stat.CurrentValue);
+                OnStatChanged?.Invoke(stat);
+            }
+        }
+        
+        private void CheckCritical(SurvivalStat stat)
+        {
+            if (stat.IsCritical)
+            {
+                // Apply Damage or Kill Player
+                OnCriticalDamage?.Invoke(stat.Name);
+                Debug.Log($"<color=red>Taking damage from {stat.Name}</color>");
+            }
+        }
+        
+        #region Public API
+        
+        public void ModifyStat(string statName, float amount)
+        {
+            if (statName == "Hunger")
+            {
+                _hunger.CurrentValue = Mathf.Clamp(_hunger.CurrentValue + amount, 0, _hunger.MaxValue);
+                OnStatChanged?.Invoke(_hunger);
+            }
+            else if (statName == "Thirst")
+            {
+                _thirst.CurrentValue = Mathf.Clamp(_thirst.CurrentValue + amount, 0, _thirst.MaxValue);
+                OnStatChanged?.Invoke(_thirst);
+            }
+        }
+        
+        #endregion
+    }
+}

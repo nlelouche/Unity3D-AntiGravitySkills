@@ -1,9 +1,9 @@
 ---
 name: resource-management-system
-description: "Generates an Economy/Resource system. Use for "wood/stone counter", "wallet system", or "crafting cost check"."
+description: "Economy system for tracking integer-based resources (Gold, Wood, Food) with ScriptableObject keys and event-driven updates."
 version: 1.0.0
-tags: []
-argument-hint: name='EconomyManager' namespace='Game.Economy'
+tags: ["economy", "resources", "inventory", "management", "rts"]
+argument-hint: "action='Add' resource='Gold' amount=100"
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,23 +14,76 @@ allowed-tools:
 
 # Resource Management System
 
-## Goal
-To manage integer values associated with ScriptableObject keys (Resources), typical in RTS/Survival games.
+## Overview
+A data-driven economy system where Resources are defined as `ScriptableObjects`. The Manager holds the inventory (`Dictionary<Resource, int>`) and broadcasts events when values change for UI updates.
 
 ## When to Use
-- Use when resource gathering
-- Use when economy systems
-- Use when production chains
+- Use for RTS/City Builders (Wood, Stone, Gold)
+- Use for RPG Currencies (Gem, Coin, Karma)
+- Use for Crafting Ingredients
+- Use for tracking ammo or fuel
+- Use for validating building costs
 
 ## Architecture
-- **ResourceType (SO)**: The key (Gold, Wood).
-- **ResourceManager (MonoBehaviour)**: The logic (`Dictionary<ResourceType, int>`).
-- **Events**: `OnResourceChanged` for UI updates.
 
-## Procedure
-1.  **Generate Data**: `ResourceType.cs`.
-2.  **Generate Logic**: `ResourceManager.cs`.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ECONOMY SYSTEM                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  RESOURCE DATA (Type)     RESOURCE MANAGER (Inventory)      │
+│  ┌────────────────┐      ┌───────────────────────────┐      │
+│  │ "Gold.asset"   │──────▶ Dictionary<Type, int>     │      │
+│  │ "Wood.asset"   │      │ [Gold: 100]               │      │
+│  └────────────────┘      │ [Wood: 50]                │      │
+│                          └─────────────┬─────────────┘      │
+│                                        │                    │
+│                                        ▼                    │
+│    UI DISPLAY               ┌───────────────────────────┐   │
+│  ┌────────────────┐         │ EVENT: OnResourceChanged  │   │
+│  │ Update Text()  │◀────────│ (Type, NewValue)          │   │
+│  └────────────────┘         └───────────────────────────┘   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Few-Shot Example
-User: "I need to track gold and gems."
-Agent: Generates system. "Create two assets: 'Gold' and 'Gems'. Use `manager.AddResource(gold, 100)`."
+## Best Practices
+- ✅ Use `ScriptableObjects` as Keys (prevents string errors like "gold" vs "Gold").
+- ✅ Use generic interfaces like `ICost` that accepts `ResourceAmount` structs.
+- ✅ Implement `CanAfford()` and `Spend()` helper methods.
+- ✅ Separate the UI from the Data (Observer pattern).
+- ❌ **NEVER** use Strings as keys (`dict["Gold"]`).
+- ❌ **NEVER** update UI in `Update()`; use Events.
+
+## Few-Shot Examples
+
+### Example 1: Defining Resource
+**User**: "Create a Wood resource."
+
+**Agent**:
+```csharp
+[CreateAssetMenu(menuName = "Economy/Resource")]
+public class ResourceType : ScriptableObject
+{
+    public string DisplayName;
+    public Sprite Icon;
+}
+```
+
+### Example 2: Transaction
+**User**: "Add 100 wood."
+
+**Agent**:
+```csharp
+public void AddResource(ResourceType type, int amount)
+{
+    if (!_inventory.ContainsKey(type)) _inventory[type] = 0;
+    
+    _inventory[type] += amount;
+    OnResourceChanged?.Invoke(type, _inventory[type]);
+}
+```
+
+## Related Skills
+- `@unity-events-messaging` - Event System
+- `@ui-toolkit-modern` - Resource Bar UI

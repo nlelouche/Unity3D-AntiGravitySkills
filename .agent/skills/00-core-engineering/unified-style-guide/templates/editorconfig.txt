@@ -1,37 +1,78 @@
+# EditorConfig
+# https://editorconfig.org
+
 root = true
 
+# All files
 [*]
+charset = utf-8
 indent_style = space
 indent_size = 4
-charset = utf-8
-trim_trailing_whitespace = true
 insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = crlf
 
+[*.{xml,json,yml,yaml,md}]
+indent_size = 2
+
+# C# files
 [*.cs]
-# Naming Conventions
-dotnet_naming_rule.interface_should_be_begins_with_i.severity = warning
-dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
-dotnet_naming_rule.interface_should_be_begins_with_i.style = i_prefix
+indent_size = 4
 
-dotnet_naming_symbols.interface.applicable_kinds = interface
+# New line preferences
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+
+# Indentation preferences
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_indent_labels = one_less_than_current
+
+# Sorting
+csharp_sort_usings = true
+csharp_using_directive_placement = outside_namespace
+
+# Naming conventions
+# 1. Classes, Structs, Enums, Methods, Properties, Events, Delegates -> PascalCase
+dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, delegate, method, property, event
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# 2. Interfaces -> PascalCase with I prefix
+dotnet_naming_rule.interfaces_should_start_with_i.severity = suggestion
+dotnet_naming_rule.interfaces_should_start_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_should_start_with_i.style = i_prefix
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
 dotnet_naming_style.i_prefix.capitalization = pascal_case
 dotnet_naming_style.i_prefix.required_prefix = I
 
-# Private fields: _camelCase
-dotnet_naming_rule.private_fields_should_be_underscore_camel.severity = warning
-dotnet_naming_rule.private_fields_should_be_underscore_camel.symbols = private_fields
-dotnet_naming_rule.private_fields_should_be_underscore_camel.style = underscore_camel
+# 3. Private Fields -> _camelCase
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = suggestion
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
 
 dotnet_naming_symbols.private_fields.applicable_kinds = field
-dotnet_naming_symbols.private_fields.applicable_accessibilities = private
-dotnet_naming_style.underscore_camel.capitalization = camel_case
-dotnet_naming_style.underscore_camel.required_prefix = _
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private, protected, private_protected
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
 
-# Formatting
-csharp_new_line_before_open_brace = all
-csharp_space_after_keywords_in_control_flow_statements = true
-csharp_preferred_modifier_order = public,private,protected,internal,static,readonly,override,abstract,virtual,sealed,async
+# 4. Parameters and Locals -> camelCase
+dotnet_naming_rule.locals_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.locals_should_be_camel_case.symbols = locals
+dotnet_naming_rule.locals_should_be_camel_case.style = camel_case
 
-# Unity Specific
-# Suppress "Field is never assigned to" for SerializedFields
-dotnet_diagnostic.CS0649.severity = silent
+dotnet_naming_symbols.locals.applicable_kinds = parameter, local
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+# Unity specific: Serialized fields are implicitly part of the API, but often private in C#
+# We generally treat them as private fields (_camelCase) if they are private in C#.
+# If public, they follow PascalCase.

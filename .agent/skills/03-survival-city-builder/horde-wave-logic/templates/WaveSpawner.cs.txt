@@ -1,0 +1,125 @@
+// =============================================================================
+// WaveSpawner.cs - Horde Wave Logic
+// Template for defining and running waves of enemies
+// =============================================================================
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.Combat
+{
+    #region Data Structures
+    
+    [Serializable]
+    public struct EnemySpawnEntry
+    {
+        public GameObject Prefab;
+        public int Count;
+        public float Rate; // Seconds between spawns
+    }
+
+    [Serializable]
+    public class WaveData
+    {
+        public string Name;
+        public List<EnemySpawnEntry> Entries;
+        public float BreakTimeAfter; // Time before next wave
+    }
+    
+    #endregion
+
+    public class WaveSpawner : MonoBehaviour
+    {
+        #region Settings
+        
+        [SerializeField] private List<WaveData> _waves;
+        [SerializeField] private Transform[] _spawnPoints;
+        
+        #endregion
+        
+        #region State
+        
+        public int CurrentWaveIndex { get; private set; } = 0;
+        public bool IsWaveActive { get; private set; }
+        public int EnemiesAlive { get; private set; }
+        
+        #endregion
+        
+        #region Events
+        
+        public event Action<int> OnWaveStart;
+        public event Action<int> OnWaveEnd;
+        public event Action OnAllWavesComplete;
+        
+        #endregion
+        
+        private void Start()
+        {
+            // Auto start for demo
+            StartCoroutine(RunGameLoop());
+        }
+        
+        private IEnumerator RunGameLoop()
+        {
+            yield return new WaitForSeconds(2f); // Initial Delay
+            
+            while (CurrentWaveIndex < _waves.Count)
+            {
+                WaveData wave = _waves[CurrentWaveIndex];
+                
+                // Start Wave
+                IsWaveActive = true;
+                OnWaveStart?.Invoke(CurrentWaveIndex + 1);
+                Debug.Log($"Starting Wave {CurrentWaveIndex + 1}: {wave.Name}");
+                
+                // Spawn Entries
+                foreach (var entry in wave.Entries)
+                {
+                    yield return SpawnGroup(entry);
+                }
+                
+                // Wait for all enemies to die
+                // (Assuming enemies decrement EnemiesAlive on death)
+                yield return new WaitUntil(() => EnemiesAlive <= 0);
+                
+                IsWaveActive = false;
+                OnWaveEnd?.Invoke(CurrentWaveIndex + 1);
+                Debug.Log("Wave Cleared!");
+                
+                CurrentWaveIndex++;
+                
+                if (CurrentWaveIndex < _waves.Count)
+                    yield return new WaitForSeconds(wave.BreakTimeAfter);
+            }
+            
+            OnAllWavesComplete?.Invoke();
+        }
+        
+        private IEnumerator SpawnGroup(EnemySpawnEntry entry)
+        {
+            for (int i = 0; i < entry.Count; i++)
+            {
+                SpawnEnemy(entry.Prefab);
+                yield return new WaitForSeconds(entry.Rate);
+            }
+        }
+        
+        private void SpawnEnemy(GameObject prefab)
+        {
+            Transform sp = _spawnPoints[UnityEngine.Random.Range(0, _spawnPoints.Length)];
+            Instantiate(prefab, sp.position, sp.rotation);
+            EnemiesAlive++;
+            
+            // Note: In production, use ObjectPool.Get() instead of Instantiate
+            // and hook into the Enemy's OnDeath event to decrement EnemiesAlive
+        }
+        
+        // Helper to be called by enemy script
+        public void ReportEnemyDeath()
+        {
+            EnemiesAlive--;
+        }
+    }
+}

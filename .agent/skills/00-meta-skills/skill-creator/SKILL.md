@@ -1,58 +1,67 @@
 ---
 name: skill-creator
-description: "Generates a new Production-Grade Skill (PG-Skill) with the correct folder structure and boilerplate files. Use this when the user asks to "create a new skill" or "bootstrap a skill"."
-version: 1.0.0
-tags: []
-argument-hint: skill_name='my-new-skill' category='01-architecture' description='What does it do?'
+description: "Meta-skill for generating new Production-Grade Skills. Ensures consistency across the AntiGravity library by scaffolding folders and files."
+version: 2.0.0
+tags: ["meta", "scaffolding", "automation", "standards"]
+argument-hint: "name='new-skill' category='01-architecture' description='Short goal'"
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
   - run_command
-  - write_to_file
   - list_dir
+  - write_to_file
 ---
 
-# Skill Creator: The Meta-Agent Factory
+# Skill Creator (Meta)
 
-## Goal
-To bootstrap a new "Production-Grade Skill" folder structure that strictly adheres to the "Architecture Convergence" research paper standards. This ensures every new skill has a dedicated `scripts/` folder for Python logic and a standardized `SKILL.md`.
+## Overview
+The "Factory" for all other skills. This meta-skill automates the creation of new skills to ensure they adhere to the **AntiGravity Professional Standard**. It scaffolds the directory structure, creates a robust `SKILL.md` from a template, and generates `scripts/` or `templates/` folders as needed.
 
 ## When to Use
-- Use when starting a new Unity project
-- Use when setting up initial architecture
-- Use when establishing project foundations
+- Use when **creating a new skill** from scratch.
+- Use when **standardizing** an existing legacy skill.
+- Use when bootstrapping a new category.
+- Use to ensure **Architecture Convergence** across the agent's brain.
 
-## Constraints & Rules
-- **Naming Convention**: Skill names must be `kebab-case` (e.g., `unity-build-commander`).
-- **Structure Enforcement**: You MUST NOT create just a `SKILL.md`. You MUST create the full folder hierarchy:
-  ```text
-  category/skill-name/
-  ├── SKILL.md
-  ├── scripts/
-  │   ├── main.py
-  │   └── requirements.txt
-  ├── references/
-  └── assets/
-  ```
-- **Python-First**: Always assume the skill will need a Python script. Generate a boilerplate `main.py` that handles argument parsing and logging.
-- **YAML Frontmatter**: The `SKILL.md` must have valid YAML frontmatter including `name`, `description`, `argument-hint`, and `allowed-tools`.
+## Architecture
 
-## Procedure
+The Generator creates the following structure:
 
-1.  **Validate Input**: Ensure you have a `skill_name`, a `category` (folder name), and a `description`. If the category doesn't exist, suggest creating it or using a standard one.
-2.  **Execute Generation Script**: The actual file creation logic is encapsulated in `scripts/create_skill.py`. This ensures consistency. Use `run_command` to execute this script.
-    - Command: `python .agent/skills/00-meta-skills/skill-creator/scripts/create_skill.py --name "{skill_name}" --category "{category}" --description "{description}"`
-3.  **Verify Output**: Check if the folder was created using `list_dir`.
-4.  **Report to User**: Confirm the creation and provide the path to the new skill.
+```text
+.agent/skills/{category}/{skill-name}/
+├── SKILL.md                 # The Brain (YAML + Markdown)
+├── templates/               # C# / Shader / Text templates
+│   └── MyTemplate.cs.txt
+├── scripts/                 # (Optional) Python automation
+│   └── main.py
+└── references/              # (Optional) Documentation/Images
+```
 
-## Few-Shot Example
+## Best Practices
+- ✅ **Kebab-Case**: Always use `kebab-case` for skill names (e.g., `inventory-system`, not `InventorySystem`).
+- ✅ **Categorization**: Place skills in the correct numbered category (e.g., `01-architecture`, `02-gameplay`).
+- ✅ **Clean Description**: The YAML description should be actionable and concise.
+- ✅ **Tags**: Add relevant tags for better semantic search.
 
-**User**: "Create a skill called 'asset-auditor' in '03-technical-art' to find large textures."
+## Procedure (Python Automation)
 
-**Agent**:
-1.  Identifies params: `name='asset-auditor'`, `category='03-technical-art'`, `desc='Finds large textures'`.
-2.  Runs command: `python .agent/skills/00-meta-skills/skill-creator/scripts/create_skill.py --name "asset-auditor" --category "03-technical-art" --description "Finds large textures"`
-3.  Output: "Skill created at .agent/skills/03-technical-art/asset-auditor"
+If Python is available, use the existing script to generate the skill.
 
-## Python Script Wrapper
-The python script `create_skill.py` handles the file I/O safely and populates the `SKILL.md` with the description provided.
+1.  **Analyze Request**: Identify `name`, `category`, and `description`.
+2.  **Execute Script**:
+    ```bash
+    python .agent/skills/00-meta-skills/skill-creator/scripts/create_skill.py --name "my-skill" --category "01-architecture" --description "My skill description"
+    ```
+3.  **Verify**: Check that `SKILL.md` exists and has the correct frontmatter.
+
+## Manual Procedure (Fallback)
+
+If Python is unavailable, use the **Reference Template** below to manually write the `SKILL.md`.
+
+1.  Create usage folder: `.agent/skills/{category}/{name}/`
+2.  Create `SKILL.md` using the **Professional Template** consistency.
+3.  Fill in `Overview`, `When to Use`, `Architecture`, `Best Practices`, and `Few-Shot Examples`.
+
+## Related Skills
+- `@unified-style-guide` - Ensures code templates follow C# standards.
+- `@version-control-git` - Commit the new skill immediately.

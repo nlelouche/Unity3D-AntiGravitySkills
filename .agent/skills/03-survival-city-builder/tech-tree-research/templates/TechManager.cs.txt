@@ -1,0 +1,94 @@
+// =============================================================================
+// TechManager.cs - Tech Tree Research
+// Template for dependency-based unlocking system
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.Research
+{
+    // -------------------------------------------------------------------------
+    // 1. Tech Node Definition
+    // -------------------------------------------------------------------------
+    [CreateAssetMenu(menuName = "Research/Tech Node")]
+    public class TechNode : ScriptableObject
+    {
+        [Header("Display")]
+        public string DisplayName;
+        [TextArea] public string Description;
+        public Sprite Icon;
+
+        [Header("Logic")]
+        public List<TechNode> Prerequisites;
+        public int ScienceCost;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Manager
+    // -------------------------------------------------------------------------
+    public class TechManager : MonoBehaviour
+    {
+        #region State
+        
+        // HashSet for fast lookup of unlocked IDs
+        private HashSet<TechNode> _unlockedTechs = new HashSet<TechNode>();
+        
+        #endregion
+
+        #region Events
+        
+        public event Action<TechNode> OnTechUnlocked;
+        
+        #endregion
+        
+        #region Public API
+        
+        public bool IsUnlocked(TechNode node)
+        {
+            return _unlockedTechs.Contains(node);
+        }
+        
+        public bool IsResearchable(TechNode node)
+        {
+            if (IsUnlocked(node)) return false; // Already done
+            
+            foreach (var parent in node.Prerequisites)
+            {
+                if (!IsUnlocked(parent)) return false; // Parent missing
+            }
+            
+            return true; // All parents unlocked + not yet researched, Go ahead
+        }
+        
+        public bool TryUnlock(TechNode node)
+        {
+            if (!IsResearchable(node))
+            {
+                Debug.LogWarning($"Cannot research {node.name}: Prereqs missing or already unlocked.");
+                return false;
+            }
+            
+            // Check costs here (e.g., EconomyManager.Instance.TrySpend(...))
+            
+            _unlockedTechs.Add(node);
+            OnTechUnlocked?.Invoke(node);
+            Debug.Log($"Researched: {node.DisplayName}");
+            
+            return true;
+        }
+        
+        // For Debug/Cheats
+        public void ForceUnlock(TechNode node)
+        {
+            if (!_unlockedTechs.Contains(node))
+            {
+                _unlockedTechs.Add(node);
+                OnTechUnlocked?.Invoke(node);
+            }
+        }
+        
+        #endregion
+    }
+}

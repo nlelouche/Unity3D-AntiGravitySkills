@@ -1,9 +1,9 @@
 ---
 name: object-pooling-system
-description: "Generates Object Pools to reuse GameObjects (bullets, enemies) and avoid GC spikes."
+description: "High-performance object pooling for GameObjects to eliminate GC spikes and allocation overhead."
 version: 1.0.0
-tags: []
-argument-hint: name='BulletPool' namespace='Game.Performance'
+tags: ["performance", "pooling", "memory", "GC", "optimization"]
+argument-hint: "prefab='Bullet' initial_size='20' OR pool_type='generic'"
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,22 +14,171 @@ allowed-tools:
 
 # Object Pooling System
 
-## Goal
-To recycle objects instead of Destroy/Instantiate, crucial for mobile and console performance.
+## Overview
+High-performance object pooling to eliminate GC spikes from Instantiate/Destroy. Essential for projectiles, particles, enemies, and any frequently spawned objects.
 
 ## When to Use
-- Use when object pooling
-- Use when spawn optimization
-- Use when memory efficiency
+- Use for bullets, projectiles, VFX
+- Use for spawned enemies, pickups
+- Use for UI list items
+- Use when experiencing GC spikes
+- Use for mobile/console optimization
 
 ## Architecture
-- **PoolManager**: Holds a `Queue<GameObject>`.
-- **IPoolable**: Interface for objects reset logic (`OnSpawn`, `OnDespawn`).
 
-## Procedure
-1.  **Generate Manager**: `PoolManager.cs`.
-2.  **Instruction**: Assign the prefab in Inspector.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   POOLING ARCHITECTURE                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  POOL MANAGER              OBJECT POOLS                     │
+│  ┌──────────────┐         ┌──────────────┐                 │
+│  │ GetPool<T>() │────────▶│ Pool<Bullet> │                 │
+│  │ RegisterPool │         │  ├─ Active[] │                 │
+│  │ ReturnAll()  │         │  └─ Available│                 │
+│  └──────────────┘         │     Queue<>  │                 │
+│                           ├──────────────┤                 │
+│  POOLABLE OBJECT          │ Pool<Enemy>  │                 │
+│  ┌──────────────┐         └──────────────┘                 │
+│  │ IPoolable    │                                          │
+│  │  OnSpawn()   │◀────────── Get()                        │
+│  │  OnDespawn() │──────────▶ Return()                     │
+│  └──────────────┘                                          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Few-Shot Example
-User: "The game stutters when shooting."
-Agent: "I'll implement an Object Pool for the bullets."
+## Pool Types
+
+| Type | Use Case |
+|------|----------|
+| **Simple Pool** | Single prefab, fixed size |
+| **Generic Pool** | Type-safe, any MonoBehaviour |
+| **Expandable** | Grows when exhausted |
+| **Multi-Pool** | Multiple prefab variants |
+
+## Performance Impact
+
+| Operation | Without Pool | With Pool |
+|-----------|:------------:|:---------:|
+| Spawn 100 | ~5ms | ~0.1ms |
+| GC Alloc | 100KB+ | 0KB |
+| Memory churn | High | None |
+
+## Best Practices
+- ✅ Pre-warm pools at scene load
+- ✅ Use IPoolable for reset logic
+- ✅ Return objects explicitly
+- ✅ Set reasonable initial sizes
+- ✅ Use component caching
+- ❌ **NEVER** Destroy pooled objects
+- ❌ **NEVER** forget to return objects
+- ❌ **NEVER** use GetComponent on spawn
+
+## Few-Shot Examples
+
+### Example 1: Generic Pool
+**User**: "Pool for bullets."
+
+**Agent**:
+```csharp
+public class ObjectPool<T> where T : MonoBehaviour, IPoolable
+{
+    private readonly T _prefab;
+    private readonly Queue<T> _available = new();
+    private readonly List<T> _active = new();
+    private readonly Transform _parent;
+    
+    public ObjectPool(T prefab, int initialSize, Transform parent = null)
+    {
+        _prefab = prefab;
+        _parent = parent;
+        
+        for (int i = 0; i < initialSize; i++)
+        {
+            CreateInstance();
+        }
+    }
+    
+    public T Get(Vector3 position, Quaternion rotation)
+    {
+        T obj = _available.Count > 0 ? _available.Dequeue() : CreateInstance();
+        obj.transform.SetPositionAndRotation(position, rotation);
+        obj.gameObject.SetActive(true);
+        obj.OnSpawn();
+        _active.Add(obj);
+        return obj;
+    }
+    
+    public void Return(T obj)
+    {
+        obj.OnDespawn();
+        obj.gameObject.SetActive(false);
+        _active.Remove(obj);
+        _available.Enqueue(obj);
+    }
+}
+```
+
+### Example 2: IPoolable Interface
+**User**: "Reset logic for pooled object."
+
+**Agent**:
+```csharp
+public interface IPoolable
+{
+    void OnSpawn();
+    void OnDespawn();
+}
+
+public class Bullet : MonoBehaviour, IPoolable
+{
+    private Rigidbody _rb;
+    private TrailRenderer _trail;
+    
+    private void Awake()
+    {
+        _rb = GetComponent<Rigidbody>();
+        _trail = GetComponent<TrailRenderer>();
+    }
+    
+    public void OnSpawn()
+    {
+        _rb.velocity = Vector3.zero;
+        _trail.Clear();
+    }
+    
+    public void OnDespawn()
+    {
+        _rb.velocity = Vector3.zero;
+    }
+}
+```
+
+### Example 3: Pool Manager Singleton
+**User**: "Centralized pool management."
+
+**Agent**:
+```csharp
+public class PoolManager : MonoBehaviour
+{
+    private static PoolManager _instance;
+    private readonly Dictionary<Type, object> _pools = new();
+    
+    public static ObjectPool<T> GetPool<T>() where T : MonoBehaviour, IPoolable
+    {
+        return (ObjectPool<T>)_instance._pools[typeof(T)];
+    }
+    
+    public void RegisterPool<T>(T prefab, int size) where T : MonoBehaviour, IPoolable
+    {
+        var pool = new ObjectPool<T>(prefab, size, transform);
+        _pools[typeof(T)] = pool;
+    }
+}
+```
+
+## Related Skills
+- `@addressables-asset-management` - Async prefab loading
+- `@memory-profiler-expert` - Verify pool effectiveness
+- `@mobile-optimization` - Mobile-specific pooling
