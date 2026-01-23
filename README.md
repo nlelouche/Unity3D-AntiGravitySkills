@@ -11,11 +11,19 @@ This repository contains **52 Production-Grade Unity Skills** that transform a s
 We recommend treating this repository as a **Git Submodule** within your Unity projects. This architecture allows multiple game projects to share a single, evolving "Brain" of skills.
 
 #### Installation (Git Submodule)
-Run this command from your Unity project's root:
-```bash
-# Adds AntiGravity as a tools submodule
-git submodule add https://github.com/YourOrg/AntiGravitySkills.git .agent/antigravity
-```
+1. Run this command from your Unity project's root:
+   ```bash
+   # Adds AntiGravity as a tools submodule
+   git submodule add https://github.com/YourOrg/AntiGravitySkills.git .agent/antigravity
+   ```
+2. **Run the Initialization Script** (One-time Setup):
+   * **Windows**: Run `.\.agent\antigravity\Initialize.ps1`
+   * **Mac/Linux**: Run `./.agent/antigravity/setup.sh`
+
+   > **🛠️ What does this script do?**
+   > *   **It does NOT move your files:** Your submodule integrity remains untouched.
+   > *   **Symlinks the Brain (`.agent/skills`):** It creates a **Symbolic Link** (or Junction on Windows) from your project's `.agent/skills` folder to the submodule. This means if you update the submodule (`git submodule update`), your Agent immediately sees the new skills without you needing to copy anything.
+   > *   **Copies the Persona (`AGENT.md`):** It duplicates `AGENT.md` to your project root. This is a **copy**, not a link, so you can customize the Agent's personality for *this specific project* (e.g., adding specific rules) without altering the shared codebase.
 
 #### The Workflow
 1.  **Project Specific**: Your game code lives in `Assets/`.
