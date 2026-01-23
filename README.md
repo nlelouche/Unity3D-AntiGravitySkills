@@ -1,6 +1,7 @@
 # 🌌 AntiGravity Skills
 > *The "Cortex" for AI-Native Unity Development.*
 
+[![Leer en Español](https://img.shields.io/badge/Leer%20en-Espa%C3%B1ol-red)](README.es.md)
 ![Unity](https://img.shields.io/badge/Unity-2023%2B-black?logo=unity)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-blue)
