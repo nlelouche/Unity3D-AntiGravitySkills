@@ -1,0 +1,59 @@
+// =============================================================================
+// ProjectSetupTool.cs
+// Template for initializing a new project
+// =============================================================================
+
+using UnityEngine;
+using UnityEditor;
+using System.IO;
+using System.Text;
+
+namespace YourGame.Meta
+{
+    public static class ProjectSetupTool
+    {
+        [MenuItem("Tools/Setup Project Standard")]
+        public static void SetupDirectories()
+        {
+            // 1. Define Standard Folders
+            string[] folders = new string[]
+            {
+                "_Game",
+                "_Game/Scripts",
+                "_Game/Prefabs",
+                "_Game/Art",
+                "_Game/Art/Materials",
+                "_Game/Art/Textures",
+                "_Game/Audio",
+                "_Game/Scenes",
+                "_Game/Resources",
+                "ThirdParty",
+                "Sandbox"
+            };
+
+            // 2. Create them
+            foreach (string path in folders)
+            {
+                string fullPath = Path.Combine(Application.dataPath, path);
+                if (!Directory.Exists(fullPath))
+                {
+                    Directory.CreateDirectory(fullPath);
+                    Debug.Log($"Created: {path}");
+                }
+            }
+
+            // 3. Create .gitkeep or Readme in Sandbox
+            string sandboxPath = Path.Combine(Application.dataPath, "Sandbox", "README.txt");
+            if (!File.Exists(sandboxPath))
+            {
+                File.WriteAllText(sandboxPath, "Use this folder for quick tests. Do not commit large files here.");
+            }
+
+            AssetDatabase.Refresh();
+            Debug.Log("<b>Project Structure Setup Complete!</b>");
+        }
+        
+        // Note: Package installation usually requires manipulating manifest.json
+        // via System.IO or using Client.Add() from PackageManager API
+    }
+}

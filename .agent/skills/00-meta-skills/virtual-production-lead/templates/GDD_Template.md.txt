@@ -1,0 +1,44 @@
+# Game Design Document (GDD) - [Project Name]
+
+## 1. Executive Summary
+**High Concept**: [One-sentence description of the game]
+**Genre**: [e.g., Survival City Builder, FPS, RPG]
+**Target Platform**: [e.g., PC, Mobile, Console]
+**Visual Style**: [e.g., Low Poly, Realistic, Pixel Art]
+
+## 2. Core Gameplay Loop
+1.  **Action**: [What does the player do second-to-second?] (e.g., Gather wood)
+2.  **Reward**: [What do they get?] (e.g., Wood resource)
+3.  **Progression**: [How do they grow?] (e.g., Build better axe)
+
+## 3. Key Mechanics (The "Systems")
+
+### 3.1 Movement & Control
+*   [Describe how the player moves]
+*   **Req Skill**: `@player-movement-controller`
+
+### 3.2 Combat / Interaction
+*   [Describe combat or interaction rules]
+*   **Req Skill**: `@damage-health-framework` / `@status-effect-system`
+
+### 3.3 Economy / Resources
+*   [List resources: Gold, Wood, etc.]
+*   **Req Skill**: `@resource-management-system`
+
+### 3.4 Enemies / AI
+*   [Describe enemy types]
+*   **Req Skill**: `@unit-population-ai`
+
+## 4. Game World & Levels
+*   **Setting**: [Describe the environment]
+*   **Level Design**: [Procedural or Hand-crafted?]
+
+## 5. UI / UX
+*   **HUD**: [Health bar, minimap?]
+*   **Menus**: [Inventory, Pause, Main Menu]
+*   **Req Skill**: `@ui-toolkit-modern`
+
+## 6. Technical Requirements
+*   **Multiplayer?**: [Yes/No] -> `@multiplayer-netcode`
+*   **Save System?**: [Yes/No] -> `@save-load-serialization`
+*   **Platform**: [Mobile?] -> `@mobile-optimization`

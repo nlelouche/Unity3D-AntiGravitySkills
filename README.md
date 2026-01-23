@@ -3,8 +3,8 @@
 
 ![Unity](https://img.shields.io/badge/Unity-2023%2B-black)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Skills](https://img.shields.io/badge/Skills-56_Active-blue)
-![Templates](https://img.shields.io/badge/Templates-90_Ready-orange)
+![Skills](https://img.shields.io/badge/Skills-61_Active-blue)
+![Templates](https://img.shields.io/badge/Templates-96_Ready-orange)
 
 **AntiGravity Skills** is a standardized, modular library of "Skills" designed to empower AI Agents (like Gemini, Claude, Cursor) to act as **Senior Unity Engineers**. 
 
@@ -23,65 +23,58 @@ The repository is structured for automatic ingestion by MCP-enabled agents.
 ├── 02-gameplay/              # Mechanics (Combat, Camera, Input)
 ├── 03-survival-city-builder/ # Genre: Survival & Strategy
 ├── 04-visuals-audio/         # Shaders, VFX, SFX
+├── 04-devops-automation/     # CI/CD, Build Pipelines
 ├── 05-ui-ux/                 # MVVM UI, Toolkits, HUDs
 ├── 06-performance/           # Optimization, Memory, Object Pooling
-├── 07-tools-pipeline/        # Editor Tools, CI/CD, Git
+├── 07-tools-pipeline/        # Editor Tools, Asset Import, Git
 ├── 08-backend-monetization/  # Analytics, IAP, Multiplayer
-└── 00-meta-skills/           # Agent Self-Replication Tools
+└── 00-meta-skills/           # Agent Self-Replication & Leadership Tools
 ```
 
 ### Anatomy of a Skill
 Every skill follows the **"Convergence Standard"**:
 1.  **`SKILL.md`**: The brain. Contains the "When to Use", "Architecture", and "Few-Shot Examples".
 2.  **`templates/`**: C# scripts, Shaders, or Configs that are 90% complete and ready to deploy.
-3.  **`scripts/`** (Optional): Python/Bash automation for complex tasks.
 
 ---
 
-## 🏛️ The 10 Pillars of AntiGravity
+## 🏛️ The 12 Pillars of AntiGravity
 
 ### 1. Core Engineering (`00-core`)
-Establishes the ground rules.
 - **Skills**: `unified-style-guide`
-- **Focus**: C# Coding Standards, .editorconfig, Code Reviews.
 
 ### 2. Architecture (`01-architecture`)
-The backbone of scalable games.
 - **Key Skills**: `service-locator-pattern`, `event-bus-system`, `finite-state-machine`, `save-load-serialization`, `asynchronous-programming`.
-- **Philosophy**: ZERO tight coupling. Interface-driven design.
 
 ### 3. Gameplay (`02-gameplay`)
-The "Fun" factor.
 - **Key Skills**: `player-movement-controller`, `camera-system-pro`, `universal-input-handler`, `combat-hitbox-system`.
-- **Philosophy**: Modular components over monoliths.
 
 ### 4. Survival & Strategy (`03-survival-city-builder`)
-Specialized genre mechanics.
-- **Key Skills**: `grid-based-building`, `resource-management`, `horde-wave-logic`, `environment-hazard-system`.
+- **Key Skills**: `grid-based-building-system`, `resource-management-system`, `horde-wave-logic`, `environment-hazard-system`.
 
 ### 5. Visuals & Audio (`04-visuals-audio`)
-The juice and feel.
-- **Key Skills**: `shader-graph-master`, `particle-system-pro`, `audio-mixing-system`.
+- **Key Skills**: `shader-graph-master`, `particle-system-pro`, `audio-mixing-system`, `lighting-nav-baker`.
 
-### 6. UI/UX (`05-ui-ux`)
-Pixel-perfect interfaces.
+### 6. DevOps & Automation (`04-devops`)
+- **Key Skills**: `build-pipeline-manager`, `unity-build-commander`.
+
+### 7. UI/UX (`05-ui-ux`)
 - **Key Skills**: `ui-toolkit-modern`, `mvvm-pattern`, `tweening-animation`.
 
-### 7. Performance (`06-performance`)
-60 FPS on mobile.
+### 8. Performance (`06-performance`)
 - **Key Skills**: `object-pooling-system`, `addressables-asset-management`, `memory-profiler-expert`.
 
-### 8. Tools & Pipeline (`07-tools-pipeline`)
-Developer productivity.
-- **Key Skills**: `custom-editor-scripting`, `automated-unit-testing`, `version-control-git`.
+### 9. Tools & Pipeline (`07-tools-pipeline`)
+- **Key Skills**: `asset-import-pipeline`, `custom-editor-scripting`, `automated-unit-testing`, `version-control-git`.
 
-### 9. Backend & Monetization (`08-backend`)
-LiveOps and Revenue.
+### 10. Backend & Monetization (`08-backend`)
 - **Key Skills**: `analytics-heatmaps`, `monetization-iap`, `backend-integration`.
 
-### 10. Meta Skills (`00-meta`)
-The Agent's self-improvement toolset.
-- **Skills**: `skill-creator` (The factory that builds this repo).
+### 11. Meta Skills (`00-meta`)
+- **Skills**: `skill-creator`, `project-scaffolder`.
+
+### 12. Project Leadership (`00-meta-skills`)
+- **Skills**: `virtual-production-lead` (The AI Director that reads GDDs).
 
 ---
 
@@ -109,7 +102,7 @@ Or run the setup script manually:
 
 ---
 
-## 📊 Project Statistics
+## 📊 final Stats
 
 | Category | Skills Authenticated | Templates Ready |
 |:---------|:--------------------:|:---------------:|
@@ -121,17 +114,9 @@ Or run the setup script manually:
 | Performance | 5 | 3 |
 | Tools Breakdown | 5 | 4 |
 | Backend Ops | 4 | 4 |
-| Core/Meta | 2 | 3 |
-| **TOTAL** | **56** | **90** |
-
----
-
-## 🤝 Contributing
-
-1.  **Fork** the repository.
-2.  **Create a Skill**: Use the `skill-creator` meta-skill to generate the folder structure.
-3.  **Template**: Add a `SKILL.md` and at least one C# `template`.
-4.  **PR**: Submit your PR with the tag `[New Skill]`.
+| DevOps & Pipeline | 4 | 4 |
+| Core/Meta/Lead | 3 | 5 |
+| **GRAND TOTAL** | **61** | **96** |
 
 ---
 

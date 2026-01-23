@@ -1,0 +1,92 @@
+// =============================================================================
+// WorldBakerWindow.cs
+// Template for orchestrating Lighting and NavMesh baking
+// =============================================================================
+
+using UnityEngine;
+using UnityEditor;
+using Unity.AI.Navigation; // Requires AI Navigation Package
+
+namespace YourGame.Tools
+{
+    public class WorldBakerWindow : EditorWindow
+    {
+        [MenuItem("Tools/World Baker")]
+        public static void ShowWindow()
+        {
+            GetWindow<WorldBakerWindow>("World Baker");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Label("Level Processing", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("1. Clear All Data"))
+            {
+                ClearData();
+            }
+
+            GUILayout.Space(10);
+
+            if (GUILayout.Button("2. Bake NavMesh (AI)"))
+            {
+                BakeNavMesh();
+            }
+
+            if (GUILayout.Button("3. Bake Lighting (Slow)"))
+            {
+                BakeLighting();
+            }
+            
+            GUILayout.Space(20);
+            
+            if (GUILayout.Button(">>> BAKE EVERYTHING <<<", GUILayout.Height(40)))
+            {
+                BakeAll();
+            }
+        }
+
+        private void ClearData()
+        {
+            Lightmapping.Clear();
+            NavMesh.RemoveAllNavMeshData();
+            Debug.Log("World Data Cleared.");
+        }
+
+        private void BakeNavMesh()
+        {
+            // Finds all NavMeshSurfaces (Active Only)
+            var surfaces = FindObjectsOfType<NavMeshSurface>();
+            if (surfaces.Length == 0)
+            {
+                Debug.LogWarning("No NavMeshSurfaces found!");
+                return;
+            }
+
+            foreach (var surface in surfaces)
+            {
+                surface.BuildNavMesh();
+            }
+            Debug.Log($"Baked {surfaces.Length} NavMesh Surfaces.");
+        }
+
+        private void BakeLighting()
+        {
+            if (Lightmapping.isRunning) return;
+            
+            // Setup simple settings
+            LightmapEditorSettings.maxAtlasSize = 1024;
+            LightmapEditorSettings.lightmapper = LightmapEditorSettings.Lightmapper.ProgressiveGPU;
+            
+            Lightmapping.BakeAsync();
+            Debug.Log("Lighting Bake Started...");
+        }
+
+        private void BakeAll()
+        {
+            ClearData();
+            BakeNavMesh();
+            BakeLighting();
+        }
+    }
+}
