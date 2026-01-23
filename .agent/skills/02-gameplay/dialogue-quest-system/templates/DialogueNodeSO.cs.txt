@@ -1,0 +1,116 @@
+// =============================================================================
+// DialogueNodeSO.cs - Dialogue Node Definition
+// Part of: dialogue-quest-system skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Dialogue
+{
+    /// <summary>
+    /// ScriptableObject representing a single dialogue node.
+    /// Create via: Assets > Create > Game/Dialogue/DialogueNode
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewDialogue", menuName = "Game/Dialogue/DialogueNode")]
+    public class DialogueNodeSO : ScriptableObject
+    {
+        [Header("Speaker")]
+        [SerializeField] private string _speakerId;
+        [SerializeField] private string _speakerName;
+        [SerializeField] private Sprite _speakerPortrait;
+        
+        [Header("Content")]
+        [SerializeField, TextArea(3, 6)] private string _dialogueText;
+        [SerializeField] private AudioClip _voiceover;
+        
+        [Header("Choices")]
+        [SerializeField] private DialogueChoice[] _choices;
+        
+        [Header("Events")]
+        [SerializeField] private DialogueEvent[] _onEnterEvents;
+        [SerializeField] private DialogueEvent[] _onExitEvents;
+        
+        // Properties
+        public string SpeakerId => _speakerId;
+        public string SpeakerName => _speakerName;
+        public Sprite SpeakerPortrait => _speakerPortrait;
+        public string DialogueText => _dialogueText;
+        public AudioClip Voiceover => _voiceover;
+        public DialogueChoice[] Choices => _choices;
+        public DialogueEvent[] OnEnterEvents => _onEnterEvents;
+        public DialogueEvent[] OnExitEvents => _onExitEvents;
+        
+        public bool HasChoices => _choices != null && _choices.Length > 0;
+    }
+
+    [System.Serializable]
+    public class DialogueChoice
+    {
+        public string ChoiceText;
+        public DialogueNodeSO NextNode;
+        public DialogueCondition[] Conditions;
+        public bool IsVisible => EvaluateConditions();
+        
+        private bool EvaluateConditions()
+        {
+            if (Conditions == null || Conditions.Length == 0) return true;
+            foreach (var cond in Conditions)
+            {
+                if (!cond.Evaluate()) return false;
+            }
+            return true;
+        }
+    }
+
+    [System.Serializable]
+    public class DialogueCondition
+    {
+        public ConditionType Type;
+        public string TargetId;
+        public int RequiredValue;
+        public ComparisonType Comparison;
+        
+        public bool Evaluate()
+        {
+            // TODO: Integrate with game systems
+            // Example: Check quest state, player stats, inventory
+            return true;
+        }
+    }
+
+    [System.Serializable]
+    public class DialogueEvent
+    {
+        public DialogueEventType Type;
+        public string TargetId;
+        public int Value;
+    }
+
+    public enum ConditionType
+    {
+        HasQuest,
+        QuestComplete,
+        HasItem,
+        PlayerLevel,
+        FlagSet
+    }
+
+    public enum ComparisonType
+    {
+        Equal,
+        NotEqual,
+        GreaterThan,
+        LessThan
+    }
+
+    public enum DialogueEventType
+    {
+        StartQuest,
+        CompleteQuest,
+        GiveItem,
+        TakeItem,
+        SetFlag,
+        AddExperience,
+        AddGold
+    }
+}

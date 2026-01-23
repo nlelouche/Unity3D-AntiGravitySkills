@@ -1,0 +1,177 @@
+// =============================================================================
+// GameBootstrapper.cs - Bootstrap Scene Controller
+// Part of: advanced-game-bootstrapper skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace {{NAMESPACE}}.Core
+{
+    /// <summary>
+    /// Central bootstrapper that initializes all game systems in order.
+    /// Place this in a dedicated Bootstrap scene (Build Index 0).
+    /// 
+    /// FLOW: Bootstrap Scene → Initialize All Systems → Load Main Menu
+    /// </summary>
+    public class GameBootstrapper : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private string _mainMenuSceneName = "MainMenu";
+        [SerializeField] private bool _logInitialization = true;
+        
+        [Header("Global Managers (Order by InitializationOrder)")]
+        [SerializeField] private List<MonoBehaviour> _managers = new();
+        
+        [Header("Loading UI (Optional)")]
+        [SerializeField] private GameObject _loadingScreen;
+        [SerializeField] private UnityEngine.UI.Slider _progressBar;
+        [SerializeField] private TMPro.TextMeshProUGUI _statusText;
+        
+        private readonly List<IInitializable> _initializables = new();
+        
+        public static GameBootstrapper Instance { get; private set; }
+        public bool IsBootstrapComplete { get; private set; }
+        public event Action OnBootstrapComplete;
+
+        private async void Awake()
+        {
+            // Singleton with persistence
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            await RunBootstrapSequence();
+        }
+
+        private async Task RunBootstrapSequence()
+        {
+            Log("=== BOOTSTRAP SEQUENCE STARTED ===");
+            
+            try
+            {
+                // Collect all initializables
+                CollectInitializables();
+                
+                // Sort by initialization order
+                var sorted = _initializables
+                    .OrderBy(i => i.InitializationOrder)
+                    .ToList();
+                
+                // Initialize each system
+                float progress = 0f;
+                foreach (var initializable in sorted)
+                {
+                    string systemName = initializable.GetType().Name;
+                    UpdateLoadingUI(progress / sorted.Count, $"Initializing {systemName}...");
+                    
+                    Log($"[{initializable.InitializationOrder}] Initializing: {systemName}");
+                    
+                    await initializable.InitializeAsync();
+                    
+                    if (!initializable.IsInitialized)
+                    {
+                        throw new Exception($"Failed to initialize: {systemName}");
+                    }
+                    
+                    progress++;
+                }
+                
+                // Bootstrap complete
+                IsBootstrapComplete = true;
+                UpdateLoadingUI(1f, "Loading game...");
+                
+                Log("=== BOOTSTRAP SEQUENCE COMPLETE ===");
+                
+                OnBootstrapComplete?.Invoke();
+                
+                // Load main menu
+                await LoadMainMenu();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameBootstrapper] FATAL: Bootstrap failed!\n{ex}");
+                UpdateLoadingUI(0f, $"ERROR: {ex.Message}");
+            }
+        }
+
+        private void CollectInitializables()
+        {
+            _initializables.Clear();
+            
+            // From serialized managers
+            foreach (var manager in _managers)
+            {
+                if (manager is IInitializable init)
+                {
+                    _initializables.Add(init);
+                    DontDestroyOnLoad(manager.gameObject);
+                }
+            }
+            
+            // From children of this object
+            foreach (var init in GetComponentsInChildren<IInitializable>())
+            {
+                if (!_initializables.Contains(init))
+                {
+                    _initializables.Add(init);
+                }
+            }
+            
+            Log($"Found {_initializables.Count} initializable systems");
+        }
+
+        private async Task LoadMainMenu()
+        {
+            var operation = SceneManager.LoadSceneAsync(_mainMenuSceneName, LoadSceneMode.Single);
+            
+            while (!operation.isDone)
+            {
+                UpdateLoadingUI(0.9f + operation.progress * 0.1f, "Loading main menu...");
+                await Task.Yield();
+            }
+        }
+
+        private void UpdateLoadingUI(float progress, string status)
+        {
+            if (_loadingScreen != null)
+                _loadingScreen.SetActive(true);
+                
+            if (_progressBar != null)
+                _progressBar.value = progress;
+                
+            if (_statusText != null)
+                _statusText.text = status;
+        }
+
+        private void Log(string message)
+        {
+            if (_logInitialization)
+                Debug.Log($"[GameBootstrapper] {message}");
+        }
+
+        private async void OnApplicationQuit()
+        {
+            // Shutdown in reverse order
+            var shutdownables = _initializables
+                .OfType<IShutdownable>()
+                .OrderByDescending(s => s.ShutdownOrder)
+                .ToList();
+
+            foreach (var shutdownable in shutdownables)
+            {
+                Log($"Shutting down: {shutdownable.GetType().Name}");
+                await shutdownable.ShutdownAsync();
+            }
+        }
+    }
+}

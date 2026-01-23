@@ -1,0 +1,85 @@
+// =============================================================================
+// AsyncOperation.cs - Base Async Operation Class
+// Part of: asynchronous-programming skill
+// =============================================================================
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Async
+{
+    /// <summary>
+    /// Base class for cancellable async operations.
+    /// Provides proper lifecycle management and Unity main thread safety.
+    /// </summary>
+    public abstract class AsyncOperation<TResult>
+    {
+        private CancellationTokenSource _cts;
+        private Task<TResult> _task;
+        
+        public bool IsRunning => _task != null && !_task.IsCompleted;
+        public bool IsCompleted => _task?.IsCompleted ?? false;
+        public bool IsCancelled => _task?.IsCanceled ?? false;
+        public TResult Result => _task?.Result;
+        
+        public event Action<TResult> OnCompleted;
+        public event Action<Exception> OnError;
+        public event Action OnCancelled;
+
+        /// <summary>
+        /// Start the async operation.
+        /// </summary>
+        public async Task<TResult> StartAsync(CancellationToken externalToken = default)
+        {
+            if (IsRunning)
+            {
+                Debug.LogWarning($"[{GetType().Name}] Operation already running.");
+                return await _task;
+            }
+            
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(externalToken);
+            
+            try
+            {
+                _task = ExecuteAsync(_cts.Token);
+                var result = await _task;
+                OnCompleted?.Invoke(result);
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                OnCancelled?.Invoke();
+                throw;
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Cancel the operation.
+        /// </summary>
+        public void Cancel()
+        {
+            _cts?.Cancel();
+        }
+
+        /// <summary>
+        /// Override this with your async logic.
+        /// </summary>
+        protected abstract Task<TResult> ExecuteAsync(CancellationToken token);
+
+        /// <summary>
+        /// Cleanup resources.
+        /// </summary>
+        public void Dispose()
+        {
+            _cts?.Dispose();
+            _cts = null;
+        }
+    }
+}

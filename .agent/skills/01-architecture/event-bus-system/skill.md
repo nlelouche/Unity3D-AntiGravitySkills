@@ -1,39 +1,141 @@
 ---
-name: unity-interface-driven-development
-description: Senior Architect for Contract-Based Modularity (IDD). [cite_start]Activate this skill when the user requests "interchangeable systems," "shared behaviors," "decoupling Unity logic," or "Interface Segregation Principle implementation." [cite: 43, 76]
+name: event-bus-system
+description: "Implements a global decoupled Event Bus for cross-system communication. Zero-allocation struct events prevent GC spikes."
+version: 1.0.0
+tags: ["architecture", "events", "decoupling", "observer", "messaging"]
+argument-hint: "event_name='PlayerDamaged' namespace='Game.Events'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
 ---
 
-# Interface-Driven Development (Agentic Production Standard 2.0)
+# Event Bus System
 
-## 🎯 Context & Goal
-[cite_start]The objective is to eliminate the rigidity of deep inheritance and hard-coupling to concrete classes. [cite_start]This skill mandates programming towards **Interfaces** (contracts), allowing the agent to autonomously expand game mechanics (e.g., new units, weapons, or buildings) by simply fulfilling pre-defined requirements[cite: 132, 161].
+## Overview
+Implement global decoupled communication between systems using a static Event Bus. Uses struct-based events to avoid garbage collection allocations during gameplay.
 
-## 🧠 Thinking Process (Mandatory Internal Reasoning)
-[cite_start]Before generating code, the agent MUST perform and document this analysis to ensure architectural modularity[cite: 32]:
-1. [cite_start]**Behavior Extraction**: Identify pure behaviors (e.g., `IDamageable`, `IInteractable`) before defining the object's identity[cite: 6].
-2. [cite_start]**Contract Scoping**: Determine the minimum methods required for the interface (Interface Segregation)[cite: 7].
-3. **Dependency Analysis**: Identify which high-level systems will consume this interface and how they will resolve the reference (DI vs. Inspector).
-4. [cite_start]**Mockability**: Assess if the interface is simple enough to be mocked for automated unit testing[cite: 8, 205].
+## When to Use
+- Use when systems need to communicate without direct references
+- Use when implementing publish-subscribe patterns
+- Use when reducing dependencies between unrelated systems
+- Use when broadcasting global game events (PlayerDied, LevelCompleted)
+- Use when UI needs to react to gameplay without coupling
 
-## 🛠️ Operational Procedure (Step-by-Step)
-1. [cite_start]**Artifact Generation (Architecture Blueprint)**: Emit a structured plan detailing the proposed interfaces, their methods, and the consuming systems before implementation[cite: 32].
-2. [cite_start]**Interface Definition**: Create small, specific interfaces following the SOLID principles[cite: 7].
-3. [cite_start]**Decoupled Reference Implementation**: Use interfaces as reference types in consumer scripts, avoiding concrete class dependencies[cite: 8].
-4. [cite_start]**Abstraction Guard**: Use `TryGetComponent<IInterface>(out var instance)` or DI containers to interact with objects safely[cite: 171, 173].
-5. [cite_start]**Self-Correction Audit**: Verify the code against the "Constraints" section of this skill[cite: 206].
+## Architecture
 
-## 🚫 Constraints & Prohibitions (Hard Rules)
-- [cite_start]**FORBIDDEN**: Using the "Base" suffix in classes (e.g., `EnemyBase`) if the functionality can be achieved via an Interface[cite: 88].
-- [cite_start]**FORBIDDEN**: Casting an interface back to its concrete class; abstractions must be self-sufficient[cite: 88].
-- [cite_start]**MANDATORY**: Naming Convention: All interfaces must start with the `I` prefix (e.g., `IInteractable`)[cite: 88].
-- [cite_start]**MANDATORY**: Interfaces must reside in dedicated files to prevent circular dependencies during static agent analysis[cite: 52, 66].
+```
+┌──────────────┐    Publish(event)    ┌──────────────┐
+│   Player     │ ───────────────────→ │   EventBus   │
+│  (Publisher) │                      │   (Static)   │
+└──────────────┘                      └───────┬──────┘
+                                              │
+              ┌───────────────────────────────┼───────────────────────────────┐
+              ↓                               ↓                               ↓
+      ┌───────────────┐              ┌───────────────┐              ┌───────────────┐
+      │   HealthUI    │              │ AchievementSys│              │   Analytics   │
+      │  (Subscriber) │              │  (Subscriber) │              │  (Subscriber) │
+      └───────────────┘              └───────────────┘              └───────────────┘
+```
 
-## 📝 Artifact: Interface & Decoupling Audit
-[cite_start]The agent must verify the output against this checklist[cite: 38]:
-- [ ] **Segregation**: Does the interface define a single, clear behavior?
-- [ ] **Neutrality**: Is the interface free from `MonoBehaviour` specific dependencies where possible?
-- [ ] [cite_start]**Testability**: Is the contract robust enough for automated unit test generation? [cite: 199]
+## Components
 
-## [cite_start]💡 Few-Shot Examples [cite: 90]
-- **User Input**: "I need a system where the player can damage both enemies and breakable walls using the same attack."
-- **Agent Output**: Generates an **Architecture Blueprint** proposing the `IDamageable { void TakeDamage(float amount); }` interface, followed by implementations in `Enemy` and `DestructibleWall` classes.
+| Component | Purpose |
+|-----------|---------|
+| `IEvent` | Marker interface for all events |
+| `EventBus` | Static class handling subscriptions |
+| `GameEvents.cs` | Collection of event struct definitions |
+| `EventListenerBase<T>` | Abstract MonoBehaviour for automatic lifecycle |
+
+## Procedure
+1. **Define Events**: Create structs implementing `IEvent`
+2. **Publish Events**: Call `EventBus.Publish(new YourEvent { ... })`
+3. **Subscribe**: Call `EventBus.Subscribe<YourEvent>(HandleEvent)` in `OnEnable`
+4. **Unsubscribe**: Call `EventBus.Unsubscribe<YourEvent>(HandleEvent)` in `OnDisable`
+
+## Best Practices
+- ✅ Use **structs** for events (zero allocation)
+- ✅ Keep events immutable (readonly fields)
+- ✅ ALWAYS unsubscribe in `OnDisable` or `OnDestroy`
+- ✅ Use `EventListenerBase<T>` for automatic lifecycle
+- ✅ Group related events in single file (e.g., `CombatEvents.cs`)
+- ❌ **NEVER** forget to unsubscribe (causes memory leaks)
+- ❌ **NEVER** use events for high-frequency per-frame logic
+- ❌ **NEVER** put heavy logic in event handlers (defer to next frame if needed)
+
+## Event Definition Guidelines
+
+```csharp
+// GOOD: Struct with relevant data
+public struct EnemyKilledEvent : IEvent
+{
+    public readonly int EnemyId;
+    public readonly Vector3 Position;
+    public readonly int ExperienceReward;
+}
+
+// BAD: Class (causes allocation)
+public class EnemyKilledEvent : IEvent { }
+
+// BAD: Too much data
+public struct EnemyKilledEvent : IEvent
+{
+    public Enemy FullEnemyReference; // Don't include references!
+}
+```
+
+## Few-Shot Examples
+
+### Example 1: UI Reacting to Damage
+**User**: "Update health bar when player takes damage without coupling."
+
+**Agent**:
+```csharp
+// In PlayerHealth.cs
+public void TakeDamage(float amount)
+{
+    _currentHealth -= amount;
+    EventBus.Publish(new PlayerDamagedEvent 
+    { 
+        DamageAmount = amount,
+        CurrentHealth = _currentHealth,
+        MaxHealth = _maxHealth
+    });
+}
+
+// In HealthBarUI.cs : EventListenerBase<PlayerDamagedEvent>
+protected override void OnEventReceived(PlayerDamagedEvent evt)
+{
+    _slider.value = evt.CurrentHealth / evt.MaxHealth;
+}
+```
+
+### Example 2: Achievement System
+**User**: "Unlock achievement when player kills 100 enemies."
+
+**Agent**:
+```csharp
+// Subscribe to EnemyKilledEvent
+// Track kill count, check threshold, show achievement
+```
+
+### Example 3: Sound Effects
+**User**: "Play death sound when any enemy dies."
+
+**Agent**:
+```csharp
+// AudioManager subscribes to EnemyKilledEvent
+// Plays sound at event.Position
+```
+
+## Related Skills
+- `@advanced-design-patterns` - Observer pattern fundamentals
+- `@scriptableobject-architecture` - SO-based event channels alternative
+- `@di-container-manager` - For injecting event-dependent services
+
+## Template Files
+- `templates/EventBus.cs.txt` - Core event bus implementation
+- `templates/GameEvents.cs.txt` - Example event definitions
+- `templates/EventListenerBase.cs.txt` - Auto-lifecycle listener

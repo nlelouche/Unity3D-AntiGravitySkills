@@ -1,0 +1,54 @@
+// =============================================================================
+// BaseManager.cs - Abstract Manager Base Class
+// Part of: advanced-game-bootstrapper skill
+// =============================================================================
+
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Core
+{
+    /// <summary>
+    /// Base class for global manager systems with auto-initialization support.
+    /// Inherit from this to create AudioManager, SaveManager, NetworkManager, etc.
+    /// </summary>
+    public abstract class BaseManager : MonoBehaviour, IInitializable
+    {
+        [Header("Base Manager Settings")]
+        [SerializeField] private int _initializationOrder = 10;
+        
+        public int InitializationOrder => _initializationOrder;
+        public bool IsInitialized { get; protected set; }
+        
+        /// <summary>
+        /// Override this to implement your initialization logic.
+        /// Base implementation marks as initialized immediately.
+        /// </summary>
+        public virtual async Task InitializeAsync()
+        {
+            Debug.Log($"[{GetType().Name}] Initializing...");
+            
+            // Override in derived classes for actual init logic
+            await OnInitializeAsync();
+            
+            IsInitialized = true;
+            Debug.Log($"[{GetType().Name}] Initialized successfully.");
+        }
+        
+        /// <summary>
+        /// Override this for custom initialization logic.
+        /// </summary>
+        protected virtual Task OnInitializeAsync()
+        {
+            return Task.CompletedTask;
+        }
+        
+        /// <summary>
+        /// Ensure manager persists across scenes.
+        /// </summary>
+        protected virtual void Awake()
+        {
+            // Handled by GameBootstrapper, but can be overridden
+        }
+    }
+}

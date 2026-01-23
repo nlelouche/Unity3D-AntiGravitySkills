@@ -1,0 +1,187 @@
+// =============================================================================
+// UIView.cs - Base UI Toolkit View Controller
+// Template for UI Toolkit view controllers with lifecycle management
+// =============================================================================
+
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace YourGame.UI
+{
+    /// <summary>
+    /// Base class for UI Toolkit views.
+    /// Provides lifecycle hooks and element querying utilities.
+    /// </summary>
+    public abstract class UIView : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("UI Document")]
+        [SerializeField] protected UIDocument UIDocument;
+        
+        [Header("Style Sheets")]
+        [SerializeField] private StyleSheet[] _additionalStyles;
+        
+        #endregion
+        
+        #region Protected Fields
+        
+        protected VisualElement Root { get; private set; }
+        
+        #endregion
+        
+        #region Properties
+        
+        public bool IsVisible => Root?.style.display == DisplayStyle.Flex;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        protected virtual void Awake()
+        {
+            if (UIDocument == null)
+            {
+                UIDocument = GetComponent<UIDocument>();
+            }
+        }
+        
+        protected virtual void OnEnable()
+        {
+            Root = UIDocument.rootVisualElement;
+            
+            // Apply additional styles
+            foreach (var style in _additionalStyles)
+            {
+                Root.styleSheets.Add(style);
+            }
+            
+            QueryElements();
+            BindEvents();
+            OnViewEnabled();
+        }
+        
+        protected virtual void OnDisable()
+        {
+            UnbindEvents();
+            OnViewDisabled();
+        }
+        
+        #endregion
+        
+        #region Abstract Methods
+        
+        /// <summary>
+        /// Query and cache UI elements. Called once on enable.
+        /// </summary>
+        protected abstract void QueryElements();
+        
+        /// <summary>
+        /// Bind button clicks and other events.
+        /// </summary>
+        protected abstract void BindEvents();
+        
+        /// <summary>
+        /// Unbind events to prevent memory leaks.
+        /// </summary>
+        protected abstract void UnbindEvents();
+        
+        #endregion
+        
+        #region Virtual Methods
+        
+        /// <summary>
+        /// Called after elements are queried and events bound.
+        /// </summary>
+        protected virtual void OnViewEnabled() { }
+        
+        /// <summary>
+        /// Called before events are unbound.
+        /// </summary>
+        protected virtual void OnViewDisabled() { }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Shows this view.
+        /// </summary>
+        public virtual void Show()
+        {
+            Root.style.display = DisplayStyle.Flex;
+            OnShow();
+        }
+        
+        /// <summary>
+        /// Hides this view.
+        /// </summary>
+        public virtual void Hide()
+        {
+            Root.style.display = DisplayStyle.None;
+            OnHide();
+        }
+        
+        /// <summary>
+        /// Toggles visibility.
+        /// </summary>
+        public void Toggle()
+        {
+            if (IsVisible) Hide();
+            else Show();
+        }
+        
+        #endregion
+        
+        #region Protected Virtual Methods
+        
+        protected virtual void OnShow() { }
+        protected virtual void OnHide() { }
+        
+        #endregion
+        
+        #region Helper Methods
+        
+        /// <summary>
+        /// Query element by name (shorthand).
+        /// </summary>
+        protected T Q<T>(string name = null, string className = null) where T : VisualElement
+        {
+            return Root.Q<T>(name, className);
+        }
+        
+        /// <summary>
+        /// Query all elements matching criteria.
+        /// </summary>
+        protected UQueryBuilder<T> QAll<T>(string name = null, string className = null) where T : VisualElement
+        {
+            return Root.Query<T>(name, className);
+        }
+        
+        /// <summary>
+        /// Adds a USS class to an element.
+        /// </summary>
+        protected void AddClass(VisualElement element, string className)
+        {
+            element.AddToClassList(className);
+        }
+        
+        /// <summary>
+        /// Removes a USS class from an element.
+        /// </summary>
+        protected void RemoveClass(VisualElement element, string className)
+        {
+            element.RemoveFromClassList(className);
+        }
+        
+        /// <summary>
+        /// Toggles a USS class on an element.
+        /// </summary>
+        protected void ToggleClass(VisualElement element, string className, bool enabled)
+        {
+            element.EnableInClassList(className, enabled);
+        }
+        
+        #endregion
+    }
+}

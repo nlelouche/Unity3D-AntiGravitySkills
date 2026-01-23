@@ -1,0 +1,186 @@
+// =============================================================================
+// PhysicsQuery.cs - Physics Query Utilities
+// Part of: physics-logic skill
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Physics
+{
+    /// <summary>
+    /// Utility class for common physics queries.
+    /// Provides convenient wrappers for raycasts, overlaps, and checks.
+    /// </summary>
+    public static class PhysicsQuery
+    {
+        // Reusable arrays to reduce allocations
+        private static readonly Collider[] _overlapResults = new Collider[32];
+        private static readonly RaycastHit[] _raycastResults = new RaycastHit[32];
+
+        /// <summary>
+        /// Raycast and return first hit damageable.
+        /// </summary>
+        public static bool TryRaycastDamageable(
+            Vector3 origin, 
+            Vector3 direction, 
+            float distance, 
+            LayerMask layers, 
+            out RaycastHit hit,
+            out Component damageable)
+        {
+            damageable = null;
+            
+            if (UnityEngine.Physics.Raycast(origin, direction, out hit, distance, layers))
+            {
+                // Try to find IDamageable (interface check)
+                damageable = hit.collider.GetComponent("IDamageable") as Component;
+                return damageable != null;
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Find all colliders in sphere.
+        /// </summary>
+        public static List<Collider> OverlapSphereNonAlloc(
+            Vector3 center, 
+            float radius, 
+            LayerMask layers)
+        {
+            int count = UnityEngine.Physics.OverlapSphereNonAlloc(center, radius, _overlapResults, layers);
+            var results = new List<Collider>(count);
+            
+            for (int i = 0; i < count; i++)
+            {
+                results.Add(_overlapResults[i]);
+            }
+            
+            return results;
+        }
+
+        /// <summary>
+        /// Find all colliders in box.
+        /// </summary>
+        public static List<Collider> OverlapBoxNonAlloc(
+            Vector3 center,
+            Vector3 halfExtents,
+            Quaternion orientation,
+            LayerMask layers)
+        {
+            int count = UnityEngine.Physics.OverlapBoxNonAlloc(
+                center, halfExtents, _overlapResults, orientation, layers);
+            
+            var results = new List<Collider>(count);
+            for (int i = 0; i < count; i++)
+            {
+                results.Add(_overlapResults[i]);
+            }
+            
+            return results;
+        }
+
+        /// <summary>
+        /// Check line of sight between two points.
+        /// </summary>
+        public static bool HasLineOfSight(
+            Vector3 from, 
+            Vector3 to, 
+            LayerMask obstacleLayers)
+        {
+            Vector3 direction = to - from;
+            float distance = direction.magnitude;
+            
+            return !UnityEngine.Physics.Raycast(from, direction.normalized, distance, obstacleLayers);
+        }
+
+        /// <summary>
+        /// Find closest collider to a point.
+        /// </summary>
+        public static Collider FindClosest(
+            Vector3 point, 
+            float radius, 
+            LayerMask layers)
+        {
+            int count = UnityEngine.Physics.OverlapSphereNonAlloc(point, radius, _overlapResults, layers);
+            
+            if (count == 0) return null;
+            
+            Collider closest = null;
+            float closestDist = float.MaxValue;
+            
+            for (int i = 0; i < count; i++)
+            {
+                float dist = Vector3.Distance(point, _overlapResults[i].transform.position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = _overlapResults[i];
+                }
+            }
+            
+            return closest;
+        }
+
+        /// <summary>
+        /// SphereCast for projectile with radius.
+        /// </summary>
+        public static bool SphereCastHit(
+            Vector3 origin,
+            float radius,
+            Vector3 direction,
+            float distance,
+            LayerMask layers,
+            out RaycastHit hit)
+        {
+            return UnityEngine.Physics.SphereCast(origin, radius, direction, out hit, distance, layers);
+        }
+
+        /// <summary>
+        /// Check if grounded using spherecast.
+        /// </summary>
+        public static bool IsGrounded(
+            Vector3 position,
+            float checkRadius,
+            float checkDistance,
+            LayerMask groundLayers)
+        {
+            return UnityEngine.Physics.SphereCast(
+                position + Vector3.up * (checkRadius + 0.1f),
+                checkRadius,
+                Vector3.down,
+                out _,
+                checkDistance + 0.1f,
+                groundLayers
+            );
+        }
+
+        /// <summary>
+        /// Cone check for vision/detection.
+        /// </summary>
+        public static List<Collider> ConeCheck(
+            Vector3 origin,
+            Vector3 direction,
+            float range,
+            float angle,
+            LayerMask layers)
+        {
+            var results = new List<Collider>();
+            int count = UnityEngine.Physics.OverlapSphereNonAlloc(origin, range, _overlapResults, layers);
+            
+            float cosAngle = Mathf.Cos(angle * 0.5f * Mathf.Deg2Rad);
+            
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 toTarget = (_overlapResults[i].transform.position - origin).normalized;
+                if (Vector3.Dot(direction.normalized, toTarget) >= cosAngle)
+                {
+                    results.Add(_overlapResults[i]);
+                }
+            }
+            
+            return results;
+        }
+    }
+}

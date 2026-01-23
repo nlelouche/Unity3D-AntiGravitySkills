@@ -1,0 +1,143 @@
+// =============================================================================
+// AnalyticsManager.cs - Analytics & Heatmap Tracker
+// Template for unified tracking across various providers (Unity, Firebase, etc.)
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+#if ENABLE_CLOUD_SERVICES_ANALYTICS
+using Unity.Services.Analytics;
+using Unity.Services.Core;
+#endif
+
+namespace YourGame.Analytics
+{
+    /// <summary>
+    /// Central manager for tracking game events and player telemetry.
+    /// Abstracts the underlying analytics provider.
+    /// </summary>
+    public class AnalyticsManager : MonoBehaviour
+    {
+        #region Singleton
+        
+        public static AnalyticsManager Instance { get; private set; }
+        
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+                InitializeServices();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        
+        #endregion
+        
+        #region Initialization
+        
+        private async void InitializeServices()
+        {
+            try
+            {
+#if ENABLE_CLOUD_SERVICES_ANALYTICS
+                await UnityServices.InitializeAsync();
+                
+                // Consent check (Required for GDPR/CCPA)
+                // List<string> consentIdentifiers = await AnalyticsService.Instance.CheckForRequiredConsents();
+#endif
+                Debug.Log("Analytics Services Initialized");
+                TrackEvent("game_start", new Dictionary<string, object>
+                {
+                    { "platform", Application.platform.ToString() },
+                    { "version", Application.version }
+                });
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Analytics Init Failed: {e.Message}");
+            }
+        }
+        
+        #endregion
+        
+        #region Public Tracking Methods
+        
+        /// <summary>
+        /// Tracks a generic custom event.
+        /// </summary>
+        public void TrackEvent(string eventName, Dictionary<string, object> parameters = null)
+        {
+#if ENABLE_CLOUD_SERVICES_ANALYTICS
+            if (parameters == null) parameters = new Dictionary<string, object>();
+            
+            AnalyticsService.Instance.CustomData(eventName, parameters);
+#endif
+            // Debug Log in Editor
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            string paramStr = parameters != null ? BeatifyParams(parameters) : "{}";
+            Debug.Log($"[Analytics] {eventName}: {paramStr}");
+#endif
+        }
+        
+        /// <summary>
+        /// Tracks level completion metrics.
+        /// </summary>
+        public void TrackLevelComplete(int levelIndex, int score, float durationSeconds, bool success)
+        {
+            var data = new Dictionary<string, object>
+            {
+                { "level_index", levelIndex },
+                { "level_name", SceneManager.GetActiveScene().name },
+                { "score", score },
+                { "duration", durationSeconds },
+                { "success", success }
+            };
+            
+            TrackEvent("level_complete", data);
+        }
+        
+        /// <summary>
+        /// Records a position for heatmap generation (e.g., death location).
+        /// </summary>
+        public void RecordHeatmapEvent(string eventName, Vector3 worldPos)
+        {
+            // Quantize position to reduce cardinality if needed
+            int x = Mathf.RoundToInt(worldPos.x);
+            int y = Mathf.RoundToInt(worldPos.y);
+            int z = Mathf.RoundToInt(worldPos.z);
+            
+            var data = new Dictionary<string, object>
+            {
+                { "pos_x", x },
+                { "pos_y", y },
+                { "pos_z", z },
+                { "level", SceneManager.GetActiveScene().name }
+            };
+            
+            TrackEvent(eventName, data);
+        }
+        
+        #endregion
+        
+        #region Helpers
+        
+        private string BeatifyParams(Dictionary<string, object> parameters)
+        {
+            List<string> parts = new List<string>();
+            foreach (var kvp in parameters)
+            {
+                parts.Add($"{kvp.Key}={kvp.Value}");
+            }
+            return "{" + string.Join(", ", parts) + "}";
+        }
+        
+        #endregion
+    }
+}

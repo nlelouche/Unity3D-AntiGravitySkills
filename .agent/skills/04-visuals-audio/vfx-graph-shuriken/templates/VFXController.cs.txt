@@ -1,0 +1,198 @@
+// =============================================================================
+// VFXController.cs - VFX Graph Runtime Controller
+// Template for controlling Visual Effect Graph at runtime
+// =============================================================================
+
+using UnityEngine;
+using UnityEngine.VFX;
+
+namespace YourGame.VFX
+{
+    /// <summary>
+    /// Controls a Visual Effect Graph component at runtime.
+    /// Provides methods for spawning, stopping, and modifying VFX parameters.
+    /// </summary>
+    public class VFXController : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("VFX Reference")]
+        [SerializeField] private VisualEffect _vfxGraph;
+        
+        [Header("Exposed Properties")]
+        [Tooltip("Name of the spawn rate property in VFX Graph")]
+        [SerializeField] private string _spawnRateProperty = "SpawnRate";
+        [SerializeField] private string _colorProperty = "ParticleColor";
+        [SerializeField] private string _sizeProperty = "ParticleSize";
+        
+        [Header("Default Values")]
+        [SerializeField] private float _defaultSpawnRate = 100f;
+        [SerializeField] private Color _defaultColor = Color.white;
+        [SerializeField] private float _defaultSize = 1f;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private int _spawnRateId;
+        private int _colorId;
+        private int _sizeId;
+        private bool _isPlaying;
+        
+        #endregion
+        
+        #region Properties
+        
+        public bool IsPlaying => _isPlaying;
+        public VisualEffect VFX => _vfxGraph;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            CachePropertyIds();
+            
+            if (_vfxGraph == null)
+            {
+                _vfxGraph = GetComponent<VisualEffect>();
+            }
+        }
+        
+        private void OnEnable()
+        {
+            ApplyDefaults();
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Plays the VFX effect.
+        /// </summary>
+        public void Play()
+        {
+            if (_vfxGraph != null)
+            {
+                _vfxGraph.Play();
+                _isPlaying = true;
+            }
+        }
+        
+        /// <summary>
+        /// Stops the VFX effect.
+        /// </summary>
+        public void Stop()
+        {
+            if (_vfxGraph != null)
+            {
+                _vfxGraph.Stop();
+                _isPlaying = false;
+            }
+        }
+        
+        /// <summary>
+        /// Reinitializes the VFX (clears particles and restarts).
+        /// </summary>
+        public void Reinitialize()
+        {
+            if (_vfxGraph != null)
+            {
+                _vfxGraph.Reinit();
+            }
+        }
+        
+        /// <summary>
+        /// Sets the spawn rate of particles.
+        /// </summary>
+        public void SetSpawnRate(float rate)
+        {
+            if (_vfxGraph != null && _vfxGraph.HasFloat(_spawnRateId))
+            {
+                _vfxGraph.SetFloat(_spawnRateId, rate);
+            }
+        }
+        
+        /// <summary>
+        /// Sets the particle color.
+        /// </summary>
+        public void SetColor(Color color)
+        {
+            if (_vfxGraph != null && _vfxGraph.HasVector4(_colorId))
+            {
+                _vfxGraph.SetVector4(_colorId, color);
+            }
+        }
+        
+        /// <summary>
+        /// Sets the particle size.
+        /// </summary>
+        public void SetSize(float size)
+        {
+            if (_vfxGraph != null && _vfxGraph.HasFloat(_sizeId))
+            {
+                _vfxGraph.SetFloat(_sizeId, size);
+            }
+        }
+        
+        /// <summary>
+        /// Sends an event to the VFX Graph.
+        /// </summary>
+        public void SendEvent(string eventName)
+        {
+            if (_vfxGraph != null)
+            {
+                _vfxGraph.SendEvent(eventName);
+            }
+        }
+        
+        /// <summary>
+        /// Sends an event with attributes to the VFX Graph.
+        /// </summary>
+        public void SendEventWithPosition(string eventName, Vector3 position)
+        {
+            if (_vfxGraph != null)
+            {
+                var eventAttr = _vfxGraph.CreateVFXEventAttribute();
+                eventAttr.SetVector3("position", position);
+                _vfxGraph.SendEvent(eventName, eventAttr);
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void CachePropertyIds()
+        {
+            _spawnRateId = Shader.PropertyToID(_spawnRateProperty);
+            _colorId = Shader.PropertyToID(_colorProperty);
+            _sizeId = Shader.PropertyToID(_sizeProperty);
+        }
+        
+        private void ApplyDefaults()
+        {
+            SetSpawnRate(_defaultSpawnRate);
+            SetColor(_defaultColor);
+            SetSize(_defaultSize);
+        }
+        
+        #endregion
+        
+        #region Editor Helpers
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_vfxGraph == null)
+            {
+                _vfxGraph = GetComponent<VisualEffect>();
+            }
+        }
+#endif
+        
+        #endregion
+    }
+}

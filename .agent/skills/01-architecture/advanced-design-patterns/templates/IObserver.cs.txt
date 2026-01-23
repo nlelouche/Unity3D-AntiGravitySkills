@@ -1,0 +1,60 @@
+// =============================================================================
+// IObserver.cs - Observer Pattern Interfaces Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+using System;
+
+namespace {{NAMESPACE}}.Patterns.Observer
+{
+    /// <summary>
+    /// Observer Pattern: Defines a one-to-many dependency between objects so that
+    /// when one object changes state, all its dependents are notified.
+    /// 
+    /// Use Cases:
+    /// - UI updates when player stats change
+    /// - Achievement system listening to game events
+    /// - Audio system responding to gameplay events
+    /// 
+    /// IMPORTANT: Always unsubscribe in OnDisable/OnDestroy to prevent memory leaks!
+    /// </summary>
+    /// <typeparam name="T">The type of data being observed.</typeparam>
+    public interface IObserver<in T>
+    {
+        /// <summary>
+        /// Called when the observed subject notifies of a change.
+        /// </summary>
+        void OnNotify(T data);
+    }
+
+    /// <summary>
+    /// Subject interface that observers subscribe to.
+    /// </summary>
+    /// <typeparam name="T">The type of data being broadcast.</typeparam>
+    public interface ISubject<T>
+    {
+        /// <summary>
+        /// Subscribe an observer to receive notifications.
+        /// </summary>
+        void Subscribe(IObserver<T> observer);
+        
+        /// <summary>
+        /// Unsubscribe an observer from notifications.
+        /// </summary>
+        void Unsubscribe(IObserver<T> observer);
+        
+        /// <summary>
+        /// Notify all observers of a change.
+        /// </summary>
+        void NotifyObservers(T data);
+    }
+
+    /// <summary>
+    /// Event-based subject using C# events (simpler, less boilerplate).
+    /// </summary>
+    /// <typeparam name="T">The type of event data.</typeparam>
+    public interface IEventSubject<T>
+    {
+        event Action<T> OnEvent;
+    }
+}

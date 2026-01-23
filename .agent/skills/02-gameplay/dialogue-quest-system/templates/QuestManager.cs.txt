@@ -1,0 +1,226 @@
+// =============================================================================
+// QuestManager.cs - Quest Tracking Controller
+// Part of: dialogue-quest-system skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Quests
+{
+    /// <summary>
+    /// Central manager for player's quest progress.
+    /// Tracks active quests, objectives, and completion.
+    /// </summary>
+    public class QuestManager : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private int _maxActiveQuests = 20;
+        
+        private Dictionary<string, QuestProgress> _activeQuests = new();
+        private HashSet<string> _completedQuests = new();
+        
+        public IReadOnlyDictionary<string, QuestProgress> ActiveQuests => _activeQuests;
+        public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
+        
+        public event Action<QuestSO> OnQuestStarted;
+        public event Action<QuestSO, QuestObjective, int> OnObjectiveProgress;
+        public event Action<QuestSO> OnQuestCompleted;
+        public event Action<QuestSO> OnQuestFailed;
+
+        /// <summary>
+        /// Start a new quest.
+        /// </summary>
+        public bool StartQuest(QuestSO quest)
+        {
+            if (quest == null) return false;
+            if (_activeQuests.ContainsKey(quest.QuestId)) return false;
+            if (_completedQuests.Contains(quest.QuestId)) return false;
+            if (_activeQuests.Count >= _maxActiveQuests) return false;
+            
+            // Check prerequisites
+            if (!CanStartQuest(quest)) return false;
+            
+            var progress = new QuestProgress(quest);
+            _activeQuests[quest.QuestId] = progress;
+            
+            OnQuestStarted?.Invoke(quest);
+            Debug.Log($"[QuestManager] Started: {quest.QuestName}");
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Check if quest prerequisites are met.
+        /// </summary>
+        public bool CanStartQuest(QuestSO quest)
+        {
+            if (quest.RequiredQuests != null)
+            {
+                foreach (var req in quest.RequiredQuests)
+                {
+                    if (!_completedQuests.Contains(req.QuestId))
+                        return false;
+                }
+            }
+            // TODO: Check player level
+            return true;
+        }
+
+        /// <summary>
+        /// Update objective progress (called by game events).
+        /// </summary>
+        public void UpdateObjective(string questId, string objectiveId, int amount = 1)
+        {
+            if (!_activeQuests.TryGetValue(questId, out var progress)) return;
+            
+            var objective = progress.Quest.Objectives.FirstOrDefault(o => o.ObjectiveId == objectiveId);
+            if (objective == null) return;
+            
+            int newCount = progress.AddProgress(objectiveId, amount);
+            OnObjectiveProgress?.Invoke(progress.Quest, objective, newCount);
+            
+            if (progress.IsComplete && progress.Quest.AutoComplete)
+            {
+                CompleteQuest(questId);
+            }
+        }
+
+        /// <summary>
+        /// Report a kill for kill objectives.
+        /// </summary>
+        public void ReportKill(string enemyType)
+        {
+            foreach (var kvp in _activeQuests)
+            {
+                foreach (var obj in kvp.Value.Quest.Objectives)
+                {
+                    if (obj.Type == ObjectiveType.Kill && obj.TargetId == enemyType)
+                    {
+                        UpdateObjective(kvp.Key, obj.ObjectiveId, 1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Report item collection for collect objectives.
+        /// </summary>
+        public void ReportItemCollected(string itemId, int count = 1)
+        {
+            foreach (var kvp in _activeQuests)
+            {
+                foreach (var obj in kvp.Value.Quest.Objectives)
+                {
+                    if (obj.Type == ObjectiveType.Collect && obj.TargetId == itemId)
+                    {
+                        UpdateObjective(kvp.Key, obj.ObjectiveId, count);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Complete a quest and grant rewards.
+        /// </summary>
+        public bool CompleteQuest(string questId)
+        {
+            if (!_activeQuests.TryGetValue(questId, out var progress)) return false;
+            if (!progress.IsComplete) return false;
+            
+            var quest = progress.Quest;
+            
+            // Grant rewards
+            GrantRewards(quest.Rewards);
+            
+            // Move to completed
+            _activeQuests.Remove(questId);
+            _completedQuests.Add(questId);
+            
+            OnQuestCompleted?.Invoke(quest);
+            Debug.Log($"[QuestManager] Completed: {quest.QuestName}");
+            
+            return true;
+        }
+
+        private void GrantRewards(QuestReward[] rewards)
+        {
+            foreach (var reward in rewards)
+            {
+                // TODO: Integrate with inventory, player stats
+                Debug.Log($"[QuestManager] Reward: {reward.Type} x{reward.Amount}");
+            }
+        }
+
+        /// <summary>
+        /// Get progress for a specific quest.
+        /// </summary>
+        public QuestProgress GetProgress(string questId)
+        {
+            return _activeQuests.TryGetValue(questId, out var progress) ? progress : null;
+        }
+
+        /// <summary>
+        /// Check if a quest is completed.
+        /// </summary>
+        public bool IsQuestCompleted(string questId) => _completedQuests.Contains(questId);
+    }
+
+    /// <summary>
+    /// Tracks progress for a single quest.
+    /// </summary>
+    [Serializable]
+    public class QuestProgress
+    {
+        public QuestSO Quest { get; }
+        private Dictionary<string, int> _objectiveProgress = new();
+        
+        public QuestProgress(QuestSO quest)
+        {
+            Quest = quest;
+            foreach (var obj in quest.Objectives)
+            {
+                _objectiveProgress[obj.ObjectiveId] = 0;
+            }
+        }
+        
+        public int GetProgress(string objectiveId)
+        {
+            return _objectiveProgress.TryGetValue(objectiveId, out int val) ? val : 0;
+        }
+        
+        public int AddProgress(string objectiveId, int amount)
+        {
+            if (!_objectiveProgress.ContainsKey(objectiveId)) return 0;
+            
+            var obj = Quest.Objectives.First(o => o.ObjectiveId == objectiveId);
+            _objectiveProgress[objectiveId] = Mathf.Min(
+                _objectiveProgress[objectiveId] + amount, 
+                obj.RequiredCount
+            );
+            return _objectiveProgress[objectiveId];
+        }
+        
+        public bool IsObjectiveComplete(string objectiveId)
+        {
+            var obj = Quest.Objectives.FirstOrDefault(o => o.ObjectiveId == objectiveId);
+            if (obj == null) return false;
+            return GetProgress(objectiveId) >= obj.RequiredCount;
+        }
+        
+        public bool IsComplete
+        {
+            get
+            {
+                foreach (var obj in Quest.Objectives)
+                {
+                    if (!obj.IsOptional && !IsObjectiveComplete(obj.ObjectiveId))
+                        return false;
+                }
+                return true;
+            }
+        }
+    }
+}

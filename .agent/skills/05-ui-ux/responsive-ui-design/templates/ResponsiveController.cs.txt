@@ -1,0 +1,206 @@
+// =============================================================================
+// ResponsiveController.cs - Multi-Device Responsive UI Handler
+// Template for breakpoints, safe areas, and adaptive layouts
+// =============================================================================
+
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace YourGame.UI
+{
+    /// <summary>
+    /// Handles responsive UI adaptation for multiple screen sizes.
+    /// Manages breakpoints, safe areas, and orientation changes.
+    /// </summary>
+    public class ResponsiveController : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("UI Document")]
+        [SerializeField] private UIDocument _uiDocument;
+        
+        [Header("Breakpoints (width in pixels)")]
+        [SerializeField] private int _mobileBreakpoint = 600;
+        [SerializeField] private int _tabletBreakpoint = 1024;
+        
+        [Header("Safe Area")]
+        [SerializeField] private bool _applySafeArea = true;
+        [SerializeField] private string _safeAreaContainerName = "safe-area";
+        
+        [Header("Classes")]
+        [SerializeField] private string _mobileClass = "mobile";
+        [SerializeField] private string _tabletClass = "tablet";
+        [SerializeField] private string _desktopClass = "desktop";
+        [SerializeField] private string _landscapeClass = "landscape";
+        [SerializeField] private string _portraitClass = "portrait";
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private VisualElement _root;
+        private VisualElement _safeAreaContainer;
+        private ScreenBreakpoint _currentBreakpoint;
+        private ScreenOrientation _currentOrientation;
+        private Rect _lastSafeArea;
+        
+        #endregion
+        
+        #region Events
+        
+        public event System.Action<ScreenBreakpoint> OnBreakpointChanged;
+        public event System.Action<ScreenOrientation> OnOrientationChanged;
+        
+        #endregion
+        
+        #region Properties
+        
+        public ScreenBreakpoint CurrentBreakpoint => _currentBreakpoint;
+        public bool IsPortrait => Screen.height > Screen.width;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Start()
+        {
+            _root = _uiDocument.rootVisualElement;
+            _safeAreaContainer = _root.Q(_safeAreaContainerName);
+            
+            UpdateBreakpoint();
+            UpdateOrientation();
+            
+            if (_applySafeArea)
+            {
+                ApplySafeArea();
+            }
+        }
+        
+        private void Update()
+        {
+            UpdateBreakpoint();
+            UpdateOrientation();
+            
+            if (_applySafeArea && _lastSafeArea != Screen.safeArea)
+            {
+                ApplySafeArea();
+            }
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Forces a refresh of responsive settings.
+        /// </summary>
+        public void Refresh()
+        {
+            UpdateBreakpoint();
+            UpdateOrientation();
+            ApplySafeArea();
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void UpdateBreakpoint()
+        {
+            int width = Screen.width;
+            ScreenBreakpoint newBreakpoint;
+            
+            if (width < _mobileBreakpoint)
+            {
+                newBreakpoint = ScreenBreakpoint.Mobile;
+            }
+            else if (width < _tabletBreakpoint)
+            {
+                newBreakpoint = ScreenBreakpoint.Tablet;
+            }
+            else
+            {
+                newBreakpoint = ScreenBreakpoint.Desktop;
+            }
+            
+            if (newBreakpoint != _currentBreakpoint)
+            {
+                _currentBreakpoint = newBreakpoint;
+                ApplyBreakpointClasses();
+                OnBreakpointChanged?.Invoke(_currentBreakpoint);
+            }
+        }
+        
+        private void ApplyBreakpointClasses()
+        {
+            _root.RemoveFromClassList(_mobileClass);
+            _root.RemoveFromClassList(_tabletClass);
+            _root.RemoveFromClassList(_desktopClass);
+            
+            string classToAdd = _currentBreakpoint switch
+            {
+                ScreenBreakpoint.Mobile => _mobileClass,
+                ScreenBreakpoint.Tablet => _tabletClass,
+                ScreenBreakpoint.Desktop => _desktopClass,
+                _ => _desktopClass
+            };
+            
+            _root.AddToClassList(classToAdd);
+        }
+        
+        private void UpdateOrientation()
+        {
+            var newOrientation = IsPortrait ? 
+                ScreenOrientation.Portrait : 
+                ScreenOrientation.LandscapeLeft;
+            
+            if (newOrientation != _currentOrientation)
+            {
+                _currentOrientation = newOrientation;
+                ApplyOrientationClasses();
+                OnOrientationChanged?.Invoke(_currentOrientation);
+            }
+        }
+        
+        private void ApplyOrientationClasses()
+        {
+            _root.RemoveFromClassList(_portraitClass);
+            _root.RemoveFromClassList(_landscapeClass);
+            
+            _root.AddToClassList(IsPortrait ? _portraitClass : _landscapeClass);
+        }
+        
+        private void ApplySafeArea()
+        {
+            var target = _safeAreaContainer ?? _root;
+            var safeArea = Screen.safeArea;
+            var screen = new Vector2(Screen.width, Screen.height);
+            
+            // Calculate margins as percentages
+            float left = safeArea.x / screen.x * 100f;
+            float right = (screen.x - safeArea.xMax) / screen.x * 100f;
+            float top = (screen.y - safeArea.yMax) / screen.y * 100f;
+            float bottom = safeArea.y / screen.y * 100f;
+            
+            target.style.marginLeft = new Length(left, LengthUnit.Percent);
+            target.style.marginRight = new Length(right, LengthUnit.Percent);
+            target.style.marginTop = new Length(top, LengthUnit.Percent);
+            target.style.marginBottom = new Length(bottom, LengthUnit.Percent);
+            
+            _lastSafeArea = safeArea;
+        }
+        
+        #endregion
+    }
+    
+    #region Enums
+    
+    public enum ScreenBreakpoint
+    {
+        Mobile,
+        Tablet,
+        Desktop
+    }
+    
+    #endregion
+}

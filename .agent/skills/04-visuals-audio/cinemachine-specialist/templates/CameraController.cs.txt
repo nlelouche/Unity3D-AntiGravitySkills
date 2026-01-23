@@ -1,0 +1,175 @@
+// =============================================================================
+// CameraController.cs - Cinemachine Camera Management
+// Template for managing virtual cameras and transitions
+// =============================================================================
+
+using UnityEngine;
+#if CINEMACHINE_3_OR_NEWER
+using Unity.Cinemachine;
+#else
+using Cinemachine;
+#endif
+
+namespace YourGame.Camera
+{
+    /// <summary>
+    /// Manages Cinemachine virtual cameras and transitions.
+    /// Provides methods for camera switching, priorities, and effects.
+    /// </summary>
+    public class CameraController : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Virtual Cameras")]
+        [SerializeField] private CinemachineVirtualCamera _mainCamera;
+        [SerializeField] private CinemachineVirtualCamera _aimCamera;
+        [SerializeField] private CinemachineVirtualCamera _dialogueCamera;
+        
+        [Header("Camera Priorities")]
+        [SerializeField] private int _defaultPriority = 10;
+        [SerializeField] private int _activePriority = 20;
+        
+        [Header("Screen Shake")]
+        [SerializeField] private CinemachineImpulseSource _impulseSource;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private CinemachineVirtualCamera _currentCamera;
+        
+        #endregion
+        
+        #region Properties
+        
+        public CinemachineVirtualCamera CurrentCamera => _currentCamera;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            _currentCamera = _mainCamera;
+            SetAllPriorities(_defaultPriority);
+            _mainCamera.Priority = _activePriority;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Camera Switching
+        
+        /// <summary>
+        /// Switches to the main gameplay camera.
+        /// </summary>
+        public void SwitchToMainCamera()
+        {
+            SwitchCamera(_mainCamera);
+        }
+        
+        /// <summary>
+        /// Switches to the aim/zoom camera.
+        /// </summary>
+        public void SwitchToAimCamera()
+        {
+            SwitchCamera(_aimCamera);
+        }
+        
+        /// <summary>
+        /// Switches to the dialogue camera.
+        /// </summary>
+        public void SwitchToDialogueCamera()
+        {
+            SwitchCamera(_dialogueCamera);
+        }
+        
+        /// <summary>
+        /// Switches to a specific virtual camera.
+        /// </summary>
+        public void SwitchCamera(CinemachineVirtualCamera targetCamera)
+        {
+            if (targetCamera == null || targetCamera == _currentCamera)
+            {
+                return;
+            }
+            
+            _currentCamera.Priority = _defaultPriority;
+            targetCamera.Priority = _activePriority;
+            _currentCamera = targetCamera;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Follow/LookAt
+        
+        /// <summary>
+        /// Sets the follow target for the current camera.
+        /// </summary>
+        public void SetFollowTarget(Transform target)
+        {
+            if (_currentCamera != null)
+            {
+                _currentCamera.Follow = target;
+            }
+        }
+        
+        /// <summary>
+        /// Sets the look-at target for the current camera.
+        /// </summary>
+        public void SetLookAtTarget(Transform target)
+        {
+            if (_currentCamera != null)
+            {
+                _currentCamera.LookAt = target;
+            }
+        }
+        
+        /// <summary>
+        /// Sets follow and look-at targets.
+        /// </summary>
+        public void SetTargets(Transform follow, Transform lookAt)
+        {
+            SetFollowTarget(follow);
+            SetLookAtTarget(lookAt);
+        }
+        
+        #endregion
+        
+        #region Public Methods - Effects
+        
+        /// <summary>
+        /// Triggers a camera shake/impulse effect.
+        /// </summary>
+        public void Shake(float intensity = 1f)
+        {
+            if (_impulseSource != null)
+            {
+                _impulseSource.GenerateImpulse(intensity);
+            }
+        }
+        
+        /// <summary>
+        /// Triggers directional camera shake.
+        /// </summary>
+        public void Shake(Vector3 direction, float intensity = 1f)
+        {
+            if (_impulseSource != null)
+            {
+                _impulseSource.GenerateImpulse(direction * intensity);
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void SetAllPriorities(int priority)
+        {
+            if (_mainCamera != null) _mainCamera.Priority = priority;
+            if (_aimCamera != null) _aimCamera.Priority = priority;
+            if (_dialogueCamera != null) _dialogueCamera.Priority = priority;
+        }
+        
+        #endregion
+    }
+}

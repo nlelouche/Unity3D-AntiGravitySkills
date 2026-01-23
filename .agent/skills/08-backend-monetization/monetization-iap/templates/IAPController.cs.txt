@@ -1,0 +1,162 @@
+// =============================================================================
+// IAPController.cs - In-App Purchasing Manager
+// Template for setting up Unity Purchasing with Consumables and Non-Consumables
+// =============================================================================
+
+using System;
+using UnityEngine;
+using UnityEngine.Purchasing;
+using UnityEngine.Purchasing.Extension;
+
+namespace YourGame.Monetization
+{
+    /// <summary>
+    /// Controller for In-App Purchases using Unity IAP Service.
+    /// Handles store initialization, product definitions, and purchase processing.
+    /// </summary>
+    public class IAPController : MonoBehaviour, IDetailedStoreListener
+    {
+        #region Configuration
+        
+        // Define your product IDs here or loaded from a ScriptableObject
+        public const string PRODUCT_COINS_100 = "com.yourgame.coins_100";
+        public const string PRODUCT_REMOVE_ADS = "com.yourgame.remove_ads";
+        
+        #endregion
+        
+        #region Singleton
+        
+        public static IAPController Instance { get; private set; }
+        private IStoreController _storeController;
+        private IExtensionProvider _extensionProvider;
+        
+        public bool IsInitialized => _storeController != null && _extensionProvider != null;
+        
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+                InitializePurchasing();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        
+        #endregion
+        
+        #region Initialization
+        
+        public void InitializePurchasing()
+        {
+            if (IsInitialized) return;
+            
+            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+            
+            // Add products
+            builder.AddProduct(PRODUCT_COINS_100, ProductType.Consumable);
+            builder.AddProduct(PRODUCT_REMOVE_ADS, ProductType.NonConsumable);
+            
+            UnityPurchasing.Initialize(this, builder);
+        }
+        
+        #endregion
+        
+        #region Purchasing
+        
+        public void BuyProductID(string productId)
+        {
+            if (IsInitialized)
+            {
+                Product product = _storeController.products.WithID(productId);
+                
+                if (product != null && product.availableToPurchase)
+                {
+                    Debug.Log($"Initiating purchase: {product.definition.id}");
+                    _storeController.InitiatePurchase(product);
+                }
+                else
+                {
+                    Debug.LogError("BuyProductID: FAIL. Product lookup didn't find the product or it's unavailable.");
+                }
+            }
+            else
+            {
+                Debug.LogError("BuyProductID: FAIL. Not initialized.");
+            }
+        }
+        
+        public void RestorePurchases()
+        {
+            if (!IsInitialized) return;
+            
+            if (Application.platform == RuntimePlatform.IPhonePlayer || 
+                Application.platform == RuntimePlatform.OSXPlayer)
+            {
+                Debug.Log("Restoring purchases...");
+                var apple = _extensionProvider.GetExtension<IAppleExtensions>();
+                apple.RestoreTransactions(result => {
+                    Debug.Log($"Restore result: {result}");
+                });
+            }
+        }
+        
+        #endregion
+        
+        #region IStoreListener Implementation
+        
+        public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+        {
+            Debug.Log("IAP Initialized Successfully");
+            _storeController = controller;
+            _extensionProvider = extensions;
+        }
+        
+        public void OnInitializeFailed(InitializationFailureReason error)
+        {
+            Debug.LogError($"IAP Init Failed: {error}");
+        }
+
+        public void OnInitializeFailed(InitializationFailureReason error, string message)
+        {
+            Debug.LogError($"IAP Init Failed: {error} - {message}");
+        }
+        
+        public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
+        {
+            var product = args.purchasedProduct;
+            
+            Debug.Log($"Processing Purchase: {product.definition.id}");
+            
+            // Validate Logic would go here (Server-side validation recommended)
+            
+            if (String.Equals(product.definition.id, PRODUCT_COINS_100, StringComparison.Ordinal))
+            {
+                // Grant Currency
+                Debug.Log("Granting 100 Coins");
+            }
+            else if (String.Equals(product.definition.id, PRODUCT_REMOVE_ADS, StringComparison.Ordinal))
+            {
+                // Remove Ads
+                Debug.Log("Ads Removed");
+            }
+            
+            return PurchaseProcessingResult.Complete;
+        }
+        
+        public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
+        {
+            Debug.LogError($"Purchase Failed: {product.definition.storeSpecificId}, Reason: {failureReason}");
+        }
+
+        public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
+        {
+             Debug.LogError($"Purchase Failed: {product.definition.id} - {failureDescription.message}");
+        }
+        
+        #endregion
+    }
+}

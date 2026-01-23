@@ -1,0 +1,177 @@
+// =============================================================================
+// NavMeshAgentController.cs - AI Movement Controller
+// Part of: navmesh-pathfinding skill
+// =============================================================================
+
+using System;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace {{NAMESPACE}}.AI
+{
+    /// <summary>
+    /// Wrapper controller for NavMeshAgent with enhanced features.
+    /// Provides events, state tracking, and convenience methods.
+    /// </summary>
+    [RequireComponent(typeof(NavMeshAgent))]
+    public class NavMeshAgentController : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private float _stoppingDistance = 0.5f;
+        [SerializeField] private float _rotationSpeed = 120f;
+        [SerializeField] private bool _faceDestination = true;
+        
+        [Header("Debug")]
+        [SerializeField] private bool _drawPath = false;
+        
+        private NavMeshAgent _agent;
+        private Vector3 _destination;
+        private bool _hasDestination;
+        
+        public NavMeshAgent Agent => _agent;
+        public bool IsMoving => _hasDestination && !HasReachedDestination;
+        public bool HasReachedDestination => _agent.remainingDistance <= _stoppingDistance && !_agent.pathPending;
+        public float RemainingDistance => _agent.remainingDistance;
+        public Vector3 Destination => _destination;
+        public Vector3 Velocity => _agent.velocity;
+        
+        public event Action OnDestinationReached;
+        public event Action OnPathFailed;
+
+        private void Awake()
+        {
+            _agent = GetComponent<NavMeshAgent>();
+            _agent.stoppingDistance = _stoppingDistance;
+        }
+
+        private void Update()
+        {
+            if (_hasDestination)
+            {
+                if (HasReachedDestination)
+                {
+                    _hasDestination = false;
+                    OnDestinationReached?.Invoke();
+                }
+                else if (_agent.pathStatus == NavMeshPathStatus.PathInvalid)
+                {
+                    _hasDestination = false;
+                    OnPathFailed?.Invoke();
+                }
+            }
+            
+            if (_faceDestination && IsMoving)
+            {
+                FaceDirection(_agent.velocity.normalized);
+            }
+        }
+
+        /// <summary>
+        /// Set destination and start moving.
+        /// </summary>
+        public bool SetDestination(Vector3 destination)
+        {
+            _destination = destination;
+            
+            if (!_agent.SetDestination(destination))
+            {
+                OnPathFailed?.Invoke();
+                return false;
+            }
+            
+            _hasDestination = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Move towards a target Transform (updates destination each frame).
+        /// </summary>
+        public void FollowTarget(Transform target)
+        {
+            if (target != null)
+            {
+                SetDestination(target.position);
+            }
+        }
+
+        /// <summary>
+        /// Stop movement immediately.
+        /// </summary>
+        public void Stop()
+        {
+            _hasDestination = false;
+            _agent.ResetPath();
+        }
+
+        /// <summary>
+        /// Pause movement (keeps destination).
+        /// </summary>
+        public void Pause()
+        {
+            _agent.isStopped = true;
+        }
+
+        /// <summary>
+        /// Resume movement after pause.
+        /// </summary>
+        public void Resume()
+        {
+            _agent.isStopped = false;
+        }
+
+        /// <summary>
+        /// Check if a path exists to destination.
+        /// </summary>
+        public bool CanReach(Vector3 destination)
+        {
+            NavMeshPath path = new NavMeshPath();
+            return NavMesh.CalculatePath(transform.position, destination, NavMesh.AllAreas, path)
+                   && path.status == NavMeshPathStatus.PathComplete;
+        }
+
+        /// <summary>
+        /// Teleport to a valid NavMesh position.
+        /// </summary>
+        public bool Warp(Vector3 position)
+        {
+            if (NavMesh.SamplePosition(position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+            {
+                return _agent.Warp(hit.position);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Set movement speed.
+        /// </summary>
+        public void SetSpeed(float speed)
+        {
+            _agent.speed = speed;
+        }
+
+        private void FaceDirection(Vector3 direction)
+        {
+            if (direction == Vector3.zero) return;
+            
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, 
+                targetRotation, 
+                _rotationSpeed * Time.deltaTime
+            );
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (_drawPath && _agent != null && _agent.hasPath)
+            {
+                Gizmos.color = Color.yellow;
+                var path = _agent.path.corners;
+                for (int i = 0; i < path.Length - 1; i++)
+                {
+                    Gizmos.DrawLine(path[i], path[i + 1]);
+                }
+            }
+        }
+    }
+}

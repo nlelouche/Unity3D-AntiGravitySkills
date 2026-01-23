@@ -1,0 +1,212 @@
+// =============================================================================
+// FootIKController.cs - Procedural Foot IK for Terrain Adaptation
+// Template for foot placement on uneven terrain
+// =============================================================================
+
+using UnityEngine;
+
+namespace YourGame.Animation
+{
+    /// <summary>
+    /// Procedural foot IK controller for terrain adaptation.
+    /// Adjusts foot positions and rotations to match ground surface.
+    /// </summary>
+    [RequireComponent(typeof(Animator))]
+    public class FootIKController : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("IK Settings")]
+        [SerializeField] private bool _enableIK = true;
+        [SerializeField, Range(0f, 1f)] private float _ikWeight = 1f;
+        [SerializeField, Range(0f, 1f)] private float _bodyWeight = 0.5f;
+        
+        [Header("Raycast")]
+        [SerializeField] private LayerMask _groundMask = ~0;
+        [SerializeField] private float _raycastDistance = 1.5f;
+        [SerializeField] private float _raycastOriginOffset = 0.5f;
+        
+        [Header("Foot Offset")]
+        [SerializeField] private float _footOffset = 0.1f;
+        [SerializeField] private float _footRotationWeight = 1f;
+        
+        [Header("Smoothing")]
+        [SerializeField] private float _positionSmoothSpeed = 15f;
+        [SerializeField] private float _rotationSmoothSpeed = 15f;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private Animator _animator;
+        
+        private Vector3 _leftFootPosition;
+        private Vector3 _rightFootPosition;
+        private Quaternion _leftFootRotation;
+        private Quaternion _rightFootRotation;
+        private float _bodyOffset;
+        
+        private Transform _leftFoot;
+        private Transform _rightFoot;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            
+            _leftFoot = _animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            _rightFoot = _animator.GetBoneTransform(HumanBodyBones.RightFoot);
+        }
+        
+        private void Update()
+        {
+            if (!_enableIK) return;
+            
+            UpdateFootTargets();
+            UpdateBodyOffset();
+        }
+        
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (!_enableIK || _animator == null) return;
+            
+            ApplyBodyOffset();
+            ApplyFootIK(AvatarIKGoal.LeftFoot, _leftFootPosition, _leftFootRotation);
+            ApplyFootIK(AvatarIKGoal.RightFoot, _rightFootPosition, _rightFootRotation);
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Enables or disables foot IK.
+        /// </summary>
+        public void SetEnabled(bool enabled)
+        {
+            _enableIK = enabled;
+        }
+        
+        /// <summary>
+        /// Sets the IK weight.
+        /// </summary>
+        public void SetWeight(float weight)
+        {
+            _ikWeight = Mathf.Clamp01(weight);
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void UpdateFootTargets()
+        {
+            // Left foot
+            if (RaycastFoot(_leftFoot, out Vector3 leftPos, out Quaternion leftRot))
+            {
+                _leftFootPosition = Vector3.Lerp(_leftFootPosition, leftPos, 
+                    Time.deltaTime * _positionSmoothSpeed);
+                _leftFootRotation = Quaternion.Slerp(_leftFootRotation, leftRot, 
+                    Time.deltaTime * _rotationSmoothSpeed);
+            }
+            
+            // Right foot
+            if (RaycastFoot(_rightFoot, out Vector3 rightPos, out Quaternion rightRot))
+            {
+                _rightFootPosition = Vector3.Lerp(_rightFootPosition, rightPos, 
+                    Time.deltaTime * _positionSmoothSpeed);
+                _rightFootRotation = Quaternion.Slerp(_rightFootRotation, rightRot, 
+                    Time.deltaTime * _rotationSmoothSpeed);
+            }
+        }
+        
+        private bool RaycastFoot(Transform foot, out Vector3 position, out Quaternion rotation)
+        {
+            position = foot.position;
+            rotation = foot.rotation;
+            
+            if (foot == null) return false;
+            
+            Vector3 rayOrigin = foot.position + Vector3.up * _raycastOriginOffset;
+            
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 
+                _raycastDistance, _groundMask, QueryTriggerInteraction.Ignore))
+            {
+                position = hit.point + Vector3.up * _footOffset;
+                rotation = Quaternion.LookRotation(
+                    Vector3.ProjectOnPlane(transform.forward, hit.normal), 
+                    hit.normal);
+                return true;
+            }
+            
+            return false;
+        }
+        
+        private void UpdateBodyOffset()
+        {
+            float leftOffset = _leftFootPosition.y - _leftFoot.position.y;
+            float rightOffset = _rightFootPosition.y - _rightFoot.position.y;
+            
+            // Use lower foot to determine body offset
+            float targetOffset = Mathf.Min(leftOffset, rightOffset);
+            
+            _bodyOffset = Mathf.Lerp(_bodyOffset, targetOffset, 
+                Time.deltaTime * _positionSmoothSpeed);
+        }
+        
+        private void ApplyBodyOffset()
+        {
+            Vector3 bodyPosition = _animator.bodyPosition;
+            bodyPosition.y += _bodyOffset * _bodyWeight * _ikWeight;
+            _animator.bodyPosition = bodyPosition;
+        }
+        
+        private void ApplyFootIK(AvatarIKGoal goal, Vector3 position, Quaternion rotation)
+        {
+            _animator.SetIKPositionWeight(goal, _ikWeight);
+            _animator.SetIKRotationWeight(goal, _ikWeight * _footRotationWeight);
+            _animator.SetIKPosition(goal, position);
+            _animator.SetIKRotation(goal, rotation);
+        }
+        
+        #endregion
+        
+        #region Editor
+        
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            if (_leftFoot != null)
+            {
+                DrawFootGizmo(_leftFoot);
+            }
+            
+            if (_rightFoot != null)
+            {
+                DrawFootGizmo(_rightFoot);
+            }
+        }
+        
+        private void DrawFootGizmo(Transform foot)
+        {
+            Vector3 rayOrigin = foot.position + Vector3.up * _raycastOriginOffset;
+            
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(rayOrigin, rayOrigin + Vector3.down * _raycastDistance);
+            
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 
+                _raycastDistance, _groundMask))
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawSphere(hit.point, 0.05f);
+                Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.3f);
+            }
+        }
+#endif
+        
+        #endregion
+    }
+}

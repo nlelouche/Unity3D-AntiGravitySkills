@@ -1,0 +1,41 @@
+// =============================================================================
+// ISaveable.cs - Save System Interface
+// Part of: interface-driven-development skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Interfaces
+{
+    /// <summary>
+    /// Interface for any object that can save/load its state.
+    /// Implemented by: Player, Inventory, QuestLog, WorldState, etc.
+    /// 
+    /// The SaveManager finds all ISaveable objects and persists their data
+    /// without knowing anything about what they actually are.
+    /// </summary>
+    public interface ISaveable
+    {
+        /// <summary>
+        /// Unique identifier for this saveable object.
+        /// Must be consistent across sessions (use GUID or scene path).
+        /// </summary>
+        string SaveId { get; }
+        
+        /// <summary>
+        /// Priority for save/load order (lower = earlier).
+        /// Use for dependencies (e.g., PlayerStats before Inventory).
+        /// </summary>
+        int SavePriority { get; }
+        
+        /// <summary>
+        /// Capture current state as serializable data.
+        /// Returns object that will be serialized (use struct or class with [Serializable]).
+        /// </summary>
+        object CaptureState();
+        
+        /// <summary>
+        /// Restore state from previously saved data.
+        /// Cast the state object to your expected type.
+        /// </summary>
+        void RestoreState(object state);
+    }
+}

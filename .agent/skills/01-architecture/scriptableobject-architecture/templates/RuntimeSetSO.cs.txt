@@ -1,0 +1,63 @@
+// =============================================================================
+// RuntimeSetSO.cs - Dynamic Collection of Active Objects
+// Part of: scriptableobject-architecture skill
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Data
+{
+    /// <summary>
+    /// ScriptableObject that maintains a runtime set of active objects.
+    /// Objects register themselves in OnEnable and unregister in OnDisable.
+    /// 
+    /// Use Case: Track all active enemies, pickups, interactables without Find().
+    /// </summary>
+    /// <typeparam name="T">The type of objects in the set.</typeparam>
+    public abstract class RuntimeSetSO<T> : ScriptableObject
+    {
+        private readonly List<T> _items = new();
+        
+        /// <summary>
+        /// Read-only access to all items in the set.
+        /// </summary>
+        public IReadOnlyList<T> Items => _items;
+        
+        /// <summary>
+        /// Current count of items.
+        /// </summary>
+        public int Count => _items.Count;
+
+        /// <summary>
+        /// Add an item to the set. Call in OnEnable.
+        /// </summary>
+        public void Add(T item)
+        {
+            if (!_items.Contains(item))
+                _items.Add(item);
+        }
+
+        /// <summary>
+        /// Remove an item from the set. Call in OnDisable.
+        /// </summary>
+        public void Remove(T item)
+        {
+            _items.Remove(item);
+        }
+
+        /// <summary>
+        /// Clear all items. Use for scene resets.
+        /// </summary>
+        public void Clear()
+        {
+            _items.Clear();
+        }
+
+        private void OnDisable()
+        {
+            // Clear on play mode exit to prevent stale references
+            _items.Clear();
+        }
+    }
+}

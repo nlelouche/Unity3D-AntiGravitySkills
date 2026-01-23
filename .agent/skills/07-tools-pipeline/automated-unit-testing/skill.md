@@ -1,29 +1,175 @@
 ---
 name: automated-unit-testing
-description: Generates PlayMode and EditMode tests using NUnit.
-argument-hint: "arg1='value' arg2='value'"
+description: "Implementation of NUnit tests for Unity, covering EditMode and PlayMode scenarios for reliable code verification."
+version: 1.0.0
+tags: ["testing", "nunit", "qa", "validation", "tdd"]
+argument-hint: "test_type='PlayMode' OR context='InventorySystem' coverage='strict'"
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
   - run_command
   - list_dir
+  - write_to_file
 ---
 
 # Automated Unit Testing
 
-## Goal
-Generates PlayMode and EditMode tests using NUnit.
+## Overview
+Implementation of automated tests using the Unity Test Framework (NUnit). Ensures code reliability through EditMode (logic) and PlayMode (integration/physics) testing.
 
-## Constraints
-- Run safely and do not modify files without confirmation.
-- Use the python scripts in `scripts/` for complex logic.
+## When to Use
+- Use when logic is complex (Inventory, Stats)
+- Use when refactoring legacy code
+- Use when verifying bug fixes (Regression test)
+- Use when strictly following TDD
+- Use for CI/CD pipelines
 
-## Procedure
-1.  **Analyze Request**: Understand what the user wants.
-2.  **Execute Script**: Call the python script using `run_command`.
-    - Command: `python .agent/skills/07-tools-pipeline/automated-unit-testing/scripts/main.py --arg value`
-3.  **Report**: Show the results to the user.
+## Test Types
 
-## Few-Shot Example
-User: "Run automated-unit-testing..."
-Agent: execute python script...
+| Type | Environment | Time Scale | Use Case |
+|------|-------------|------------|----------|
+| **EditMode** | Editor | Instant | Pure C# logic, Math, Data parsing |
+| **PlayMode** | Runtime | Real-time | Physics, Coroutines, Visuals, UI |
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     TESTING FRAMEWORK                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ASSEMBLY DEFINITION (.asmdef)                              │
+│  ┌──────────────────────┐                                   │
+│  │ Game.Tests.asmdef    │                                   │
+│  │ [x] Test Assemblies  │                                   │
+│  │ Refs: Game.asmdef    │                                   │
+│  └──────────┬───────────┘                                   │
+│             │                                               │
+│             ▼                                               │
+│  TEST SCRIPT                                                │
+│  ┌──────────────────────┐                                   │
+│  │ [TestFixture]        │                                   │
+│  │ InventoryTests       │                                   │
+│  │  ├─ [SetUp]          │                                   │
+│  │  ├─ [Test] AddItem   │                                   │
+│  │  └─ [TearDown]       │                                   │
+│  └──────────────────────┘                                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Best Practices
+- ✅ Create separate `.asmdef` for Tests
+- ✅ Use `[SetUp]` and `[TearDown]` for state cleanup
+- ✅ Name tests clearly: `MethodName_Condition_ExpectedResult`
+- ✅ Mock dependencies where possible (Interfaces)
+- ✅ Keep tests independent of each other
+- ❌ **NEVER** test private methods (test public behavior)
+- ❌ **NEVER** use `GameObject.Find` in tests (slow/fragile)
+- ❌ **NEVER** rely on previous test state
+
+## Few-Shot Examples
+
+### Example 1: EditMode Test (Pure Logic)
+**User**: "Test health calculation."
+
+**Agent**:
+```csharp
+using NUnit.Framework;
+
+public class HealthTests
+{
+    [Test]
+    public void TakeDamage_PositiveAmount_ReducesHealth()
+    {
+        // Arrange
+        var health = new HealthSystem(100);
+
+        // Act
+        health.TakeDamage(10);
+
+        // Assert
+        Assert.AreEqual(90, health.CurrentHealth);
+    }
+
+    [Test]
+    public void TakeDamage_ExceedingCurrent_HealthZero()
+    {
+        // Arrange
+        var health = new HealthSystem(10);
+
+        // Act
+        health.TakeDamage(20);
+
+        // Assert
+        Assert.AreEqual(0, health.CurrentHealth);
+        Assert.IsTrue(health.IsDead);
+    }
+}
+```
+
+### Example 2: PlayMode Test (Unity Integration)
+**User**: "Test player movement physics."
+
+**Agent**:
+```csharp
+using System.Collections;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+public class PlayerMovementTests
+{
+    private GameObject _playerGO;
+    private PlayerController _controller;
+
+    [SetUp]
+    public void Setup()
+    {
+        _playerGO = new GameObject("Player");
+        var rb = _playerGO.AddComponent<Rigidbody>();
+        _controller = _playerGO.AddComponent<PlayerController>();
+    }
+
+    [UnityTest]
+    public IEnumerator Move_VectorInput_ChangesPosition()
+    {
+        // Arrange
+        var startPos = _playerGO.transform.position;
+
+        // Act
+        _controller.Move(Vector3.forward);
+        yield return new WaitForSeconds(0.5f); // Wait for physics
+
+        // Assert
+        Assert.AreNotEqual(startPos, _playerGO.transform.position);
+    }
+
+    [TearDown]
+    public void Teardown()
+    {
+        Object.Destroy(_playerGO);
+    }
+}
+```
+
+### Example 3: Parameterized Tests
+**User**: "Test multiple damage values."
+
+**Agent**:
+```csharp
+[TestCase(10, 90)]
+[TestCase(50, 50)]
+[TestCase(100, 0)]
+public void TakeDamage_VariousAmounts_CalculatesCorrectly(int damage, int expected)
+{
+    var health = new HealthSystem(100);
+    health.TakeDamage(damage);
+    Assert.AreEqual(expected, health.CurrentHealth);
+}
+```
+
+## Related Skills
+- `@unity-mcp-connector` - Run tests via command
+- `@custom-editor-scripting` - Test editor tools
+- `@oop-patterns-architect` - Design for testability (DI)

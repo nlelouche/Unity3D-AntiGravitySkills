@@ -1,0 +1,53 @@
+// =============================================================================
+// StateBase.cs - Abstract State Base Class
+// Part of: state-machine-architect skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.StateMachine
+{
+    /// <summary>
+    /// Abstract base class for states with virtual methods.
+    /// Inherit from this to create states with minimal boilerplate.
+    /// </summary>
+    /// <typeparam name="TContext">The context type (usually the owner MonoBehaviour).</typeparam>
+    public abstract class StateBase<TContext> : IState<TContext>
+    {
+        /// <summary>
+        /// Reference to the state machine for triggering transitions.
+        /// </summary>
+        protected StateMachine<TContext> StateMachine { get; private set; }
+        
+        public void SetStateMachine(StateMachine<TContext> stateMachine)
+        {
+            StateMachine = stateMachine;
+        }
+
+        public virtual void Enter(TContext context)
+        {
+            // Override in derived classes
+        }
+
+        public virtual void Update(TContext context)
+        {
+            // Override in derived classes
+        }
+
+        public virtual void FixedUpdate(TContext context)
+        {
+            // Override in derived classes
+        }
+
+        public virtual void Exit(TContext context)
+        {
+            // Override in derived classes
+        }
+        
+        /// <summary>
+        /// Convenience method to transition to another state.
+        /// </summary>
+        protected void TransitionTo<TState>() where TState : IState<TContext>
+        {
+            StateMachine?.ChangeState<TState>();
+        }
+    }
+}

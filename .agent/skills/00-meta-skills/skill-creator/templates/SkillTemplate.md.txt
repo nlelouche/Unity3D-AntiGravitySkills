@@ -1,0 +1,62 @@
+---
+name: {skill-name}
+description: "{Short, actionable description of what this skill does.}"
+version: 1.0.0
+tags: ["{tag1}", "{tag2}"]
+argument-hint: "{arg1}='{value}'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
+---
+
+# {Skill Name (Title Case)}
+
+## Overview
+{Detailed description of the skill. What problem does it solve? What is its core value proposition? Keep it professional and high-level.}
+
+## When to Use
+- Use when {Condition A}
+- Use when {Condition B}
+- Use for {Specific Goal}
+- Use with {Related Tool/Package}
+
+## Architecture
+{Optional: ASCII diagram or explanation of how the code/system fits together.}
+
+```
+┌─────────────────┐
+│  Architecture   │
+└─────────────────┘
+```
+
+## Best Practices
+- ✅ {Do this}
+- ✅ {Do that}
+- ❌ **NEVER** {Do this bad thing}
+- ❌ **NEVER** {Do that bad thing}
+
+## Few-Shot Examples
+
+### Example 1: {Common Use Case}
+**User**: "{User input example}"
+
+**Agent**:
+```csharp
+// Code example or Action taken
+public void Example() { ... }
+```
+
+### Example 2: {Advanced Use Case}
+**User**: "{User input example}"
+
+**Agent**:
+```bash
+# Command example
+run_command(...)
+```
+
+## Related Skills
+- `@{related-skill}` - {Relationship description}

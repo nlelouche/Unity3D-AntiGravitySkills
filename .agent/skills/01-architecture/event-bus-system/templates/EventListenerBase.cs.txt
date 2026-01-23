@@ -1,0 +1,45 @@
+// =============================================================================
+// EventListenerBase.cs - Abstract Event Listener Component
+// Part of: event-bus-system skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Events
+{
+    /// <summary>
+    /// Abstract base class for MonoBehaviours that listen to events.
+    /// Automatically handles subscription/unsubscription lifecycle.
+    /// </summary>
+    /// <typeparam name="T">The event type to listen for.</typeparam>
+    public abstract class EventListenerBase<T> : MonoBehaviour where T : struct, IEvent
+    {
+        [Header("Event Listener Config")]
+        [SerializeField] private bool _logEvents = false;
+        
+        protected virtual void OnEnable()
+        {
+            EventBus.Subscribe<T>(HandleEvent);
+        }
+        
+        protected virtual void OnDisable()
+        {
+            EventBus.Unsubscribe<T>(HandleEvent);
+        }
+        
+        private void HandleEvent(T evt)
+        {
+            if (_logEvents)
+            {
+                Debug.Log($"[{GetType().Name}] Received: {typeof(T).Name}");
+            }
+            
+            OnEventReceived(evt);
+        }
+        
+        /// <summary>
+        /// Override this to handle the event.
+        /// </summary>
+        protected abstract void OnEventReceived(T evt);
+    }
+}

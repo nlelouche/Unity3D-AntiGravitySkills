@@ -1,39 +1,138 @@
 ---
-name: unity-scriptableobject-architecture
-description: Senior Architect for Data-Driven Design. Activate this skill when the user requests "balancing stats," "global variables," "SO-based event channels," "item/building databases," or "persistent data containers."
+name: scriptableobject-architecture
+description: "Senior Architect for Data-Driven Design using ScriptableObjects. Create SO-based event channels, runtime sets, and configuration data."
+version: 1.0.0
+tags: ["architecture", "scriptableobject", "data-driven", "events", "configuration"]
+argument-hint: "type='event' name='OnPlayerDamaged' OR type='data' name='WeaponConfig'"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools:
+  - run_command
+  - list_dir
+  - write_to_file
 ---
 
-# ScriptableObject Architecture (Agentic Production Standard 2.0)
+# ScriptableObject Architecture
 
-## 🎯 Context & Goal
-The objective is to decouple gameplay data and signals from MonoBehaviour logic, creating a flexible, data-driven architecture. [cite_start]This skill mandates the use of **ScriptableObjects (SO)** as the "Single Source of Truth" for design constants and event broadcasting, allowing the agent to perform autonomous balance passes and system refactoring without modifying core C# logic.
+## Overview
+Decouple gameplay data and signals from MonoBehaviour logic using ScriptableObjects as the "Single Source of Truth" for design constants and event broadcasting.
 
-## 🧠 Thinking Process (Mandatory Internal Reasoning)
-[cite_start]Before generating assets, the agent MUST perform and document this "Agent-First" analysis[cite: 11]:
-1. [cite_start]**Data vs. State Identification**: Distinguish between static design data (e.g., base health) and runtime state (e.g., current health)[cite: 129].
-2. **Asset Hierarchy Planning**: Define a logical `CreateAssetMenu` structure to ensure human-readable organization.
-3. **Dependency Mapping**: Identify which systems will consume the data and how they will be notified of changes (e.g., Game Events).
-4. [cite_start]**Memory Management**: Assess if the SO contains heavy assets (Textures/Audio) that require `AssetReference` for Addressables integration[cite: 46].
+## When to Use
+- Use when creating inspector-configurable game data (stats, costs, timings)
+- Use when implementing SO-based event channels (alternative to static EventBus)
+- Use when tracking active objects without GameObject.Find (Runtime Sets)
+- Use when sharing data between scenes or objects
+- Use when designers need to tweak values without code changes
 
-## 🛠️ Operational Procedure (Step-by-Step)
-1. [cite_start]**Artifact Generation (Data Schema Plan)**: Emit a structured plan detailing the SO class structure, fields, and intended menu paths before creating scripts[cite: 32].
-2. **Container Definition**: Create classes inheriting from `ScriptableObject` with high-level validation attributes (e.g., `[Range]`, `[Min]`).
-3. [cite_start]**Event Channel Implementation**: Implement `GameEventSO` patterns to allow "broadcast" communication between systems[cite: 8, 237].
-4. [cite_start]**Runtime Set Management**: Use SOs to track collections of active scene objects (e.g., EnemyHordeSet) to avoid expensive `Find` calls[cite: 88].
-5. [cite_start]**Reset Protocol**: Implement mandatory initialization logic to reset runtime variables during Editor playmode transitions[cite: 89].
+## Architecture
 
-## 🚫 Constraints & Prohibitions (Hard Rules)
-- [cite_start]**FORBIDDEN**: Including heavy execution logic (Physics, Input, UI rendering) inside a ScriptableObject; they must remain data containers or signal hubs[cite: 88].
-- **FORBIDDEN**: Using `GameObject.Find` to locate data that should be injected via a ScriptableObject reference.
-- **MANDATORY**: Use `[SerializeField]` with private fields and public getter-only properties to ensure data integrity.
-- **MANDATORY**: Scripts must include `[CreateAssetMenu]` with a clear, hierarchical path (e.g., "Project/Combat/HealthConfig").
+### Data-Driven Configuration
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ScriptableObject Asset                   │
+│                     (WeaponConfigSO)                        │
+├─────────────────────────────────────────────────────────────┤
+│  [SerializeField] private float _damage = 10f;              │
+│  [SerializeField] private float _fireRate = 0.5f;           │
+│  [SerializeField] private GameObject _projectilePrefab;     │
+│                                                             │
+│  public float Damage => _damage;                            │
+│  public float FireRate => _fireRate;                        │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+      Shared by multiple weapons without duplication
+```
 
-## 📝 Artifact: Data & Event Mapping Audit
-[cite_start]The agent must verify the output against this checklist[cite: 29]:
-- [ ] **Data Integrity**: Are all sensitive fields private and properly serialized?
-- [ ] **Clean Lifecycle**: Is the SO free from direct `MonoBehaviour` references that could cause memory leaks?
-- [ ] **Usability**: Is the menu path organized for rapid designer iteration?
+### Event Channels
+```
+┌──────────────┐           ┌──────────────────┐
+│   Trigger    │  Raise()  │   GameEventSO    │
+│ (Door opens) │ ─────────→│ (OnDoorOpened)   │
+└──────────────┘           └────────┬─────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              ↓                     ↓                     ↓
+      ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
+      │  AudioManager │    │  UI Manager   │    │  Quest System │
+      │  (Listener)   │    │  (Listener)   │    │  (Listener)   │
+      └───────────────┘    └───────────────┘    └───────────────┘
+```
 
-## 💡 Few-Shot Examples
-- **User Input**: "Create a system to configure building costs and construction times for the city builder."
-- **Agent Output**: Generates a **Data Schema Plan**, creates the `BuildingDataSO` script with serialized cost/time fields, and provides the menu path `Project/Economy/BuildingData`.
+## Components
+
+| Component | Purpose |
+|-----------|---------|
+| `GameEventSO` | SO-based event for inspector-assignable broadcasts |
+| `GameEventListener` | MonoBehaviour that listens to GameEventSO |
+| `RuntimeSetSO<T>` | Dynamic collection of active objects |
+| `ConfigSO` | Base for configuration data containers |
+
+## Best Practices
+- ✅ Use `[SerializeField] private` with public getters
+- ✅ Include validation attributes (`[Range]`, `[Min]`)
+- ✅ Use `[CreateAssetMenu]` with hierarchical paths
+- ✅ Reset runtime data in `OnDisable` for editor play mode
+- ✅ Keep SO as data containers, NOT execution logic
+- ❌ **NEVER** put Update loops in ScriptableObjects
+- ❌ **NEVER** store direct MonoBehaviour references in persistent SOs
+- ❌ **NEVER** use heavy assets (textures) directly (use AssetReference)
+
+## Few-Shot Examples
+
+### Example 1: Weapon Configuration
+**User**: "Create configurable weapon stats for the RPG."
+
+**Agent**:
+```csharp
+[CreateAssetMenu(menuName = "Game/Combat/WeaponConfig")]
+public class WeaponConfigSO : ScriptableObject
+{
+    [Header("Damage")]
+    [SerializeField, Min(1)] private float _baseDamage = 10f;
+    [SerializeField] private DamageType _damageType;
+    
+    [Header("Timing")]
+    [SerializeField, Range(0.1f, 2f)] private float _attackSpeed = 1f;
+    
+    public float BaseDamage => _baseDamage;
+    public DamageType DamageType => _damageType;
+    public float AttackSpeed => _attackSpeed;
+}
+```
+
+### Example 2: SO Event Channel
+**User**: "Door should play sound and update UI without coupling."
+
+**Agent**:
+```csharp
+// 1. Create GameEventSO asset "OnDoorOpened"
+// 2. Door.cs calls: _onDoorOpenedEvent.Raise();
+// 3. AudioManager has GameEventListener pointing to same SO
+// 4. UI has another GameEventListener pointing to same SO
+```
+
+### Example 3: Runtime Set
+**User**: "Track all active enemies for wave completion check."
+
+**Agent**:
+```csharp
+[CreateAssetMenu(menuName = "Game/Runtime/EnemySet")]
+public class EnemyRuntimeSetSO : RuntimeSetSO<Enemy> { }
+
+// Enemy.cs
+void OnEnable() => _enemySet.Add(this);
+void OnDisable() => _enemySet.Remove(this);
+
+// WaveManager.cs
+bool IsWaveComplete => _enemySet.Count == 0;
+```
+
+## Related Skills
+- `@event-bus-system` - Static alternative to SO events
+- `@advanced-design-patterns` - Patterns using SO data
+- `@di-container-manager` - Injecting SO dependencies
+
+## Template Files
+- `templates/GameEventSO.cs.txt` - Event channel
+- `templates/GameEventListener.cs.txt` - Event listener
+- `templates/RuntimeSetSO.cs.txt` - Active object tracking

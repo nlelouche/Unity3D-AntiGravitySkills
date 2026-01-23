@@ -1,0 +1,103 @@
+// =============================================================================
+// StatusEffectSO.cs - ScriptableObject Status Effect Definition
+// Part of: status-effect-system skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.StatusEffects
+{
+    /// <summary>
+    /// ScriptableObject defining a status effect (buff/debuff).
+    /// Create via: Assets > Create > Game/StatusEffects/StatusEffect
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewStatusEffect", menuName = "Game/StatusEffects/StatusEffect")]
+    public class StatusEffectSO : ScriptableObject
+    {
+        [Header("Identity")]
+        [SerializeField] private string _effectId;
+        [SerializeField] private string _displayName;
+        [SerializeField, TextArea(2, 4)] private string _description;
+        [SerializeField] private Sprite _icon;
+        [SerializeField] private StatusEffectType _type = StatusEffectType.Debuff;
+        
+        [Header("Duration")]
+        [SerializeField] private float _duration = 5f;
+        [SerializeField] private bool _isPermanent = false;
+        [SerializeField] private bool _isStackable = false;
+        [SerializeField] private int _maxStacks = 1;
+        [SerializeField] private StackBehavior _stackBehavior = StackBehavior.RefreshDuration;
+        
+        [Header("Tick Effect")]
+        [SerializeField] private bool _hasTick = false;
+        [SerializeField] private float _tickInterval = 1f;
+        [SerializeField] private float _tickDamage = 0f;
+        [SerializeField] private float _tickHeal = 0f;
+        
+        [Header("Stat Modifiers")]
+        [SerializeField] private StatModifier[] _statModifiers;
+        
+        [Header("Visual")]
+        [SerializeField] private GameObject _vfxPrefab;
+        [SerializeField] private Color _tintColor = Color.white;
+        
+        // Properties
+        public string EffectId => _effectId;
+        public string DisplayName => _displayName;
+        public string Description => _description;
+        public Sprite Icon => _icon;
+        public StatusEffectType Type => _type;
+        public float Duration => _duration;
+        public bool IsPermanent => _isPermanent;
+        public bool IsStackable => _isStackable;
+        public int MaxStacks => _maxStacks;
+        public StackBehavior StackBehavior => _stackBehavior;
+        public bool HasTick => _hasTick;
+        public float TickInterval => _tickInterval;
+        public float TickDamage => _tickDamage;
+        public float TickHeal => _tickHeal;
+        public StatModifier[] StatModifiers => _statModifiers;
+        public GameObject VfxPrefab => _vfxPrefab;
+        public Color TintColor => _tintColor;
+    }
+
+    public enum StatusEffectType
+    {
+        Buff,
+        Debuff,
+        Neutral
+    }
+
+    public enum StackBehavior
+    {
+        RefreshDuration,  // Reset timer on reapply
+        AddDuration,      // Add time to existing
+        AddStack,         // Increase stack count
+        Ignore            // Do nothing if already applied
+    }
+
+    [System.Serializable]
+    public struct StatModifier
+    {
+        public StatType Stat;
+        public ModifierType Type;
+        public float Value;
+    }
+
+    public enum StatType
+    {
+        MaxHealth,
+        MovementSpeed,
+        AttackDamage,
+        AttackSpeed,
+        Defense,
+        CritChance,
+        CritDamage
+    }
+
+    public enum ModifierType
+    {
+        Flat,       // +10
+        Percent     // +10%
+    }
+}

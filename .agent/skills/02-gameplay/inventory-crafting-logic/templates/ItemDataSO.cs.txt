@@ -1,0 +1,97 @@
+// =============================================================================
+// ItemDataSO.cs - ScriptableObject Item Definition
+// Part of: inventory-crafting-logic skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Inventory
+{
+    /// <summary>
+    /// ScriptableObject defining an item's properties.
+    /// Create via: Assets > Create > Game/Items/ItemData
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewItem", menuName = "Game/Items/ItemData")]
+    public class ItemDataSO : ScriptableObject
+    {
+        [Header("Identity")]
+        [SerializeField] private string _itemId;
+        [SerializeField] private string _displayName;
+        [SerializeField, TextArea(2, 4)] private string _description;
+        [SerializeField] private Sprite _icon;
+        [SerializeField] private ItemRarity _rarity = ItemRarity.Common;
+        [SerializeField] private ItemCategory _category = ItemCategory.Misc;
+        
+        [Header("Stacking")]
+        [SerializeField] private bool _isStackable = true;
+        [SerializeField] private int _maxStackSize = 99;
+        
+        [Header("Value")]
+        [SerializeField] private int _buyPrice = 10;
+        [SerializeField] private int _sellPrice = 5;
+        
+        [Header("Usage")]
+        [SerializeField] private bool _isConsumable = false;
+        [SerializeField] private bool _isEquippable = false;
+        [SerializeField] private EquipmentSlot _equipSlot = EquipmentSlot.None;
+        
+        // Properties
+        public string ItemId => _itemId;
+        public string DisplayName => _displayName;
+        public string Description => _description;
+        public Sprite Icon => _icon;
+        public ItemRarity Rarity => _rarity;
+        public ItemCategory Category => _category;
+        public bool IsStackable => _isStackable;
+        public int MaxStackSize => _maxStackSize;
+        public int BuyPrice => _buyPrice;
+        public int SellPrice => _sellPrice;
+        public bool IsConsumable => _isConsumable;
+        public bool IsEquippable => _isEquippable;
+        public EquipmentSlot EquipSlot => _equipSlot;
+        
+        /// <summary>
+        /// Override for consumable behavior.
+        /// </summary>
+        public virtual bool Use(GameObject user)
+        {
+            Debug.Log($"[ItemDataSO] Using {DisplayName}");
+            return _isConsumable;
+        }
+    }
+
+    public enum ItemRarity
+    {
+        Common,     // Gray/White
+        Uncommon,   // Green
+        Rare,       // Blue
+        Epic,       // Purple
+        Legendary,  // Orange
+        Mythic      // Red
+    }
+
+    public enum ItemCategory
+    {
+        Misc,
+        Weapon,
+        Armor,
+        Consumable,
+        Crafting,
+        Quest,
+        Currency
+    }
+
+    public enum EquipmentSlot
+    {
+        None,
+        Head,
+        Chest,
+        Legs,
+        Feet,
+        Hands,
+        MainHand,
+        OffHand,
+        Accessory1,
+        Accessory2
+    }
+}

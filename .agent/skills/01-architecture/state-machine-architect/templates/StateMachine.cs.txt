@@ -1,0 +1,135 @@
+// =============================================================================
+// StateMachine.cs - Generic State Machine Implementation
+// Part of: state-machine-architect skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.StateMachine
+{
+    /// <summary>
+    /// Generic State Machine that manages state transitions.
+    /// Can be used for player controllers, AI, UI, or any state-based system.
+    /// </summary>
+    /// <typeparam name="TContext">The context object passed to all states.</typeparam>
+    public class StateMachine<TContext>
+    {
+        private readonly TContext _context;
+        private readonly Dictionary<Type, IState<TContext>> _states = new();
+        
+        private IState<TContext> _currentState;
+        private IState<TContext> _previousState;
+        
+        /// <summary>
+        /// The currently active state.
+        /// </summary>
+        public IState<TContext> CurrentState => _currentState;
+        
+        /// <summary>
+        /// The previously active state (for state history).
+        /// </summary>
+        public IState<TContext> PreviousState => _previousState;
+        
+        /// <summary>
+        /// Event fired when state changes.
+        /// </summary>
+        public event Action<IState<TContext>, IState<TContext>> OnStateChanged;
+
+        public StateMachine(TContext context)
+        {
+            _context = context;
+        }
+
+        /// <summary>
+        /// Register a state instance with the machine.
+        /// </summary>
+        public void AddState<TState>(TState state) where TState : IState<TContext>
+        {
+            var type = typeof(TState);
+            if (!_states.ContainsKey(type))
+            {
+                _states[type] = state;
+            }
+        }
+
+        /// <summary>
+        /// Transition to a new state by type.
+        /// </summary>
+        public void ChangeState<TState>() where TState : IState<TContext>
+        {
+            var type = typeof(TState);
+            
+            if (!_states.TryGetValue(type, out var newState))
+            {
+                Debug.LogError($"[StateMachine] State not found: {type.Name}");
+                return;
+            }
+            
+            ChangeState(newState);
+        }
+
+        /// <summary>
+        /// Transition to a new state instance.
+        /// </summary>
+        public void ChangeState(IState<TContext> newState)
+        {
+            if (newState == null)
+            {
+                Debug.LogError("[StateMachine] Cannot change to null state.");
+                return;
+            }
+            
+            // Exit current state
+            _currentState?.Exit(_context);
+            
+            // Update history
+            _previousState = _currentState;
+            _currentState = newState;
+            
+            // Enter new state
+            _currentState.Enter(_context);
+            
+            // Fire event
+            OnStateChanged?.Invoke(_previousState, _currentState);
+            
+            Debug.Log($"[StateMachine] {_previousState?.GetType().Name ?? "null"} -> {_currentState.GetType().Name}");
+        }
+
+        /// <summary>
+        /// Return to the previous state.
+        /// </summary>
+        public void RevertToPreviousState()
+        {
+            if (_previousState != null)
+            {
+                ChangeState(_previousState);
+            }
+        }
+
+        /// <summary>
+        /// Call this in Update() of the owner MonoBehaviour.
+        /// </summary>
+        public void Update()
+        {
+            _currentState?.Update(_context);
+        }
+
+        /// <summary>
+        /// Call this in FixedUpdate() of the owner MonoBehaviour.
+        /// </summary>
+        public void FixedUpdate()
+        {
+            _currentState?.FixedUpdate(_context);
+        }
+
+        /// <summary>
+        /// Check if currently in a specific state.
+        /// </summary>
+        public bool IsInState<TState>() where TState : IState<TContext>
+        {
+            return _currentState?.GetType() == typeof(TState);
+        }
+    }
+}

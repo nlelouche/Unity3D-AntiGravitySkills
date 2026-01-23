@@ -1,0 +1,149 @@
+// =============================================================================
+// BackendConnector.cs - Backend Integration Service
+// Template for handling Auth, Cloud Data, and Server functions (PlayFab style)
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+// Uncomment when PlayFab SDK is installed
+// using PlayFab;
+// using PlayFab.ClientModels;
+
+namespace YourGame.Backend
+{
+    /// <summary>
+    /// Wrapper for Backend-as-a-Service operations.
+    /// Handles Authentication, Cloud Save, and Leaderboards.
+    /// </summary>
+    public class BackendConnector : MonoBehaviour
+    {
+        #region Singleton
+        
+        public static BackendConnector Instance { get; private set; }
+        public bool IsLoggedIn { get; private set; }
+        public string PlayFabId { get; private set; }
+        
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        
+        #endregion
+        
+        #region Authentication
+        
+        public void LoginSilently(Action<bool, string> onResult = null)
+        {
+#if ENABLE_PLAYFAB
+            var request = new LoginWithCustomIDRequest
+            {
+                CustomId = SystemInfo.deviceUniqueIdentifier,
+                CreateAccount = true,
+                InfoRequestParameters = new GetPlayerCombinedInfoRequestParams
+                {
+                    GetPlayerProfile = true,
+                    GetTitleData = true
+                }
+            };
+            
+            PlayFabClientAPI.LoginWithCustomID(request,
+                result =>
+                {
+                    Debug.Log("Login Success");
+                    IsLoggedIn = true;
+                    PlayFabId = result.PlayFabId;
+                    onResult?.Invoke(true, null);
+                },
+                error =>
+                {
+                    Debug.LogError($"Login Failed: {error.GenerateErrorReport()}");
+                    IsLoggedIn = false;
+                    onResult?.Invoke(false, error.ErrorMessage);
+                });
+#else
+            Debug.LogWarning("PlayFab SDK missing. Mocking Login.");
+            IsLoggedIn = true;
+            onResult?.Invoke(true, "Mock Success");
+#endif
+        }
+        
+        #endregion
+        
+        #region Cloud Data
+        
+        public void SaveUserData(Dictionary<string, string> data, Action onSuccess = null)
+        {
+            if (!IsLoggedIn) return;
+            
+#if ENABLE_PLAYFAB
+            var request = new UpdateUserDataRequest
+            {
+                Data = data
+            };
+            
+            PlayFabClientAPI.UpdateUserData(request, 
+                result => onSuccess?.Invoke(), 
+                error => Debug.LogError(error.GenerateErrorReport()));
+#endif
+        }
+        
+        public void GetUserData(List<string> keys, Action<Dictionary<string, string>> onResult)
+        {
+            if (!IsLoggedIn) return;
+            
+#if ENABLE_PLAYFAB
+            var request = new GetUserDataRequest
+            {
+                Keys = keys
+            };
+            
+            PlayFabClientAPI.GetUserData(request,
+                result =>
+                {
+                    var dict = new Dictionary<string, string>();
+                    foreach (var kvp in result.Data)
+                    {
+                        dict[kvp.Key] = kvp.Value.Value;
+                    }
+                    onResult?.Invoke(dict);
+                },
+                error => Debug.LogError(error.GenerateErrorReport()));
+#endif
+        }
+        
+        #endregion
+        
+        #region Leaderboards
+        
+        public void SubmitScore(int score, string statisticName = "HighScore")
+        {
+            if (!IsLoggedIn) return;
+            
+#if ENABLE_PLAYFAB
+            var request = new UpdatePlayerStatisticsRequest
+            {
+                Statistics = new List<StatisticUpdate>
+                {
+                    new StatisticUpdate { StatisticName = statisticName, Value = score }
+                }
+            };
+            
+            PlayFabClientAPI.UpdatePlayerStatistics(request, 
+                result => Debug.Log("Score Submitted"), 
+                error => Debug.LogError(error.GenerateErrorReport()));
+#endif
+        }
+        
+        #endregion
+    }
+}

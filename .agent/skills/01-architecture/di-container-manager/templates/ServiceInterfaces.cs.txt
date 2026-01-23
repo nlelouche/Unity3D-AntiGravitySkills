@@ -1,0 +1,65 @@
+// =============================================================================
+// ServiceInterfaces.cs - Common Service Interface Templates
+// Part of: di-container-manager skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Services
+{
+    /// <summary>
+    /// Audio service interface.
+    /// </summary>
+    public interface IAudioService
+    {
+        void PlaySound(string soundId);
+        void PlayMusic(string musicId);
+        void StopMusic();
+        void SetMasterVolume(float volume);
+        void SetMusicVolume(float volume);
+        void SetSfxVolume(float volume);
+    }
+
+    /// <summary>
+    /// Input service interface.
+    /// </summary>
+    public interface IInputService
+    {
+        UnityEngine.Vector2 MovementInput { get; }
+        bool JumpPressed { get; }
+        bool AttackPressed { get; }
+        bool InteractPressed { get; }
+        void EnableInput();
+        void DisableInput();
+    }
+
+    /// <summary>
+    /// Save service interface.
+    /// </summary>
+    public interface ISaveService
+    {
+        void Save(int slotIndex = 0);
+        void Load(int slotIndex = 0);
+        bool HasSave(int slotIndex = 0);
+        void DeleteSave(int slotIndex = 0);
+    }
+
+    /// <summary>
+    /// Scene service interface.
+    /// </summary>
+    public interface ISceneService
+    {
+        void LoadScene(string sceneName);
+        void LoadSceneAsync(string sceneName);
+        void ReloadCurrentScene();
+        string CurrentSceneName { get; }
+    }
+
+    /// <summary>
+    /// Analytics service interface.
+    /// </summary>
+    public interface IAnalyticsService
+    {
+        void LogEvent(string eventName);
+        void LogEvent(string eventName, System.Collections.Generic.Dictionary<string, object> parameters);
+        void SetUserId(string userId);
+    }
+}

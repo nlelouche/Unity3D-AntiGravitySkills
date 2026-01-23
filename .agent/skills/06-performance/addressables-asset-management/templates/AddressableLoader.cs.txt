@@ -1,0 +1,233 @@
+// =============================================================================
+// AddressableLoader.cs - Addressables Asset Loading Service
+// Template for async asset loading with proper memory management
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+
+namespace YourGame.Assets
+{
+    /// <summary>
+    /// Service for loading and managing Addressable assets.
+    /// Handles async loading, caching, and proper release.
+    /// </summary>
+    public class AddressableLoader : IDisposable
+    {
+        #region Private Fields
+        
+        private readonly Dictionary<string, AsyncOperationHandle> _loadedAssets = new();
+        private readonly Dictionary<string, GameObject> _instantiatedObjects = new();
+        
+        #endregion
+        
+        #region Properties
+        
+        public int LoadedAssetCount => _loadedAssets.Count;
+        public int InstanceCount => _instantiatedObjects.Count;
+        
+        #endregion
+        
+        #region Public Methods - Loading
+        
+        /// <summary>
+        /// Loads an asset asynchronously by AssetReference.
+        /// </summary>
+        public async Task<T> LoadAsync<T>(AssetReference reference) where T : UnityEngine.Object
+        {
+            string key = reference.AssetGUID;
+            
+            // Check cache
+            if (_loadedAssets.TryGetValue(key, out var existingHandle))
+            {
+                return existingHandle.Result as T;
+            }
+            
+            // Load
+            var handle = reference.LoadAssetAsync<T>();
+            await handle.Task;
+            
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                _loadedAssets[key] = handle;
+                return handle.Result;
+            }
+            
+            Debug.LogError($"Failed to load asset: {reference}");
+            Addressables.Release(handle);
+            return null;
+        }
+        
+        /// <summary>
+        /// Loads an asset by address string.
+        /// </summary>
+        public async Task<T> LoadAsync<T>(string address) where T : UnityEngine.Object
+        {
+            // Check cache
+            if (_loadedAssets.TryGetValue(address, out var existingHandle))
+            {
+                return existingHandle.Result as T;
+            }
+            
+            // Load
+            var handle = Addressables.LoadAssetAsync<T>(address);
+            await handle.Task;
+            
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                _loadedAssets[address] = handle;
+                return handle.Result;
+            }
+            
+            Debug.LogError($"Failed to load asset: {address}");
+            Addressables.Release(handle);
+            return null;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Instantiation
+        
+        /// <summary>
+        /// Instantiates a prefab asynchronously.
+        /// </summary>
+        public async Task<GameObject> InstantiateAsync(AssetReference reference, 
+            Vector3 position = default, Quaternion rotation = default, 
+            Transform parent = null)
+        {
+            var handle = reference.InstantiateAsync(position, rotation, parent);
+            var instance = await handle.Task;
+            
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                string instanceKey = $"{reference.AssetGUID}_{instance.GetInstanceID()}";
+                _instantiatedObjects[instanceKey] = instance;
+                return instance;
+            }
+            
+            Debug.LogError($"Failed to instantiate: {reference}");
+            return null;
+        }
+        
+        /// <summary>
+        /// Releases an instantiated object.
+        /// </summary>
+        public void ReleaseInstance(GameObject instance)
+        {
+            if (instance == null) return;
+            
+            Addressables.ReleaseInstance(instance);
+            
+            // Remove from tracking
+            string keyToRemove = null;
+            foreach (var kvp in _instantiatedObjects)
+            {
+                if (kvp.Value == instance)
+                {
+                    keyToRemove = kvp.Key;
+                    break;
+                }
+            }
+            
+            if (keyToRemove != null)
+            {
+                _instantiatedObjects.Remove(keyToRemove);
+            }
+        }
+        
+        #endregion
+        
+        #region Public Methods - Release
+        
+        /// <summary>
+        /// Releases a loaded asset by reference.
+        /// </summary>
+        public void Release(AssetReference reference)
+        {
+            Release(reference.AssetGUID);
+        }
+        
+        /// <summary>
+        /// Releases a loaded asset by key.
+        /// </summary>
+        public void Release(string key)
+        {
+            if (_loadedAssets.TryGetValue(key, out var handle))
+            {
+                Addressables.Release(handle);
+                _loadedAssets.Remove(key);
+            }
+        }
+        
+        /// <summary>
+        /// Releases all loaded assets and instances.
+        /// </summary>
+        public void ReleaseAll()
+        {
+            // Release instances
+            foreach (var instance in _instantiatedObjects.Values)
+            {
+                if (instance != null)
+                {
+                    Addressables.ReleaseInstance(instance);
+                }
+            }
+            _instantiatedObjects.Clear();
+            
+            // Release assets
+            foreach (var handle in _loadedAssets.Values)
+            {
+                Addressables.Release(handle);
+            }
+            _loadedAssets.Clear();
+        }
+        
+        #endregion
+        
+        #region Public Methods - Utility
+        
+        /// <summary>
+        /// Preloads assets by label.
+        /// </summary>
+        public async Task PreloadByLabelAsync(string label, 
+            IProgress<float> progress = null)
+        {
+            var handle = Addressables.DownloadDependenciesAsync(label);
+            
+            while (!handle.IsDone)
+            {
+                progress?.Report(handle.PercentComplete);
+                await Task.Yield();
+            }
+            
+            Addressables.Release(handle);
+        }
+        
+        /// <summary>
+        /// Gets the download size for a label.
+        /// </summary>
+        public async Task<long> GetDownloadSizeAsync(string label)
+        {
+            var handle = Addressables.GetDownloadSizeAsync(label);
+            await handle.Task;
+            long size = handle.Result;
+            Addressables.Release(handle);
+            return size;
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            ReleaseAll();
+        }
+        
+        #endregion
+    }
+}

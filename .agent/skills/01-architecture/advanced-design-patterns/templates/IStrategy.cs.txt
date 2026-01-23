@@ -1,0 +1,34 @@
+// =============================================================================
+// IStrategy.cs - Strategy Pattern Interface Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Patterns.Strategy
+{
+    /// <summary>
+    /// Strategy Pattern: Defines a family of algorithms, encapsulates each one,
+    /// and makes them interchangeable. Lets the algorithm vary independently
+    /// from clients that use it.
+    /// 
+    /// Use Cases:
+    /// - Different AI behaviors (Patrol, Chase, Flee)
+    /// - Multiple attack types (Melee, Ranged, Magic)
+    /// - Various movement styles (Walk, Run, Fly, Teleport)
+    /// </summary>
+    public interface IStrategy<TContext>
+    {
+        /// <summary>
+        /// Execute the strategy logic with the given context.
+        /// </summary>
+        /// <param name="context">The context object containing relevant data.</param>
+        void Execute(TContext context);
+    }
+
+    /// <summary>
+    /// Simple strategy interface without context.
+    /// </summary>
+    public interface IStrategy
+    {
+        void Execute();
+    }
+}
