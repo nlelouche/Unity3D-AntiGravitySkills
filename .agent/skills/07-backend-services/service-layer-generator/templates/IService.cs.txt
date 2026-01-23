@@ -1,0 +1,10 @@
+using Cysharp.Threading.Tasks; # Assuming UniTask is used, otherwise Task
+
+namespace {NAMESPACE}
+{
+    public interface I{SERVICE_NAME}
+    {
+        UniTask<bool> InitializeAsync();
+        UniTask<{DATA_TYPE}> FetchDataAsync(string id);
+    }
+}

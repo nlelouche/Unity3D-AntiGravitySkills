@@ -1,0 +1,14 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [CreateAssetMenu(fileName = "NewItem", menuName = "Game/Inventory/Item")]
+    public class ItemData : ScriptableObject
+    {
+        public string ID;
+        public string Name;
+        public Sprite Icon;
+        public bool IsStackable;
+        public int MaxStack = 99;
+    }
+}

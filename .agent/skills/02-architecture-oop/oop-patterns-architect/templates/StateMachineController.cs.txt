@@ -1,0 +1,35 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class {STATE_MACHINE_NAME}Controller : MonoBehaviour
+    {
+        public {STATE_MACHINE_NAME}State CurrentState { get; private set; }
+
+        // dependencies via VContainer if needed
+        // [Inject] public void Construct(...) { }
+
+        private void Start()
+        {
+            // Initialize Default State
+            ChangeState(new {STATE_MACHINE_NAME}IdleState(this));
+        }
+
+        private void Update()
+        {
+            CurrentState?.LogicUpdate();
+        }
+
+        private void FixedUpdate()
+        {
+            CurrentState?.PhysicsUpdate();
+        }
+
+        public void ChangeState({STATE_MACHINE_NAME}State newState)
+        {
+            CurrentState?.Exit();
+            CurrentState = newState;
+            CurrentState?.Enter();
+        }
+    }
+}

@@ -1,0 +1,45 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [System.Serializable]
+    public class InventorySlot
+    {
+        public ItemData Item;
+        public int Quantity;
+
+        public bool IsEmpty => Item == null;
+    }
+
+    public class {INVENTORY_NAME}Model
+    {
+        public List<InventorySlot> Slots { get; private set; }
+        public int Capacity { get; private set; }
+
+        public event System.Action OnInventoryUpdated;
+
+        public {INVENTORY_NAME}Model(int capacity)
+        {
+            Capacity = capacity;
+            Slots = new List<InventorySlot>(capacity);
+            for(int i=0; i<capacity; i++) Slots.Add(new InventorySlot());
+        }
+
+        public bool AddItem(ItemData item, int quantity)
+        {
+            // Logic for stacking and finding empty slots
+            // Simplified for template:
+            var emptySlot = Slots.FirstOrDefault(s => s.IsEmpty);
+            if (emptySlot != null)
+            {
+                emptySlot.Item = item;
+                emptySlot.Quantity = quantity;
+                OnInventoryUpdated?.Invoke();
+                return true;
+            }
+            return false;
+        }
+    }
+}

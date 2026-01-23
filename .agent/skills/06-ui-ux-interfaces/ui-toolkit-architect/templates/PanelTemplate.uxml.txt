@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    <Style src="{PANEL_NAME}.uss" />
+    
+    <ui:VisualElement name="Root" class="panel-root">
+        <ui:Label text="{PANEL_TITLE}" class="header-text" />
+        <ui:VisualElement name="Content" class="content-container">
+            <!-- Dynamic Content Goes Here -->
+        </ui:VisualElement>
+        <ui:Button name="CloseButton" text="Close" class="footer-button" />
+    </ui:VisualElement>
+</ui:UXML>

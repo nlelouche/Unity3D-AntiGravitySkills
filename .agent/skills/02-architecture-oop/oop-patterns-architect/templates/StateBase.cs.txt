@@ -1,0 +1,19 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public abstract class {STATE_MACHINE_NAME}State
+    {
+        protected {STATE_MACHINE_NAME}Controller Controller;
+
+        public {STATE_MACHINE_NAME}State({STATE_MACHINE_NAME}Controller controller)
+        {
+            Controller = controller;
+        }
+
+        public virtual void Enter() { }
+        public virtual void Exit() { }
+        public virtual void LogicUpdate() { }
+        public virtual void PhysicsUpdate() { }
+    }
+}

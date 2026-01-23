@@ -1,0 +1,31 @@
+using UnityEngine;
+using UnityEditor;
+
+namespace {NAMESPACE}
+{
+#if UNITY_EDITOR
+    public class {WINDOW_NAME} : EditorWindow
+    {
+        [MenuItem("Tools/{WINDOW_NAME}")]
+        public static void ShowWindow()
+        {
+            GetWindow<{WINDOW_NAME}>("{WINDOW_NAME}");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Label("Custom Tool Settings", EditorStyles.boldLabel);
+
+            if (GUILayout.Button("Perform Action"))
+            {
+                DoSomething();
+            }
+        }
+
+        private void DoSomething()
+        {
+            Debug.Log("{WINDOW_NAME} action executed!");
+        }
+    }
+#endif
+}

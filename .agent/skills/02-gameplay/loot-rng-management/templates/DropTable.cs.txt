@@ -1,0 +1,35 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    [System.Serializable]
+    public class LootEntry
+    {
+        public GameObject ItemPrefab; // Or ItemData ScriptableObject
+        [Range(1, 100)] public int Weight = 10;
+    }
+
+    [CreateAssetMenu(fileName = "NewDropTable", menuName = "Game/Loot/DropTable")]
+    public class DropTable : ScriptableObject
+    {
+        public List<LootEntry> Entries;
+
+        public GameObject GetDrop()
+        {
+            int totalWeight = 0;
+            foreach (var entry in Entries) totalWeight += entry.Weight;
+
+            int randomValue = Random.Range(0, totalWeight);
+            int cursor = 0;
+
+            foreach (var entry in Entries)
+            {
+                cursor += entry.Weight;
+                if (randomValue < cursor) return entry.ItemPrefab;
+            }
+
+            return null; // Should not happen if weights > 0
+        }
+    }
+}

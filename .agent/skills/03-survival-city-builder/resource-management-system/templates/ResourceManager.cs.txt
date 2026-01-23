@@ -1,0 +1,35 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        private Dictionary<ResourceType, int> _inventory = new Dictionary<ResourceType, int>();
+
+        public event System.Action<ResourceType, int> OnResourceChanged;
+
+        public void AddResource(ResourceType type, int amount)
+        {
+            if (!_inventory.ContainsKey(type)) _inventory[type] = 0;
+            _inventory[type] += amount;
+            OnResourceChanged?.Invoke(type, _inventory[type]);
+        }
+
+        public bool TrySpendResource(ResourceType type, int amount)
+        {
+            if (_inventory.ContainsKey(type) && _inventory[type] >= amount)
+            {
+                _inventory[type] -= amount;
+                OnResourceChanged?.Invoke(type, _inventory[type]);
+                return true;
+            }
+            return false;
+        }
+
+        public int GetAmount(ResourceType type)
+        {
+            return _inventory.ContainsKey(type) ? _inventory[type] : 0;
+        }
+    }
+}

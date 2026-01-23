@@ -1,0 +1,51 @@
+using UnityEngine;
+using System.Collections;
+
+namespace {NAMESPACE}
+{
+    public class {CLASS_NAME} : MonoBehaviour
+    {
+        [Header("Screen Shake")]
+        [SerializeField] private float _shakeDuration = 0.2f;
+        [SerializeField] private float _shakeMagnitude = 0.5f;
+
+        [Header("Hit Stop")]
+        [SerializeField] private float _hitStopDuration = 0.1f;
+
+        public void PlayShake()
+        {
+            StartCoroutine(ShakeRoutine());
+        }
+
+        public void PlayHitStop()
+        {
+            StartCoroutine(HitStopRoutine());
+        }
+
+        private IEnumerator ShakeRoutine()
+        {
+            Vector3 originalPos = transform.localPosition;
+            float elapsed = 0f;
+
+            while (elapsed < _shakeDuration)
+            {
+                float x = Random.Range(-1f, 1f) * _shakeMagnitude;
+                float y = Random.Range(-1f, 1f) * _shakeMagnitude;
+
+                transform.localPosition = originalPos + new Vector3(x, y, 0);
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.localPosition = originalPos;
+        }
+
+        private IEnumerator HitStopRoutine()
+        {
+            Time.timeScale = 0f;
+            yield return new WaitForSecondsRealtime(_hitStopDuration);
+            Time.timeScale = 1f;
+        }
+    }
+}

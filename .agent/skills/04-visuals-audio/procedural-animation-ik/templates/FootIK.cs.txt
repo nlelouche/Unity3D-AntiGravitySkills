@@ -1,0 +1,45 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class {CLASS_NAME} : MonoBehaviour
+    {
+        [SerializeField] private Animator _animator;
+        [SerializeField] private LayerMask _groundLayer;
+        [SerializeField] private float _distanceToGround = 1f;
+        [Range(0, 1)] [SerializeField] private float _ikWeight = 1f;
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (_animator == null) return;
+
+            // Set Weights
+            _animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, _ikWeight);
+            _animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, _ikWeight);
+            _animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, _ikWeight);
+            _animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, _ikWeight);
+
+            // Left Foot
+            AdjustFoot(AvatarIKGoal.LeftFoot);
+            // Right Foot
+            AdjustFoot(AvatarIKGoal.RightFoot);
+        }
+
+        private void AdjustFoot(AvatarIKGoal foot)
+        {
+            Vector3 footPos = _animator.GetIKPosition(foot);
+            
+            if (Physics.Raycast(footPos + Vector3.up, Vector3.down, out RaycastHit hit, _distanceToGround + 1f, _groundLayer))
+            {
+                Vector3 targetPos = hit.point;
+                targetPos.y += _distanceToGround; // Offset
+                _animator.SetIKPosition(foot, targetPos);
+                
+                // Rotation alignment to slope
+                Vector3 forward = transform.forward;
+                Quaternion targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(forward, hit.normal), hit.normal);
+                _animator.SetIKRotation(foot, targetRot);
+            }
+        }
+    }
+}

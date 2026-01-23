@@ -1,0 +1,19 @@
+using UnityEngine;
+// using UnityEngine.Purchasing; 
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour //, IStoreListener
+    {
+        public void InitializePurchasing()
+        {
+            // Standard Unity IAP initialization logic calls
+            // ConfigurationBuilder builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        }
+
+        public void BuyProductID(string productId)
+        {
+             // m_StoreController.InitiatePurchase(productId);
+        }
+    }
+}

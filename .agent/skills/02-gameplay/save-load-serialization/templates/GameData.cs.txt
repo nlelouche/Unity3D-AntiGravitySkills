@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    [Serializable]
+    public class GameData
+    {
+        public long LastUpdated;
+        public string SceneName;
+        // Add your custom data here:
+        // public PlayerData Player;
+        // public InventoryData Inventory;
+
+        public GameData()
+        {
+            LastUpdated = DateTime.Now.ToBinary();
+            SceneName = "MainMenu";
+        }
+    }
+}

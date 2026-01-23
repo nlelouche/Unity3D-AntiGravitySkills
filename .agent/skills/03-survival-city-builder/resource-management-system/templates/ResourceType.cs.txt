@@ -1,0 +1,12 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [CreateAssetMenu(menuName = "Game/Resources/Resource Type")]
+    public class ResourceType : ScriptableObject
+    {
+        public string Name;
+        public Sprite Icon;
+        public int MaxStack = 999;
+    }
+}

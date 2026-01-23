@@ -1,0 +1,22 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [CreateAssetMenu(fileName = "NewAbility", menuName = "Game/Ability")]
+    public class AbilityData : ScriptableObject
+    {
+        [Header("Settings")]
+        public string AbilityName;
+        public float Cooldown = 1f;
+        public float EnergyCost = 10f;
+        public Sprite Icon;
+
+        [Header("Effects")]
+        public float Damage = 10f;
+        public float Range = 5f;
+        public GameObject VFXPrefab;
+
+        // In a real system, you would abstract 'Effects' into their own ScriptableObjects
+        // e.g., public List<EffectData> Effects;
+    }
+}

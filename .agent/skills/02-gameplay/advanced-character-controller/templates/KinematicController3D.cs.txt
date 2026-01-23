@@ -1,0 +1,56 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [RequireComponent(typeof(CharacterController))]
+    public class {CONTROLLER_NAME} : MonoBehaviour
+    {
+        [Header("Movement")]
+        [SerializeField] private float _moveSpeed = 5f;
+        [SerializeField] private float _gravity = -9.81f;
+        [SerializeField] private float _jumpHeight = 2f;
+
+        [Header("Ground Check")]
+        [SerializeField] private Transform _groundCheck;
+        [SerializeField] private float _groundDistance = 0.4f;
+        [SerializeField] private LayerMask _groundMask;
+
+        private CharacterController _controller;
+        private Vector3 _velocity;
+        private bool _isGrounded;
+
+        private void Awake()
+        {
+            _controller = GetComponent<CharacterController>();
+        }
+
+        private void Update()
+        {
+            // 1. Ground Check
+            _isGrounded = Physics.CheckSphere(_groundCheck.position, _groundDistance, _groundMask);
+
+            if (_isGrounded && _velocity.y < 0)
+            {
+                _velocity.y = -2f; // Small force to keep player grounded
+            }
+
+            // 2. Input (Legacy or New Input System - Abstract this later)
+            float x = Input.GetAxis("Horizontal");
+            float z = Input.GetAxis("Vertical");
+
+            // 3. Move
+            Vector3 move = transform.right * x + transform.forward * z;
+            _controller.Move(move * _moveSpeed * Time.deltaTime);
+
+            // 4. Jump
+            if (Input.GetButtonDown("Jump") && _isGrounded)
+            {
+                _velocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+            }
+
+            // 5. Gravity apply
+            _velocity.y += _gravity * Time.deltaTime;
+            _controller.Move(_velocity * Time.deltaTime);
+        }
+    }
+}

@@ -1,0 +1,28 @@
+.panel-root {
+    flex-grow: 1;
+    background-color: rgba(32, 32, 32, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.header-text {
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    margin-bottom: 20px;
+}
+
+.content-container {
+    flex-grow: 1;
+}
+
+.footer-button {
+    height: 50px;
+    background-color: rgb(70, 70, 70);
+    border-radius: 5px;
+    color: white;
+}
+
+.footer-button:hover {
+    background-color: rgb(100, 100, 100);
+}

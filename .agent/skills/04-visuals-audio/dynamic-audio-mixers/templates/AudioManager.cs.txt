@@ -1,0 +1,76 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        [Header("Settings")]
+        [SerializeField] private AudioSource _musicSource;
+        [SerializeField] private AudioSource _sfxPrefab;
+        [SerializeField] private int _poolSize = 10;
+
+        private Queue<AudioSource> _sfxPool;
+
+        private void Awake()
+        {
+            InitializePool();
+        }
+
+        private void InitializePool()
+        {
+            _sfxPool = new Queue<AudioSource>();
+            GameObject poolRoot = new GameObject("SFX_Pool");
+            poolRoot.transform.SetParent(transform);
+
+            for (int i = 0; i < _poolSize; i++)
+            {
+                var source = Instantiate(_sfxPrefab, poolRoot.transform);
+                source.gameObject.SetActive(false);
+                _sfxPool.Enqueue(source);
+            }
+        }
+
+        public void PlaySFX(AudioClip clip, float volume = 1f, float pitch = 1f)
+        {
+            if (clip == null) return;
+
+            AudioSource source = GetSource();
+            source.transform.position = transform.position; // 2D sound
+            source.clip = clip;
+            source.volume = volume;
+            source.pitch = pitch;
+            source.gameObject.SetActive(true);
+            source.Play();
+
+            // Auto-disable is handled by a coroutine or separate component in a full system
+            StartCoroutine(DisableSourceDelayed(source, clip.length / pitch));
+        }
+
+        private AudioSource GetSource()
+        {
+            if (_sfxPool.Count > 0)
+            {
+                return _sfxPool.Dequeue();
+            }
+            // Expand pool if empty
+            var newSource = Instantiate(_sfxPrefab, transform);
+            return newSource;
+        }
+
+        private System.Collections.IEnumerator DisableSourceDelayed(AudioSource source, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            source.Stop();
+            source.gameObject.SetActive(false);
+            _sfxPool.Enqueue(source);
+        }
+
+        public void PlayMusic(AudioClip clip, float fadeDuration = 1f)
+        {
+            // TODO: Implement crossfade logic here
+            _musicSource.clip = clip;
+            _musicSource.Play();
+        }
+    }
+}

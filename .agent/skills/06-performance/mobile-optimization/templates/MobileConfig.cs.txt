@@ -1,0 +1,20 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class {CLASS_NAME} : MonoBehaviour
+    {
+        [SerializeField] private int _targetFrameRate = 60;
+        [SerializeField] private bool _vSync = false;
+        [SerializeField] private int _sleepTimeout = SleepTimeout.NeverSleep;
+
+        private void Start()
+        {
+            Application.targetFrameRate = _targetFrameRate;
+            QualitySettings.vSyncCount = _vSync ? 1 : 0;
+            Screen.sleepTimeout = _sleepTimeout;
+            
+            Debug.Log($"Mobile Settings Applied: {_targetFrameRate} FPS");
+        }
+    }
+}

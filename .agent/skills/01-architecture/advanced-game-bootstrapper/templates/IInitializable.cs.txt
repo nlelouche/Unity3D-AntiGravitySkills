@@ -1,0 +1,16 @@
+using Cysharp.Threading.Tasks; // Optional, or use IEnumerator/Task
+
+namespace {NAMESPACE}
+{
+    /// <summary>
+    /// Contract for any system that needs async initialization during Bootstrap.
+    /// </summary>
+    public interface IInitializable
+    {
+        /// <summary>
+        /// Perform setup logic (load data, connect to server).
+        /// Returns true if successful.
+        /// </summary>
+        UniTask<bool> Initialize(); 
+    }
+}

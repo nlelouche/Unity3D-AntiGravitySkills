@@ -1,0 +1,61 @@
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks; // Assumption of Unitask, or use Coroutines
+
+namespace {NAMESPACE}
+{
+    public class {CLASS_NAME} : MonoBehaviour
+    {
+        [Header("Settings")]
+        [SerializeField] private AssetReference _mainMenuScene; // Requires Addressables, or use string
+        [SerializeField] private List<MonoBehaviour> _managersToInit; // Assign Global Managers here
+        
+        // Internal state
+        private static bool _isBootstrapped = false;
+
+        private async void Start()
+        {
+            DontDestroyOnLoad(gameObject);
+
+            if (_isBootstrapped)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _isBootstrapped = true;
+            await InitializeSystems();
+            await LoadMenu();
+        }
+
+        private async UniTask InitializeSystems()
+        {
+            Debug.Log(">> BOOTSTRAP: Starting System Initialization...");
+
+            foreach (var manager in _managersToInit)
+            {
+                if (manager is IInitializable initializable)
+                {
+                    Debug.Log($"Initializing {manager.name}...");
+                    bool success = await initializable.Initialize();
+                    if (!success) Debug.LogError($"FAILED to initialize {manager.name}!");
+                }
+            }
+
+            Debug.Log(">> BOOTSTRAP: All Systems Ready.");
+        }
+
+        private async UniTask LoadMenu()
+        {
+            // Additive or Single depending on architecture. 
+            // Usually Bootstrap persists, Menu loads additively or replaces a dummy scene.
+            Debug.Log(">> BOOTSTRAP: Loading Main Menu...");
+            
+            // Example using SceneManager directly for simplicity
+            // In production, use Addressables.LoadSceneAsync
+            var op = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Single);
+            await op;
+        }
+    }
+}

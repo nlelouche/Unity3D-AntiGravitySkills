@@ -1,0 +1,55 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    [RequireComponent(typeof(Rigidbody))]
+    public class {CONTROLLER_NAME} : MonoBehaviour
+    {
+        [SerializeField] private float _acceleration = 10f;
+        [SerializeField] private float _maxSpeed = 8f;
+        [SerializeField] private float _jumpForce = 5f;
+
+        private Rigidbody _rb;
+        private Vector2 _input;
+
+        private void Awake()
+        {
+            _rb = GetComponent<Rigidbody>();
+            _rb.freezeRotation = true; // Handle rotation manually
+        }
+
+        private void Update()
+        {
+            _input.x = Input.GetAxisRaw("Horizontal");
+            _input.y = Input.GetAxisRaw("Vertical");
+
+            if (Input.GetButtonDown("Jump") && IsGrounded())
+            {
+                _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            Move();
+        }
+
+        private void Move()
+        {
+            Vector3 targetVelocity = new Vector3(_input.x, 0, _input.y).normalized * _maxSpeed;
+            targetVelocity = transform.TransformDirection(targetVelocity);
+
+            Vector3 velocityChange = (targetVelocity - _rb.linearVelocity);
+            velocityChange.x = Mathf.Clamp(velocityChange.x, -_acceleration, _acceleration);
+            velocityChange.z = Mathf.Clamp(velocityChange.z, -_acceleration, _acceleration);
+            velocityChange.y = 0;
+
+            _rb.AddForce(velocityChange, ForceMode.VelocityChange);
+        }
+
+        private bool IsGrounded()
+        {
+            return Physics.Raycast(transform.position, Vector3.down, 1.1f);
+        }
+    }
+}

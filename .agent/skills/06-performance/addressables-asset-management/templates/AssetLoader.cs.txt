@@ -1,0 +1,44 @@
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        private Dictionary<string, AsyncOperationHandle> _loadedAssets = new Dictionary<string, AsyncOperationHandle>();
+
+        public void LoadAsset<T>(string key, System.Action<T> onComplete)
+        {
+            if (_loadedAssets.ContainsKey(key))
+            {
+                // Already loaded
+                onComplete?.Invoke((T)_loadedAssets[key].Result);
+                return;
+            }
+
+            Addressables.LoadAssetAsync<T>(key).Completed += (handle) =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    _loadedAssets[key] = handle;
+                    onComplete?.Invoke(handle.Result);
+                }
+                else
+                {
+                    Debug.LogError($"Failed to load asset: {key}");
+                }
+            };
+        }
+
+        public void UnloadAsset(string key)
+        {
+            if (_loadedAssets.TryGetValue(key, out var handle))
+            {
+                Addressables.Release(handle);
+                _loadedAssets.Remove(key);
+            }
+        }
+    }
+}

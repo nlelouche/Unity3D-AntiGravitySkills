@@ -1,0 +1,23 @@
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        // This is a stub for a NetworkManager (Netcode for GameObjects or Photon).
+        // Since Netcode setup is heavy and package-dependent, this script 
+        // acts as a placeholder or connection manager wrapper.
+
+        public void StartHost()
+        {
+            Debug.Log("Starting Host...");
+            // NetworkManager.Singleton.StartHost();
+        }
+
+        public void StartClient()
+        {
+            Debug.Log("Starting Client...");
+            // NetworkManager.Singleton.StartClient();
+        }
+    }
+}

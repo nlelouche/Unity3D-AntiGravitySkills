@@ -1,0 +1,20 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    [System.Serializable]
+    public class WaveSegment
+    {
+        public GameObject EnemyPrefab;
+        public int Count;
+        public float SpawnRate;
+    }
+
+    [CreateAssetMenu(menuName = "Game/Combat/Wave Config")]
+    public class WaveConfig : ScriptableObject
+    {
+        public List<WaveSegment> Segments;
+        public float TimeBeforeNextWave = 10f;
+    }
+}

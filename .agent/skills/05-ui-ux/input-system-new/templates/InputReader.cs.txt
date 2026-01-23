@@ -1,0 +1,39 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+using System;
+
+namespace {NAMESPACE}
+{
+    [CreateAssetMenu(fileName = "InputReader", menuName = "Game/Input/Input Reader")]
+    public class InputReader : ScriptableObject, GameInput.IGameplayActions
+    {
+        public event Action<Vector2> MoveEvent;
+        public event Action JumpEvent;
+        public event Action JumpCanceledEvent;
+
+        private GameInput _gameInput;
+
+        private void OnEnable()
+        {
+            if (_gameInput == null)
+            {
+                _gameInput = new GameInput();
+                _gameInput.Gameplay.SetCallbacks(this);
+            }
+            _gameInput.Gameplay.Enable();
+        }
+
+        private void OnDisable() => _gameInput.Gameplay.Disable();
+
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            MoveEvent?.Invoke(context.ReadValue<Vector2>());
+        }
+
+        public void OnJump(InputAction.CallbackContext context)
+        {
+            if (context.phase == InputActionPhase.Performed) JumpEvent?.Invoke();
+            if (context.phase == InputActionPhase.Canceled) JumpCanceledEvent?.Invoke();
+        }
+    }
+}

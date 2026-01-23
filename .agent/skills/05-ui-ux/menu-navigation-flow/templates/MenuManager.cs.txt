@@ -1,0 +1,49 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public abstract class Menu : MonoBehaviour
+    {
+        public abstract void OnOpen();
+        public abstract void OnClose();
+    }
+
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        [SerializeField] private Menu _startingMenu;
+        
+        private Stack<Menu> _history = new Stack<Menu>();
+
+        private void Start()
+        {
+            if (_startingMenu != null) OpenMenu(_startingMenu);
+        }
+
+        public void OpenMenu(Menu menu)
+        {
+            if (_history.Count > 0)
+            {
+                _history.Peek().OnClose();
+                _history.Peek().gameObject.SetActive(false);
+            }
+
+            menu.gameObject.SetActive(true);
+            menu.OnOpen();
+            _history.Push(menu);
+        }
+
+        public void Back()
+        {
+            if (_history.Count <= 1) return; // Cannot go back from root
+
+            var current = _history.Pop();
+            current.OnClose();
+            current.gameObject.SetActive(false);
+
+            var previous = _history.Peek();
+            previous.gameObject.SetActive(true);
+            previous.OnOpen();
+        }
+    }
+}

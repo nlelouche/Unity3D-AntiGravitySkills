@@ -1,0 +1,42 @@
+using UnityEngine;
+using System.IO;
+
+namespace {NAMESPACE}
+{
+    public class {SYSTEM_NAME} : MonoBehaviour
+    {
+        private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
+        
+        public GameData CurrentData { get; private set; }
+
+        public void NewGame()
+        {
+            CurrentData = new GameData();
+        }
+
+        public void SaveGame()
+        {
+            if (CurrentData == null) NewGame();
+            
+            CurrentData.LastUpdated = System.DateTime.Now.ToBinary();
+            string json = JsonUtility.ToJson(CurrentData, true);
+            File.WriteAllText(SavePath, json);
+            Debug.Log($"Game Saved to {SavePath}");
+        }
+
+        public void LoadGame()
+        {
+            if (File.Exists(SavePath))
+            {
+                string json = File.ReadAllText(SavePath);
+                CurrentData = JsonUtility.FromJson<GameData>(json);
+                Debug.Log("Game Loaded");
+            }
+            else
+            {
+                Debug.LogWarning("No save file found.");
+                NewGame();
+            }
+        }
+    }
+}

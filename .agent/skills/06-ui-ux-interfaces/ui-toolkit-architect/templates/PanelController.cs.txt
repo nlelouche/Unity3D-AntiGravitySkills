@@ -1,0 +1,37 @@
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace {NAMESPACE}.UI
+{
+    public class {PANEL_NAME}Controller : MonoBehaviour
+    {
+        [SerializeField] private UIDocument _document;
+        
+        private VisualElement _root;
+        private Button _closeButton;
+
+        // Dependency: The ViewModel (Logic)
+        // private {PANEL_NAME}ViewModel _viewModel;
+
+        private void OnEnable()
+        {
+            if (_document == null) _document = GetComponent<UIDocument>();
+            _root = _document.rootVisualElement;
+
+            _closeButton = _root.Q<Button>("CloseButton");
+            _closeButton.clicked += OnCloseClicked;
+        }
+
+        private void OnDisable()
+        {
+            if (_closeButton != null) _closeButton.clicked -= OnCloseClicked;
+        }
+
+        private void OnCloseClicked()
+        {
+            Debug.Log("Close Clicked");
+            // _viewModel.CloseCommand.Execute();
+            gameObject.SetActive(false);
+        }
+    }
+}

@@ -1,0 +1,40 @@
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public class Sequence : Node
+    {
+        protected List<Node> nodes = new List<Node>();
+
+        public Sequence(List<Node> nodes)
+        {
+            this.nodes = nodes;
+        }
+
+        public override NodeState Evaluate()
+        {
+            bool anyChildRunning = false;
+            
+            foreach (var node in nodes)
+            {
+                switch (node.Evaluate())
+                {
+                    case NodeState.Running:
+                        anyChildRunning = true;
+                        continue; // Keep checking others? Usually Sequence blocks on Running.
+                        // Standard BT: If one is running, the sequence is running.
+                        _state = NodeState.Running;
+                        return _state;
+                    case NodeState.Success:
+                        continue;
+                    case NodeState.Failure:
+                        _state = NodeState.Failure;
+                        return _state;
+                }
+            }
+            
+            _state = anyChildRunning ? NodeState.Running : NodeState.Success;
+            return _state;
+        }
+    }
+}

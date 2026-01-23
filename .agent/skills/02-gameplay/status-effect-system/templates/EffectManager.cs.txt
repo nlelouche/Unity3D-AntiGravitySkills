@@ -1,0 +1,62 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {NAMESPACE}
+{
+    public class ActiveEffect
+    {
+        public EffectData Data;
+        public float RemainingTime;
+        public float NextTickTime;
+
+        public ActiveEffect(EffectData data)
+        {
+            Data = data;
+            RemainingTime = data.Duration;
+            NextTickTime = data.TickRate;
+        }
+    }
+
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        private List<ActiveEffect> _activeEffects = new List<ActiveEffect>();
+
+        public void ApplyEffect(EffectData effect)
+        {
+            // TODO: Handle stacking logic here
+            _activeEffects.Add(new ActiveEffect(effect));
+            Debug.Log($"Applied {effect.Name}");
+        }
+
+        private void Update()
+        {
+            for (int i = _activeEffects.Count - 1; i >= 0; i--)
+            {
+                var effect = _activeEffects[i];
+                effect.RemainingTime -= Time.deltaTime;
+
+                if (effect.Data.HasTick && effect.RemainingTime > 0)
+                {
+                    effect.NextTickTime -= Time.deltaTime;
+                    if (effect.NextTickTime <= 0)
+                    {
+                        ProcessTick(effect);
+                        effect.NextTickTime = effect.Data.TickRate;
+                    }
+                }
+
+                if (effect.RemainingTime <= 0)
+                {
+                    Debug.Log($"Effect {effect.Data.Name} ended.");
+                    _activeEffects.RemoveAt(i);
+                }
+            }
+        }
+
+        private void ProcessTick(ActiveEffect effect)
+        {
+            Debug.Log($"Tick: {effect.Data.Name} for {effect.Data.TickAmount}");
+            // Integration: GetComponent<IDamageable>()?.TakeDamage(effect.Data.TickAmount);
+        }
+    }
+}

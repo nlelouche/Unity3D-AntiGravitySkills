@@ -1,0 +1,3 @@
+# Tech Tree generation stub.
+# Future: Generate ScriptableObject-based Graph structure.
+print("Tech Tree generation logic stub.")

@@ -1,0 +1,46 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public class {SYSTEM_NAME} : MonoBehaviour
+    {
+        [SerializeField] private List<AbilityData> _abilities;
+        
+        private Dictionary<string, float> _cooldowns = new Dictionary<string, float>();
+
+        public void ActivateAbility(int index)
+        {
+            if (index < 0 || index >= _abilities.Count) return;
+
+            var ability = _abilities[index];
+            if (IsReady(ability))
+            {
+                Execute(ability);
+            }
+        }
+
+        private bool IsReady(AbilityData ability)
+        {
+            if (_cooldowns.TryGetValue(ability.AbilityName, out float readyTime))
+            {
+                if (Time.time < readyTime) return false;
+            }
+            return true; // Also check Energy/Mana here
+        }
+
+        private void Execute(AbilityData ability)
+        {
+            Debug.Log($"Casting {ability.AbilityName}!");
+            
+            // Apply Cooldown
+            _cooldowns[ability.AbilityName] = Time.time + ability.Cooldown;
+
+            // TODO: Spawn VFX, Apply Damage via IDamageable
+            if (ability.VFXPrefab != null)
+            {
+                Instantiate(ability.VFXPrefab, transform.position + transform.forward, Quaternion.identity);
+            }
+        }
+    }
+}

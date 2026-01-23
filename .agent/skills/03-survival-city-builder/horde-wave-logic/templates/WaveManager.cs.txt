@@ -1,0 +1,49 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace {NAMESPACE}
+{
+    public class {MANAGER_NAME} : MonoBehaviour
+    {
+        [SerializeField] private List<WaveConfig> _waves;
+        [SerializeField] private Transform[] _spawnPoints;
+
+        public event System.Action<int> OnWaveStarted;
+        public event System.Action OnAllWavesComplete;
+
+        private int _currentWaveIndex = 0;
+
+        public void StartCombat()
+        {
+            StartCoroutine(WaveRoutine());
+        }
+
+        private IEnumerator WaveRoutine()
+        {
+            foreach (var wave in _waves)
+            {
+                _currentWaveIndex++;
+                OnWaveStarted?.Invoke(_currentWaveIndex);
+
+                foreach (var segment in wave.Segments)
+                {
+                    for (int i = 0; i < segment.Count; i++)
+                    {
+                        SpawnEnemy(segment.EnemyPrefab);
+                        yield return new WaitForSeconds(segment.SpawnRate);
+                    }
+                }
+
+                yield return new WaitForSeconds(wave.TimeBeforeNextWave);
+            }
+            OnAllWavesComplete?.Invoke();
+        }
+
+        private void SpawnEnemy(GameObject prefab)
+        {
+            Transform spawnPoint = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+            Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+        }
+    }
+}
