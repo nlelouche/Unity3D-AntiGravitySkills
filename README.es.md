@@ -16,6 +16,10 @@
 *   **Para Agentes de IA (Gemini, Copilot, Cursor)**: Este repositorio actúa como tu **Memoria a Largo Plazo** y **Líder Técnico Senior**. Provee contexto, patrones de arquitectura y restricciones para "no alucinar".
 *   **Para Desarrolladores Humanos**: Es un framework modular probado en batalla. ¿Necesitas un sistema? No lo escribas desde cero; invócalo.
 
+> [!IMPORTANT]
+> **🤖 Habilita la Persona de "Líder Técnico"**
+> Este repositorio incluye un prompt de sistema **`AGENT.md`**. Cuando es cargado por un Agente IA, activa la persona de **"Arquitecto AntiGravity"**. El Agente no solo escribirá código; actuará como un **Mentor Senior**, explicando patrones de diseño (SOLID, OCP), advirtiendo sobre deuda técnica, y enseñándote proactivamente las mejores prácticas mientras construye.
+
 ---
 
 ## 🧩 ¿Qué es un "Skill"?
@@ -55,11 +59,11 @@ El repositorio está estructurado para ingestión automática por agentes habili
 ├── 02-gameplay/              # Mecánicas (Combate, Cámara, Input)
 ├── 03-survival-city-builder/ # Género: Supervivencia y Estrategia
 ├── 04-visuals-audio/         # Shaders, VFX, SFX
-├── 04-devops-automation/     # CI/CD, Pipelines de Build
 ├── 05-ui-ux/                 # MVVM UI, Toolkits, HUDs
-├── 06-performance/           # Optimización, Memoria, Object Pooling
+├── 06-performance/           # Optimization, Memory, Object Pooling
 ├── 07-tools-pipeline/        # Herramientas de Editor, Importación, Git
 ├── 08-backend-monetization/  # Analíticas, IAP, Multiplayer
+├── 09-devops-automation/     # CI/CD, Pipelines de Build
 └── 00-meta-skills/           # Auto-replicación de Agente y Liderazgo
 ```
 
@@ -101,7 +105,7 @@ Cada skill sigue el **"Estándar de Convergencia"**:
 *   **`audio-soundscape-architect`**: Gestión de mixers y audio espacial.
 *   **`lighting-nav-baker`**: Automatización para Lightmapping y NavMesh.
 
-### 6. DevOps y Automatización (`04-devops`)
+### 6. DevOps y Automatización (`09-devops`)
 *   **`build-pipeline-manager`**: Builds "Headless" por CLI para CI/CD.
 
 ### 7. UI/UX (`05-ui-ux`)

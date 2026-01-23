@@ -16,6 +16,10 @@
 *   **For AI Agents (Gemini, Copilot, Cursor)**: This repository acts as your **Long-Term Memory** and **Senior Tech Lead**. It provides context, architecture patterns, and "Do not hallucinate" constraints.
 *   **For Human Developers**: This is a battle-tested modular framework. Need a system? Don't write it from scratch; invoke it.
 
+> [!IMPORTANT]
+> **🤖 Enables the "Tech Lead" Persona**
+> This repository includes an **`AGENT.md`** system prompt. When loaded by an AI Agent, it activates the **"AntiGravity Architect"** persona. The Agent will not just write code; it will act as a **Senior Mentor**, explaining design patterns (SOLID, OCP), warning about technical debt, and proactively teaching you best practices while it builds.
+
 ---
 
 ## 🧩 What is a "Skill"?
@@ -55,11 +59,11 @@ The repository is structured for automatic ingestion by MCP-enabled agents.
 ├── 02-gameplay/              # Mechanics (Combat, Camera, Input)
 ├── 03-survival-city-builder/ # Genre: Survival & Strategy
 ├── 04-visuals-audio/         # Shaders, VFX, SFX
-├── 04-devops-automation/     # CI/CD, Build Pipelines
 ├── 05-ui-ux/                 # MVVM UI, Toolkits, HUDs
 ├── 06-performance/           # Optimization, Memory, Object Pooling
 ├── 07-tools-pipeline/        # Editor Tools, Asset Import, Git
 ├── 08-backend-monetization/  # Analytics, IAP, Multiplayer
+├── 09-devops-automation/     # CI/CD, Build Pipelines
 └── 00-meta-skills/           # Agent Self-Replication & Leadership Tools
 ```
 
@@ -101,7 +105,7 @@ Every skill follows the **"Convergence Standard"**:
 *   **`audio-soundscape-architect`**: Mixer management and spatial audio.
 *   **`lighting-nav-baker`**: Automation for Lightmapping and NavMesh.
 
-### 6. DevOps & Automation (`04-devops`)
+### 6. DevOps & Automation (`09-devops`)
 *   **`build-pipeline-manager`**: Headless CLI builds for CI/CD.
 
 ### 7. UI/UX (`05-ui-ux`)
