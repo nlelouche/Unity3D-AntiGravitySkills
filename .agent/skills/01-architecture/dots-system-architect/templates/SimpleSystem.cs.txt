@@ -1,0 +1,49 @@
+// =============================================================================
+// SimpleSystem.cs - Basic ECS System Template
+// Part of: dots-system-architect skill
+// =============================================================================
+
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Transforms;
+
+namespace {{NAMESPACE}}.ECS
+{
+    /// <summary>
+    /// Simple system that processes entities with specific components.
+    /// Uses ISystem for Burst compatibility.
+    /// </summary>
+    [BurstCompile]
+    public partial struct {{SYSTEM_NAME}}System : ISystem
+    {
+        [BurstCompile]
+        public void OnCreate(ref SystemState state)
+        {
+            // Require components to be present for system to run
+            state.RequireForUpdate<{{COMPONENT_NAME}}Component>();
+        }
+
+        [BurstCompile]
+        public void OnUpdate(ref SystemState state)
+        {
+            float deltaTime = SystemAPI.Time.DeltaTime;
+            
+            // Iterate all entities with required components
+            foreach (var (transform, component) in 
+                SystemAPI.Query<RefRW<LocalTransform>, RefRO<{{COMPONENT_NAME}}Component>>())
+            {
+                if (component.ValueRO.IsActive)
+                {
+                    // Process entity
+                    transform.ValueRW.Position.y += component.ValueRO.Value * deltaTime;
+                }
+            }
+        }
+
+        [BurstCompile]
+        public void OnDestroy(ref SystemState state)
+        {
+            // Cleanup if needed
+        }
+    }
+}

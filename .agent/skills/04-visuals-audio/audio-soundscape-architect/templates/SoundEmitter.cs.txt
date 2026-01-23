@@ -1,0 +1,201 @@
+// =============================================================================
+// SoundEmitter.cs - Spatial Audio Source Component
+// Template for 3D positioned audio with variation and pooling support
+// =============================================================================
+
+using UnityEngine;
+
+namespace YourGame.Audio
+{
+    /// <summary>
+    /// Component for playing spatial audio with built-in variation.
+    /// Supports pitch randomization and multiple clip selection.
+    /// </summary>
+    public class SoundEmitter : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Audio Clips")]
+        [SerializeField] private AudioClip[] _clips;
+        
+        [Header("Playback Settings")]
+        [SerializeField, Range(0f, 1f)] private float _volume = 1f;
+        [SerializeField] private float _pitchMin = 0.95f;
+        [SerializeField] private float _pitchMax = 1.05f;
+        
+        [Header("Spatial Settings")]
+        [SerializeField, Range(0f, 1f)] private float _spatialBlend = 1f;
+        [SerializeField] private float _minDistance = 1f;
+        [SerializeField] private float _maxDistance = 50f;
+        [SerializeField] private AudioRolloffMode _rolloffMode = AudioRolloffMode.Logarithmic;
+        
+        [Header("Behavior")]
+        [SerializeField] private bool _playOnEnable;
+        [SerializeField] private bool _loop;
+        [SerializeField] private bool _usePooling = true;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private AudioSource _audioSource;
+        private int _lastClipIndex = -1;
+        
+        #endregion
+        
+        #region Properties
+        
+        public bool IsPlaying => _audioSource != null && _audioSource.isPlaying;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            if (!_usePooling)
+            {
+                _audioSource = GetComponent<AudioSource>();
+                if (_audioSource == null)
+                {
+                    _audioSource = gameObject.AddComponent<AudioSource>();
+                }
+                ConfigureAudioSource(_audioSource);
+            }
+        }
+        
+        private void OnEnable()
+        {
+            if (_playOnEnable)
+            {
+                Play();
+            }
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Plays a random clip from the array.
+        /// </summary>
+        public void Play()
+        {
+            if (_clips == null || _clips.Length == 0) return;
+            
+            var clip = GetRandomClip();
+            PlayClip(clip);
+        }
+        
+        /// <summary>
+        /// Plays a specific clip by index.
+        /// </summary>
+        public void PlayAtIndex(int index)
+        {
+            if (_clips == null || index < 0 || index >= _clips.Length) return;
+            
+            PlayClip(_clips[index]);
+        }
+        
+        /// <summary>
+        /// Plays at a specific world position.
+        /// </summary>
+        public void PlayAtPosition(Vector3 position)
+        {
+            if (_clips == null || _clips.Length == 0) return;
+            
+            var clip = GetRandomClip();
+            
+            if (_usePooling && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFXRandomized(clip, position, _volume, _pitchMin, _pitchMax);
+            }
+            else
+            {
+                transform.position = position;
+                PlayClip(clip);
+            }
+        }
+        
+        /// <summary>
+        /// Stops playback.
+        /// </summary>
+        public void Stop()
+        {
+            if (_audioSource != null)
+            {
+                _audioSource.Stop();
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void PlayClip(AudioClip clip)
+        {
+            if (_usePooling && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFXRandomized(clip, transform.position, _volume, _pitchMin, _pitchMax);
+            }
+            else if (_audioSource != null)
+            {
+                _audioSource.pitch = Random.Range(_pitchMin, _pitchMax);
+                _audioSource.clip = clip;
+                _audioSource.Play();
+            }
+        }
+        
+        private AudioClip GetRandomClip()
+        {
+            if (_clips.Length == 1) return _clips[0];
+            
+            // Avoid repeating the same clip
+            int index;
+            do
+            {
+                index = Random.Range(0, _clips.Length);
+            }
+            while (index == _lastClipIndex && _clips.Length > 1);
+            
+            _lastClipIndex = index;
+            return _clips[index];
+        }
+        
+        private void ConfigureAudioSource(AudioSource source)
+        {
+            source.volume = _volume;
+            source.spatialBlend = _spatialBlend;
+            source.minDistance = _minDistance;
+            source.maxDistance = _maxDistance;
+            source.rolloffMode = _rolloffMode;
+            source.loop = _loop;
+            source.playOnAwake = false;
+        }
+        
+        #endregion
+        
+        #region Editor
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_audioSource != null)
+            {
+                ConfigureAudioSource(_audioSource);
+            }
+        }
+        
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, _minDistance);
+            
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, _maxDistance);
+        }
+#endif
+        
+        #endregion
+    }
+}

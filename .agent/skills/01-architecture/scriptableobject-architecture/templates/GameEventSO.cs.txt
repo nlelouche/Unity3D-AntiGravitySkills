@@ -1,0 +1,57 @@
+// =============================================================================
+// GameEventSO.cs - ScriptableObject Event Channel
+// Part of: scriptableobject-architecture skill
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Events
+{
+    /// <summary>
+    /// ScriptableObject-based event channel for decoupled communication.
+    /// Create assets via: Create > Game > Events > GameEvent
+    /// 
+    /// Alternative to static EventBus when you want inspector-assignable events.
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewGameEvent", menuName = "Game/Events/GameEvent")]
+    public class GameEventSO : ScriptableObject
+    {
+        private readonly List<GameEventListener> _listeners = new();
+        
+        [TextArea(2, 5)]
+        [SerializeField] private string _description = "Describe what triggers this event";
+        
+        #if UNITY_EDITOR
+        [Header("Debug")]
+        [SerializeField] private bool _logRaises = true;
+        #endif
+
+        /// <summary>
+        /// Raise this event, notifying all listeners.
+        /// </summary>
+        public void Raise()
+        {
+            #if UNITY_EDITOR
+            if (_logRaises)
+                Debug.Log($"[GameEvent] '{name}' raised. Listeners: {_listeners.Count}");
+            #endif
+            
+            for (int i = _listeners.Count - 1; i >= 0; i--)
+            {
+                _listeners[i].OnEventRaised();
+            }
+        }
+
+        public void RegisterListener(GameEventListener listener)
+        {
+            if (!_listeners.Contains(listener))
+                _listeners.Add(listener);
+        }
+
+        public void UnregisterListener(GameEventListener listener)
+        {
+            _listeners.Remove(listener);
+        }
+    }
+}

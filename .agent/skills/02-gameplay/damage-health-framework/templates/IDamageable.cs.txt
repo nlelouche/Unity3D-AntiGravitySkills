@@ -1,0 +1,99 @@
+// =============================================================================
+// IDamageable.cs - Core Damage Interface
+// Part of: damage-health-framework skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Combat
+{
+    /// <summary>
+    /// Result of a damage application.
+    /// </summary>
+    public struct DamageResult
+    {
+        public float DamageDealt;
+        public float DamageBlocked;
+        public bool WasKilled;
+        public bool WasCritical;
+        public DamageType DamageType;
+    }
+
+    /// <summary>
+    /// Types of damage for resistance calculations.
+    /// </summary>
+    public enum DamageType
+    {
+        Physical,
+        Fire,
+        Ice,
+        Lightning,
+        Poison,
+        Holy,
+        Dark,
+        True  // Ignores all resistances
+    }
+
+    /// <summary>
+    /// Core interface for anything that can receive damage.
+    /// Implement on: Player, Enemy, Destructibles, Vehicles, etc.
+    /// </summary>
+    public interface IDamageable
+    {
+        /// <summary>Current health value.</summary>
+        float CurrentHealth { get; }
+        
+        /// <summary>Maximum health value.</summary>
+        float MaxHealth { get; }
+        
+        /// <summary>Health as percentage (0-1).</summary>
+        float HealthPercent { get; }
+        
+        /// <summary>Whether the entity is alive.</summary>
+        bool IsAlive { get; }
+        
+        /// <summary>Whether entity can currently receive damage.</summary>
+        bool CanBeDamaged { get; }
+        
+        /// <summary>
+        /// Apply damage to this entity.
+        /// </summary>
+        /// <param name="info">Damage information.</param>
+        /// <returns>Result of the damage application.</returns>
+        DamageResult TakeDamage(DamageInfo info);
+        
+        /// <summary>
+        /// Instantly kill this entity regardless of health.
+        /// </summary>
+        void Kill();
+    }
+
+    /// <summary>
+    /// Information about incoming damage.
+    /// </summary>
+    [System.Serializable]
+    public struct DamageInfo
+    {
+        public float Amount;
+        public DamageType Type;
+        public GameObject Source;
+        public Vector3 HitPoint;
+        public Vector3 HitNormal;
+        public bool IsCritical;
+        public float CriticalMultiplier;
+        
+        public DamageInfo(float amount, DamageType type = DamageType.Physical)
+        {
+            Amount = amount;
+            Type = type;
+            Source = null;
+            HitPoint = Vector3.zero;
+            HitNormal = Vector3.up;
+            IsCritical = false;
+            CriticalMultiplier = 1.5f;
+        }
+        
+        /// <summary>Calculate final damage including critical.</summary>
+        public float GetFinalDamage() => IsCritical ? Amount * CriticalMultiplier : Amount;
+    }
+}

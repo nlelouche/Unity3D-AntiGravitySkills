@@ -1,39 +1,224 @@
+// =============================================================================
+// InputReader.cs - New Input System ScriptableObject Wrapper
+// Template for decoupled input handling via SO events
+// =============================================================================
+
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
 
-namespace {NAMESPACE}
+namespace YourGame.Input
 {
-    [CreateAssetMenu(fileName = "InputReader", menuName = "Game/Input/Input Reader")]
-    public class InputReader : ScriptableObject, GameInput.IGameplayActions
+    /// <summary>
+    /// ScriptableObject-based input reader.
+    /// Wraps Unity's New Input System and fires C# events.
+    /// Allows complete decoupling of input from consumers.
+    /// </summary>
+    /// <remarks>
+    /// Prerequisites:
+    /// 1. Create a .inputactions asset named "GameInput"
+    /// 2. Click "Generate C# Class" on the asset
+    /// 3. Create this SO in Assets/Input/
+    /// </remarks>
+    [CreateAssetMenu(fileName = "InputReader", menuName = "Input/Input Reader")]
+    public class InputReader : ScriptableObject, GameInput.IPlayerActions, GameInput.IUIActions
     {
-        public event Action<Vector2> MoveEvent;
-        public event Action JumpEvent;
-        public event Action JumpCanceledEvent;
-
+        #region Private Fields
+        
         private GameInput _gameInput;
-
+        
+        #endregion
+        
+        #region Input State
+        
+        /// <summary>Current movement input vector.</summary>
+        public Vector2 MoveInput { get; private set; }
+        
+        /// <summary>Current look/camera input vector.</summary>
+        public Vector2 LookInput { get; private set; }
+        
+        /// <summary>Whether sprint is held.</summary>
+        public bool IsSprintHeld { get; private set; }
+        
+        #endregion
+        
+        #region Events - Player Actions
+        
+        /// <summary>Movement input changed.</summary>
+        public event Action<Vector2> OnMove;
+        
+        /// <summary>Look/camera input changed.</summary>
+        public event Action<Vector2> OnLook;
+        
+        /// <summary>Jump action performed.</summary>
+        public event Action OnJump;
+        
+        /// <summary>Attack action performed.</summary>
+        public event Action OnAttack;
+        
+        /// <summary>Interact action performed.</summary>
+        public event Action OnInteract;
+        
+        /// <summary>Sprint state changed.</summary>
+        public event Action<bool> OnSprint;
+        
+        /// <summary>Pause action performed.</summary>
+        public event Action OnPause;
+        
+        #endregion
+        
+        #region Events - UI Actions
+        
+        /// <summary>Navigate input for UI.</summary>
+        public event Action<Vector2> OnNavigate;
+        
+        /// <summary>Submit/confirm in UI.</summary>
+        public event Action OnSubmit;
+        
+        /// <summary>Cancel/back in UI.</summary>
+        public event Action OnCancel;
+        
+        #endregion
+        
+        #region Lifecycle
+        
         private void OnEnable()
         {
-            if (_gameInput == null)
-            {
-                _gameInput = new GameInput();
-                _gameInput.Gameplay.SetCallbacks(this);
-            }
-            _gameInput.Gameplay.Enable();
+            _gameInput ??= new GameInput();
+            
+            _gameInput.Player.SetCallbacks(this);
+            _gameInput.UI.SetCallbacks(this);
+            
+            EnablePlayerInput();
         }
-
-        private void OnDisable() => _gameInput.Gameplay.Disable();
-
+        
+        private void OnDisable()
+        {
+            DisableAllInput();
+        }
+        
+        #endregion
+        
+        #region Public Methods - Input Switching
+        
+        /// <summary>
+        /// Enables player gameplay input.
+        /// </summary>
+        public void EnablePlayerInput()
+        {
+            _gameInput.Player.Enable();
+            _gameInput.UI.Disable();
+        }
+        
+        /// <summary>
+        /// Enables UI navigation input.
+        /// </summary>
+        public void EnableUIInput()
+        {
+            _gameInput.Player.Disable();
+            _gameInput.UI.Enable();
+        }
+        
+        /// <summary>
+        /// Disables all input.
+        /// </summary>
+        public void DisableAllInput()
+        {
+            _gameInput.Player.Disable();
+            _gameInput.UI.Disable();
+        }
+        
+        #endregion
+        
+        #region IPlayerActions Implementation
+        
         public void OnMove(InputAction.CallbackContext context)
         {
-            MoveEvent?.Invoke(context.ReadValue<Vector2>());
+            MoveInput = context.ReadValue<Vector2>();
+            OnMove?.Invoke(MoveInput);
         }
-
-        public void OnJump(InputAction.CallbackContext context)
+        
+        public void OnLook(InputAction.CallbackContext context)
         {
-            if (context.phase == InputActionPhase.Performed) JumpEvent?.Invoke();
-            if (context.phase == InputActionPhase.Canceled) JumpCanceledEvent?.Invoke();
+            LookInput = context.ReadValue<Vector2>();
+            OnLook?.Invoke(LookInput);
         }
+        
+        void GameInput.IPlayerActions.OnJump(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnJump?.Invoke();
+            }
+        }
+        
+        void GameInput.IPlayerActions.OnAttack(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnAttack?.Invoke();
+            }
+        }
+        
+        void GameInput.IPlayerActions.OnInteract(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnInteract?.Invoke();
+            }
+        }
+        
+        void GameInput.IPlayerActions.OnSprint(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                IsSprintHeld = true;
+                OnSprint?.Invoke(true);
+            }
+            else if (context.canceled)
+            {
+                IsSprintHeld = false;
+                OnSprint?.Invoke(false);
+            }
+        }
+        
+        void GameInput.IPlayerActions.OnPause(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnPause?.Invoke();
+            }
+        }
+        
+        #endregion
+        
+        #region IUIActions Implementation
+        
+        void GameInput.IUIActions.OnNavigate(InputAction.CallbackContext context)
+        {
+            OnNavigate?.Invoke(context.ReadValue<Vector2>());
+        }
+        
+        void GameInput.IUIActions.OnSubmit(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnSubmit?.Invoke();
+            }
+        }
+        
+        void GameInput.IUIActions.OnCancel(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+            {
+                OnCancel?.Invoke();
+            }
+        }
+        
+        void GameInput.IUIActions.OnPoint(InputAction.CallbackContext context) { }
+        void GameInput.IUIActions.OnClick(InputAction.CallbackContext context) { }
+        void GameInput.IUIActions.OnScrollWheel(InputAction.CallbackContext context) { }
+        
+        #endregion
     }
 }

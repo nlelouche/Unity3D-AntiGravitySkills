@@ -1,0 +1,40 @@
+// =============================================================================
+// GameEventListener.cs - MonoBehaviour Listener for SO Events
+// Part of: scriptableobject-architecture skill
+// =============================================================================
+
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace {{NAMESPACE}}.Events
+{
+    /// <summary>
+    /// Listens to a GameEventSO and invokes UnityEvent response.
+    /// Attach to any GameObject that needs to respond to game events.
+    /// </summary>
+    public class GameEventListener : MonoBehaviour
+    {
+        [Header("Event Configuration")]
+        [SerializeField] private GameEventSO _event;
+        
+        [Header("Response")]
+        [SerializeField] private UnityEvent _response;
+
+        private void OnEnable()
+        {
+            if (_event != null)
+                _event.RegisterListener(this);
+        }
+
+        private void OnDisable()
+        {
+            if (_event != null)
+                _event.UnregisterListener(this);
+        }
+
+        public void OnEventRaised()
+        {
+            _response?.Invoke();
+        }
+    }
+}

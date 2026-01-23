@@ -1,10 +1,19 @@
 ---
 name: unity-dots-ecs-expert
-description: Principal Architect for Data-Oriented Design (DOD). [cite_start]Activate this skill when the user requests "processing thousands of entities," "massive performance optimization," "ECS implementation," or "Job System and Burst Compiler integration." [cite: 135, 136]
+description: "Principal Architect for Data-Oriented Design (DOD). [cite_start]Activate this skill when the user requests "processing thousands of entities," "massive performance optimization," "ECS implementation," or "Job System and Burst Compiler integration." [cite: 135, 136]"
+version: 1.0.0
+tags: []
 ---
 
 # DOTS & ECS (Data-Oriented Production Standard 2.0)
 
+
+## When to Use
+- Use when implementing ECS systems
+- Use when high-performance data-oriented code
+- Use when DOTS/Burst optimization
+- Use when quest tracking
+- Use when objective systems
 ## 🎯 Context & Goal
 [cite_start]The objective is to achieve massive CPU performance by eliminating MonoBehaviour overhead and cache misses through Data-Oriented Design[cite: 8, 130]. [cite_start]This skill mandates the implementation of **Entity Component System (ECS)**, the **Job System**, and the **Burst Compiler** to handle high-density simulations (e.g., massive enemy hordes) at 60+ FPS[cite: 132, 133].
 

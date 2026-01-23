@@ -1,0 +1,130 @@
+// =============================================================================
+// CraftingSystem.cs - Recipe-Based Crafting
+// Part of: inventory-crafting-logic skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Inventory
+{
+    /// <summary>
+    /// Crafting system with recipe-based item creation.
+    /// </summary>
+    public class CraftingSystem : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private InventorySystem _playerInventory;
+        
+        [Header("Recipes")]
+        [SerializeField] private CraftingRecipeSO[] _knownRecipes;
+        
+        public event Action<CraftingRecipeSO> OnRecipeCrafted;
+        public event Action<CraftingRecipeSO> OnCraftingFailed;
+
+        /// <summary>
+        /// Check if a recipe can be crafted.
+        /// </summary>
+        public bool CanCraft(CraftingRecipeSO recipe)
+        {
+            if (recipe == null || _playerInventory == null) return false;
+            
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                if (!_playerInventory.HasItem(ingredient.Item, ingredient.Amount))
+                    return false;
+            }
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Attempt to craft a recipe.
+        /// </summary>
+        public bool TryCraft(CraftingRecipeSO recipe)
+        {
+            if (!CanCraft(recipe))
+            {
+                OnCraftingFailed?.Invoke(recipe);
+                return false;
+            }
+            
+            // Remove ingredients
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                _playerInventory.RemoveItem(ingredient.Item, ingredient.Amount);
+            }
+            
+            // Add result
+            int overflow = _playerInventory.AddItem(recipe.Result, recipe.ResultAmount);
+            if (overflow > 0)
+            {
+                Debug.LogWarning($"[CraftingSystem] {overflow}x {recipe.Result.DisplayName} couldn't fit in inventory!");
+                // Could spawn on ground, send to mailbox, etc.
+            }
+            
+            OnRecipeCrafted?.Invoke(recipe);
+            return true;
+        }
+
+        /// <summary>
+        /// Get all recipes that can currently be crafted.
+        /// </summary>
+        public List<CraftingRecipeSO> GetCraftableRecipes()
+        {
+            var result = new List<CraftingRecipeSO>();
+            foreach (var recipe in _knownRecipes)
+            {
+                if (CanCraft(recipe))
+                    result.Add(recipe);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Find recipes that use a specific item as ingredient.
+        /// </summary>
+        public List<CraftingRecipeSO> FindRecipesUsingItem(ItemDataSO item)
+        {
+            var result = new List<CraftingRecipeSO>();
+            foreach (var recipe in _knownRecipes)
+            {
+                foreach (var ingredient in recipe.Ingredients)
+                {
+                    if (ingredient.Item == item)
+                    {
+                        result.Add(recipe);
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// ScriptableObject crafting recipe.
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewRecipe", menuName = "Game/Crafting/Recipe")]
+    public class CraftingRecipeSO : ScriptableObject
+    {
+        [Header("Result")]
+        public ItemDataSO Result;
+        public int ResultAmount = 1;
+        
+        [Header("Ingredients")]
+        public CraftingIngredient[] Ingredients;
+        
+        [Header("Requirements")]
+        public int RequiredCraftingLevel = 1;
+        public float CraftingTime = 0f;
+    }
+
+    [System.Serializable]
+    public struct CraftingIngredient
+    {
+        public ItemDataSO Item;
+        public int Amount;
+    }
+}

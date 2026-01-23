@@ -1,0 +1,337 @@
+// =============================================================================
+// AudioManager.cs - Centralized Audio Management System
+// Template for managing SFX, Music, and Audio Pools
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Audio;
+
+namespace YourGame.Audio
+{
+    /// <summary>
+    /// Centralized audio management system.
+    /// Handles SFX, music, and provides audio pooling for performance.
+    /// </summary>
+    public class AudioManager : MonoBehaviour
+    {
+        #region Singleton
+        
+        private static AudioManager _instance;
+        public static AudioManager Instance => _instance;
+        
+        #endregion
+        
+        #region Serialized Fields
+        
+        [Header("Audio Mixer")]
+        [SerializeField] private AudioMixer _audioMixer;
+        [SerializeField] private AudioMixerGroup _sfxGroup;
+        [SerializeField] private AudioMixerGroup _musicGroup;
+        [SerializeField] private AudioMixerGroup _ambientGroup;
+        
+        [Header("Music Sources")]
+        [SerializeField] private AudioSource _musicSourceA;
+        [SerializeField] private AudioSource _musicSourceB;
+        
+        [Header("SFX Pool")]
+        [SerializeField] private int _sfxPoolSize = 20;
+        [SerializeField] private GameObject _sfxSourcePrefab;
+        
+        [Header("Volume Parameters")]
+        [SerializeField] private string _masterVolumeParam = "MasterVolume";
+        [SerializeField] private string _sfxVolumeParam = "SFXVolume";
+        [SerializeField] private string _musicVolumeParam = "MusicVolume";
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private readonly Queue<AudioSource> _sfxPool = new();
+        private readonly List<AudioSource> _activeSfxSources = new();
+        private AudioSource _currentMusicSource;
+        private AudioSource _nextMusicSource;
+        private bool _isMusicSourceA = true;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            InitializeSFXPool();
+            InitializeMusicSources();
+        }
+        
+        private void Update()
+        {
+            ReturnFinishedSFXToPool();
+        }
+        
+        #endregion
+        
+        #region Public Methods - SFX
+        
+        /// <summary>
+        /// Plays a sound effect at a position.
+        /// </summary>
+        public AudioSource PlaySFX(AudioClip clip, Vector3 position, float volume = 1f)
+        {
+            if (clip == null) return null;
+            
+            var source = GetSFXSource();
+            if (source == null) return null;
+            
+            source.transform.position = position;
+            source.clip = clip;
+            source.volume = volume;
+            source.spatialBlend = 1f;
+            source.Play();
+            
+            _activeSfxSources.Add(source);
+            return source;
+        }
+        
+        /// <summary>
+        /// Plays a 2D sound effect (no spatial positioning).
+        /// </summary>
+        public AudioSource PlaySFX2D(AudioClip clip, float volume = 1f, float pitch = 1f)
+        {
+            if (clip == null) return null;
+            
+            var source = GetSFXSource();
+            if (source == null) return null;
+            
+            source.clip = clip;
+            source.volume = volume;
+            source.pitch = pitch;
+            source.spatialBlend = 0f;
+            source.Play();
+            
+            _activeSfxSources.Add(source);
+            return source;
+        }
+        
+        /// <summary>
+        /// Plays a randomized SFX (random pitch variation).
+        /// </summary>
+        public AudioSource PlaySFXRandomized(AudioClip clip, Vector3 position, 
+            float volume = 1f, float pitchMin = 0.9f, float pitchMax = 1.1f)
+        {
+            var source = PlaySFX(clip, position, volume);
+            if (source != null)
+            {
+                source.pitch = Random.Range(pitchMin, pitchMax);
+            }
+            return source;
+        }
+        
+        #endregion
+        
+        #region Public Methods - Music
+        
+        /// <summary>
+        /// Plays music with optional crossfade.
+        /// </summary>
+        public void PlayMusic(AudioClip clip, float fadeDuration = 1f)
+        {
+            if (clip == null) return;
+            
+            if (_currentMusicSource.clip == clip && _currentMusicSource.isPlaying)
+            {
+                return; // Already playing this track
+            }
+            
+            StartCoroutine(CrossfadeMusic(clip, fadeDuration));
+        }
+        
+        /// <summary>
+        /// Stops current music with fade out.
+        /// </summary>
+        public void StopMusic(float fadeDuration = 1f)
+        {
+            StartCoroutine(FadeOutMusic(fadeDuration));
+        }
+        
+        /// <summary>
+        /// Pauses the current music.
+        /// </summary>
+        public void PauseMusic()
+        {
+            _currentMusicSource?.Pause();
+        }
+        
+        /// <summary>
+        /// Resumes paused music.
+        /// </summary>
+        public void ResumeMusic()
+        {
+            _currentMusicSource?.UnPause();
+        }
+        
+        #endregion
+        
+        #region Public Methods - Volume
+        
+        /// <summary>
+        /// Sets master volume (0-1).
+        /// </summary>
+        public void SetMasterVolume(float volume)
+        {
+            SetMixerVolume(_masterVolumeParam, volume);
+        }
+        
+        /// <summary>
+        /// Sets SFX volume (0-1).
+        /// </summary>
+        public void SetSFXVolume(float volume)
+        {
+            SetMixerVolume(_sfxVolumeParam, volume);
+        }
+        
+        /// <summary>
+        /// Sets music volume (0-1).
+        /// </summary>
+        public void SetMusicVolume(float volume)
+        {
+            SetMixerVolume(_musicVolumeParam, volume);
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void InitializeSFXPool()
+        {
+            var poolContainer = new GameObject("SFX_Pool").transform;
+            poolContainer.SetParent(transform);
+            
+            for (int i = 0; i < _sfxPoolSize; i++)
+            {
+                var source = CreateSFXSource(poolContainer);
+                _sfxPool.Enqueue(source);
+            }
+        }
+        
+        private void InitializeMusicSources()
+        {
+            _currentMusicSource = _musicSourceA;
+            _nextMusicSource = _musicSourceB;
+            
+            _musicSourceA.outputAudioMixerGroup = _musicGroup;
+            _musicSourceB.outputAudioMixerGroup = _musicGroup;
+            _musicSourceA.loop = true;
+            _musicSourceB.loop = true;
+        }
+        
+        private AudioSource CreateSFXSource(Transform parent)
+        {
+            GameObject go;
+            
+            if (_sfxSourcePrefab != null)
+            {
+                go = Instantiate(_sfxSourcePrefab, parent);
+            }
+            else
+            {
+                go = new GameObject("SFX_Source");
+                go.transform.SetParent(parent);
+                go.AddComponent<AudioSource>();
+            }
+            
+            var source = go.GetComponent<AudioSource>();
+            source.outputAudioMixerGroup = _sfxGroup;
+            source.playOnAwake = false;
+            go.SetActive(false);
+            
+            return source;
+        }
+        
+        private AudioSource GetSFXSource()
+        {
+            if (_sfxPool.Count > 0)
+            {
+                var source = _sfxPool.Dequeue();
+                source.gameObject.SetActive(true);
+                return source;
+            }
+            
+            Debug.LogWarning("[AudioManager] SFX pool exhausted!");
+            return null;
+        }
+        
+        private void ReturnFinishedSFXToPool()
+        {
+            for (int i = _activeSfxSources.Count - 1; i >= 0; i--)
+            {
+                var source = _activeSfxSources[i];
+                
+                if (!source.isPlaying)
+                {
+                    source.gameObject.SetActive(false);
+                    _sfxPool.Enqueue(source);
+                    _activeSfxSources.RemoveAt(i);
+                }
+            }
+        }
+        
+        private void SetMixerVolume(string parameter, float volume)
+        {
+            // Convert linear 0-1 to decibels (-80 to 0)
+            float dB = volume > 0 ? Mathf.Log10(volume) * 20f : -80f;
+            _audioMixer.SetFloat(parameter, dB);
+        }
+        
+        private System.Collections.IEnumerator CrossfadeMusic(AudioClip newClip, float duration)
+        {
+            _nextMusicSource.clip = newClip;
+            _nextMusicSource.volume = 0f;
+            _nextMusicSource.Play();
+            
+            float timer = 0f;
+            float startVolume = _currentMusicSource.volume;
+            
+            while (timer < duration)
+            {
+                timer += Time.unscaledDeltaTime;
+                float t = timer / duration;
+                
+                _currentMusicSource.volume = Mathf.Lerp(startVolume, 0f, t);
+                _nextMusicSource.volume = Mathf.Lerp(0f, 1f, t);
+                
+                yield return null;
+            }
+            
+            _currentMusicSource.Stop();
+            
+            // Swap sources
+            (_currentMusicSource, _nextMusicSource) = (_nextMusicSource, _currentMusicSource);
+        }
+        
+        private System.Collections.IEnumerator FadeOutMusic(float duration)
+        {
+            float timer = 0f;
+            float startVolume = _currentMusicSource.volume;
+            
+            while (timer < duration)
+            {
+                timer += Time.unscaledDeltaTime;
+                _currentMusicSource.volume = Mathf.Lerp(startVolume, 0f, timer / duration);
+                yield return null;
+            }
+            
+            _currentMusicSource.Stop();
+        }
+        
+        #endregion
+    }
+}

@@ -1,0 +1,116 @@
+// =============================================================================
+// PooledFactory.cs - Factory + Object Pooling Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Patterns.Factory
+{
+    /// <summary>
+    /// Factory implementation that uses Object Pooling to avoid GC allocations.
+    /// MANDATORY: Every Factory for high-frequency objects MUST support pooling.
+    /// </summary>
+    /// <typeparam name="T">The poolable object type.</typeparam>
+    public abstract class PooledFactory<T> : MonoBehaviour, IFactory<T> where T : Component
+    {
+        [Header("Pool Configuration")]
+        [SerializeField] private T _prefab;
+        [SerializeField] private int _initialPoolSize = 10;
+        [SerializeField] private bool _expandable = true;
+        [SerializeField] private Transform _poolContainer;
+
+        private readonly Queue<T> _pool = new Queue<T>();
+        private int _totalCreated = 0;
+
+        protected virtual void Awake()
+        {
+            InitializePool();
+        }
+
+        private void InitializePool()
+        {
+            if (_poolContainer == null)
+            {
+                var containerGO = new GameObject($"[Pool] {typeof(T).Name}");
+                containerGO.transform.SetParent(transform);
+                _poolContainer = containerGO.transform;
+            }
+
+            for (int i = 0; i < _initialPoolSize; i++)
+            {
+                CreatePooledInstance();
+            }
+        }
+
+        private T CreatePooledInstance()
+        {
+            var instance = Instantiate(_prefab, _poolContainer);
+            instance.gameObject.SetActive(false);
+            _pool.Enqueue(instance);
+            _totalCreated++;
+            return instance;
+        }
+
+        /// <summary>
+        /// Get an instance from the pool (Factory Create implementation).
+        /// </summary>
+        public T Create()
+        {
+            T instance;
+
+            if (_pool.Count > 0)
+            {
+                instance = _pool.Dequeue();
+            }
+            else if (_expandable)
+            {
+                instance = CreatePooledInstance();
+                _pool.Dequeue(); // Remove from queue since we're using it
+            }
+            else
+            {
+                Debug.LogWarning($"[PooledFactory] Pool exhausted for {typeof(T).Name}");
+                return null;
+            }
+
+            instance.gameObject.SetActive(true);
+            OnInstanceCreated(instance);
+            return instance;
+        }
+
+        /// <summary>
+        /// Return an instance to the pool.
+        /// </summary>
+        public void Return(T instance)
+        {
+            if (instance == null) return;
+
+            instance.gameObject.SetActive(false);
+            instance.transform.SetParent(_poolContainer);
+            OnInstanceReturned(instance);
+            _pool.Enqueue(instance);
+        }
+
+        /// <summary>
+        /// Override to perform setup when an instance is retrieved from the pool.
+        /// </summary>
+        protected virtual void OnInstanceCreated(T instance) { }
+
+        /// <summary>
+        /// Override to perform cleanup when an instance is returned to the pool.
+        /// </summary>
+        protected virtual void OnInstanceReturned(T instance) { }
+
+        /// <summary>
+        /// Current number of available instances in the pool.
+        /// </summary>
+        public int AvailableCount => _pool.Count;
+
+        /// <summary>
+        /// Total number of instances created by this factory.
+        /// </summary>
+        public int TotalCreated => _totalCreated;
+    }
+}

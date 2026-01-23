@@ -1,0 +1,299 @@
+// =============================================================================
+// NavigationManager.cs - Stack-Based UI Navigation
+// Template for managing screen navigation with history and transitions
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace YourGame.UI
+{
+    /// <summary>
+    /// Manages stack-based UI navigation.
+    /// Supports push, pop, replace, and modal operations.
+    /// </summary>
+    public class NavigationManager : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("UI Document")]
+        [SerializeField] private UIDocument _uiDocument;
+        
+        [Header("Screen Container")]
+        [SerializeField] private string _containerName = "screen-container";
+        
+        [Header("Screen Assets")]
+        [SerializeField] private VisualTreeAsset[] _screenAssets;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private readonly Stack<UIScreen> _screenStack = new();
+        private readonly Dictionary<string, UIScreen> _screenCache = new();
+        private readonly Dictionary<string, VisualTreeAsset> _screenAssetMap = new();
+        private VisualElement _container;
+        
+        #endregion
+        
+        #region Properties
+        
+        public int StackCount => _screenStack.Count;
+        public UIScreen CurrentScreen => _screenStack.Count > 0 ? _screenStack.Peek() : null;
+        public bool CanGoBack => _screenStack.Count > 1;
+        
+        #endregion
+        
+        #region Events
+        
+        public event Action<UIScreen> OnScreenChanged;
+        public event Action<UIScreen, UIScreen> OnNavigated; // (from, to)
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            InitializeScreenAssets();
+        }
+        
+        private void Start()
+        {
+            _container = _uiDocument.rootVisualElement.Q(_containerName);
+            
+            if (_container == null)
+            {
+                _container = _uiDocument.rootVisualElement;
+            }
+        }
+        
+        private void Update()
+        {
+            HandleBackInput();
+        }
+        
+        #endregion
+        
+        #region Public Methods - Navigation
+        
+        /// <summary>
+        /// Pushes a new screen onto the stack.
+        /// </summary>
+        public async Task PushAsync(string screenId, bool animate = true)
+        {
+            var previousScreen = CurrentScreen;
+            
+            // Hide current screen
+            if (previousScreen != null)
+            {
+                previousScreen.OnUnfocus();
+                await previousScreen.HideAsync(animate);
+            }
+            
+            // Get or create new screen
+            var newScreen = GetOrCreateScreen(screenId);
+            _screenStack.Push(newScreen);
+            
+            // Show new screen
+            await newScreen.ShowAsync(animate);
+            newScreen.OnFocus();
+            
+            OnScreenChanged?.Invoke(newScreen);
+            OnNavigated?.Invoke(previousScreen, newScreen);
+        }
+        
+        /// <summary>
+        /// Pops the current screen and returns to previous.
+        /// </summary>
+        public async Task PopAsync(bool animate = true)
+        {
+            if (!CanGoBack) return;
+            
+            var currentScreen = _screenStack.Pop();
+            currentScreen.OnUnfocus();
+            await currentScreen.HideAsync(animate);
+            
+            // Show previous screen
+            var previousScreen = _screenStack.Peek();
+            await previousScreen.ShowAsync(animate);
+            previousScreen.OnFocus();
+            
+            OnScreenChanged?.Invoke(previousScreen);
+            OnNavigated?.Invoke(currentScreen, previousScreen);
+        }
+        
+        /// <summary>
+        /// Replaces current screen without affecting history.
+        /// </summary>
+        public async Task ReplaceAsync(string screenId, bool animate = true)
+        {
+            if (_screenStack.Count > 0)
+            {
+                var current = _screenStack.Pop();
+                current.OnUnfocus();
+                await current.HideAsync(animate);
+            }
+            
+            var newScreen = GetOrCreateScreen(screenId);
+            _screenStack.Push(newScreen);
+            
+            await newScreen.ShowAsync(animate);
+            newScreen.OnFocus();
+            
+            OnScreenChanged?.Invoke(newScreen);
+        }
+        
+        /// <summary>
+        /// Pops all screens and returns to root.
+        /// </summary>
+        public async Task PopToRootAsync(bool animate = true)
+        {
+            while (_screenStack.Count > 1)
+            {
+                var screen = _screenStack.Pop();
+                screen.Hide();
+            }
+            
+            var root = _screenStack.Peek();
+            await root.ShowAsync(animate);
+            root.OnFocus();
+            
+            OnScreenChanged?.Invoke(root);
+        }
+        
+        /// <summary>
+        /// Synchronous push (for initial setup).
+        /// </summary>
+        public void Push(string screenId)
+        {
+            if (CurrentScreen != null)
+            {
+                CurrentScreen.OnUnfocus();
+                CurrentScreen.Hide();
+            }
+            
+            var newScreen = GetOrCreateScreen(screenId);
+            _screenStack.Push(newScreen);
+            newScreen.Show();
+            newScreen.OnFocus();
+            
+            OnScreenChanged?.Invoke(newScreen);
+        }
+        
+        /// <summary>
+        /// Synchronous pop.
+        /// </summary>
+        public void Pop()
+        {
+            if (!CanGoBack) return;
+            
+            var current = _screenStack.Pop();
+            current.OnUnfocus();
+            current.Hide();
+            
+            var previous = _screenStack.Peek();
+            previous.Show();
+            previous.OnFocus();
+            
+            OnScreenChanged?.Invoke(previous);
+        }
+        
+        #endregion
+        
+        #region Public Methods - Utility
+        
+        /// <summary>
+        /// Clears all screens from the stack.
+        /// </summary>
+        public void ClearStack()
+        {
+            while (_screenStack.Count > 0)
+            {
+                var screen = _screenStack.Pop();
+                screen.Hide();
+            }
+        }
+        
+        /// <summary>
+        /// Pre-warms a screen by creating it in cache.
+        /// </summary>
+        public void WarmUp(string screenId)
+        {
+            GetOrCreateScreen(screenId);
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void InitializeScreenAssets()
+        {
+            foreach (var asset in _screenAssets)
+            {
+                _screenAssetMap[asset.name] = asset;
+            }
+        }
+        
+        private UIScreen GetOrCreateScreen(string screenId)
+        {
+            if (_screenCache.TryGetValue(screenId, out var cached))
+            {
+                return cached;
+            }
+            
+            if (!_screenAssetMap.TryGetValue(screenId, out var asset))
+            {
+                Debug.LogError($"[NavigationManager] Screen asset not found: {screenId}");
+                return null;
+            }
+            
+            // Instantiate UXML
+            var root = asset.Instantiate();
+            root.style.flexGrow = 1;
+            root.style.display = DisplayStyle.None;
+            _container.Add(root);
+            
+            // Create screen instance
+            var screen = CreateScreenInstance(screenId);
+            screen.Initialize(root, screenId);
+            
+            _screenCache[screenId] = screen;
+            return screen;
+        }
+        
+        /// <summary>
+        /// Factory method for creating screen instances.
+        /// Override to use dependency injection or custom creation.
+        /// </summary>
+        protected virtual UIScreen CreateScreenInstance(string screenId)
+        {
+            // Override this to return specific screen types
+            // Example: return screenId switch
+            // {
+            //     "MainMenu" => new MainMenuScreen(),
+            //     "Settings" => new SettingsScreen(),
+            //     _ => throw new ArgumentException($"Unknown screen: {screenId}")
+            // };
+            
+            throw new NotImplementedException(
+                $"Override CreateScreenInstance to create screen: {screenId}");
+        }
+        
+        private void HandleBackInput()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (CanGoBack)
+                {
+                    _ = PopAsync();
+                }
+            }
+        }
+        
+        #endregion
+    }
+}

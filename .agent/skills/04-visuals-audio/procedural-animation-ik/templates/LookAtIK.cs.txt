@@ -1,0 +1,239 @@
+// =============================================================================
+// LookAtIK.cs - Procedural Look-At IK Controller
+// Template for head/spine tracking towards targets
+// =============================================================================
+
+using UnityEngine;
+
+namespace YourGame.Animation
+{
+    /// <summary>
+    /// Procedural look-at IK controller for head tracking.
+    /// Smoothly rotates head and spine to look at targets.
+    /// </summary>
+    [RequireComponent(typeof(Animator))]
+    public class LookAtIK : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Target")]
+        [SerializeField] private Transform _lookAtTarget;
+        [SerializeField] private bool _autoFindTarget;
+        [SerializeField] private string _targetTag = "Player";
+        [SerializeField] private float _detectionRange = 10f;
+        
+        [Header("IK Weights")]
+        [Tooltip("Overall look-at weight")]
+        [SerializeField, Range(0f, 1f)] private float _weight = 1f;
+        
+        [Tooltip("How much the body rotates")]
+        [SerializeField, Range(0f, 1f)] private float _bodyWeight = 0.3f;
+        
+        [Tooltip("How much the head rotates")]
+        [SerializeField, Range(0f, 1f)] private float _headWeight = 0.8f;
+        
+        [Tooltip("How much the eyes rotate")]
+        [SerializeField, Range(0f, 1f)] private float _eyesWeight = 0.5f;
+        
+        [Tooltip("How much to clamp the motion")]
+        [SerializeField, Range(0f, 1f)] private float _clampWeight = 0.5f;
+        
+        [Header("Constraints")]
+        [SerializeField] private float _maxHorizontalAngle = 90f;
+        [SerializeField] private float _maxVerticalAngle = 60f;
+        
+        [Header("Smoothing")]
+        [SerializeField] private float _transitionSpeed = 5f;
+        [SerializeField] private float _lookAwayDelay = 1f;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private Animator _animator;
+        private Transform _head;
+        private float _currentWeight;
+        private float _targetWeight;
+        private float _lookAwayTimer;
+        private Vector3 _lastValidLookPosition;
+        
+        #endregion
+        
+        #region Properties
+        
+        public Transform LookAtTarget
+        {
+            get => _lookAtTarget;
+            set => _lookAtTarget = value;
+        }
+        
+        public bool IsLooking => _currentWeight > 0.1f;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            _head = _animator.GetBoneTransform(HumanBodyBones.Head);
+        }
+        
+        private void Update()
+        {
+            if (_autoFindTarget && _lookAtTarget == null)
+            {
+                TryFindTarget();
+            }
+            
+            UpdateTargetWeight();
+            UpdateCurrentWeight();
+        }
+        
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (_animator == null) return;
+            
+            ApplyLookAtIK();
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Sets the look-at target.
+        /// </summary>
+        public void SetTarget(Transform target)
+        {
+            _lookAtTarget = target;
+        }
+        
+        /// <summary>
+        /// Clears the look-at target.
+        /// </summary>
+        public void ClearTarget()
+        {
+            _lookAtTarget = null;
+        }
+        
+        /// <summary>
+        /// Enables or disables look-at.
+        /// </summary>
+        public void SetEnabled(bool enabled)
+        {
+            _weight = enabled ? 1f : 0f;
+        }
+        
+        /// <summary>
+        /// Looks at a world position for a duration.
+        /// </summary>
+        public void LookAtPosition(Vector3 position, float duration = 2f)
+        {
+            _lastValidLookPosition = position;
+            _lookAwayTimer = duration;
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void TryFindTarget()
+        {
+            var targets = GameObject.FindGameObjectsWithTag(_targetTag);
+            
+            foreach (var target in targets)
+            {
+                float distance = Vector3.Distance(transform.position, target.transform.position);
+                
+                if (distance <= _detectionRange)
+                {
+                    _lookAtTarget = target.transform;
+                    return;
+                }
+            }
+        }
+        
+        private void UpdateTargetWeight()
+        {
+            if (_lookAtTarget != null)
+            {
+                Vector3 toTarget = _lookAtTarget.position - _head.position;
+                
+                if (IsTargetInView(toTarget))
+                {
+                    _targetWeight = _weight;
+                    _lastValidLookPosition = _lookAtTarget.position;
+                }
+                else
+                {
+                    _targetWeight = 0f;
+                }
+            }
+            else if (_lookAwayTimer > 0)
+            {
+                _lookAwayTimer -= Time.deltaTime;
+                _targetWeight = _weight;
+            }
+            else
+            {
+                _targetWeight = 0f;
+            }
+        }
+        
+        private bool IsTargetInView(Vector3 toTarget)
+        {
+            Vector3 localDirection = transform.InverseTransformDirection(toTarget.normalized);
+            
+            float horizontalAngle = Mathf.Abs(Mathf.Atan2(localDirection.x, localDirection.z) * Mathf.Rad2Deg);
+            float verticalAngle = Mathf.Abs(Mathf.Asin(localDirection.y) * Mathf.Rad2Deg);
+            
+            return horizontalAngle <= _maxHorizontalAngle && verticalAngle <= _maxVerticalAngle;
+        }
+        
+        private void UpdateCurrentWeight()
+        {
+            _currentWeight = Mathf.Lerp(_currentWeight, _targetWeight, Time.deltaTime * _transitionSpeed);
+        }
+        
+        private void ApplyLookAtIK()
+        {
+            if (_currentWeight < 0.01f) return;
+            
+            Vector3 lookPosition = _lookAtTarget != null ? _lookAtTarget.position : _lastValidLookPosition;
+            
+            _animator.SetLookAtWeight(_currentWeight, _bodyWeight, _headWeight, _eyesWeight, _clampWeight);
+            _animator.SetLookAtPosition(lookPosition);
+        }
+        
+        #endregion
+        
+        #region Editor
+        
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, _detectionRange);
+            
+            if (_lookAtTarget != null)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawLine(_head != null ? _head.position : transform.position, 
+                    _lookAtTarget.position);
+            }
+            
+            // Draw view cone
+            Gizmos.color = new Color(0, 1, 1, 0.2f);
+            Vector3 forward = transform.forward;
+            Vector3 left = Quaternion.Euler(0, -_maxHorizontalAngle, 0) * forward;
+            Vector3 right = Quaternion.Euler(0, _maxHorizontalAngle, 0) * forward;
+            
+            Gizmos.DrawLine(transform.position, transform.position + left * 3f);
+            Gizmos.DrawLine(transform.position, transform.position + right * 3f);
+        }
+#endif
+        
+        #endregion
+    }
+}

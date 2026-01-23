@@ -1,7 +1,9 @@
 ---
 name: memory-profiler-expert
-description: Tools to track texture usage and heap allocation.
-argument-hint: "arg1='value' arg2='value'"
+description: "Tools to track texture usage and heap allocation."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 Tools to track texture usage and heap allocation.
+
+## When to Use
+- Use when performance analysis
+- Use when memory debugging
+- Use when frame timing
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

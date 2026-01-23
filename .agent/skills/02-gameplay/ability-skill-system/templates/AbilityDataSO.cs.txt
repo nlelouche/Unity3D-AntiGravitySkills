@@ -1,0 +1,95 @@
+// =============================================================================
+// AbilityDataSO.cs - ScriptableObject Ability Definition
+// Part of: ability-skill-system skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Abilities
+{
+    /// <summary>
+    /// ScriptableObject defining an ability's properties.
+    /// Create via: Assets > Create > Game/Abilities/AbilityData
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewAbility", menuName = "Game/Abilities/AbilityData")]
+    public class AbilityDataSO : ScriptableObject
+    {
+        [Header("Identity")]
+        [SerializeField] private string _abilityId;
+        [SerializeField] private string _displayName;
+        [SerializeField, TextArea(2, 4)] private string _description;
+        [SerializeField] private Sprite _icon;
+        
+        [Header("Cooldown")]
+        [SerializeField] private float _cooldownDuration = 1f;
+        [SerializeField] private bool _sharesCooldownGroup = false;
+        [SerializeField] private string _cooldownGroupId;
+        
+        [Header("Cost")]
+        [SerializeField] private ResourceCost[] _costs;
+        
+        [Header("Targeting")]
+        [SerializeField] private AbilityTargetType _targetType = AbilityTargetType.Self;
+        [SerializeField] private float _range = 5f;
+        [SerializeField] private LayerMask _targetLayers = -1;
+        
+        [Header("Execution")]
+        [SerializeField] private float _castTime = 0f;
+        [SerializeField] private float _duration = 0f;
+        [SerializeField] private bool _canMoveWhileCasting = false;
+        [SerializeField] private bool _canBeCancelled = true;
+        
+        [Header("Visual")]
+        [SerializeField] private GameObject _vfxPrefab;
+        [SerializeField] private AudioClip _sfxClip;
+        
+        // Properties
+        public string AbilityId => _abilityId;
+        public string DisplayName => _displayName;
+        public string Description => _description;
+        public Sprite Icon => _icon;
+        public float CooldownDuration => _cooldownDuration;
+        public bool SharesCooldownGroup => _sharesCooldownGroup;
+        public string CooldownGroupId => _cooldownGroupId;
+        public ResourceCost[] Costs => _costs;
+        public AbilityTargetType TargetType => _targetType;
+        public float Range => _range;
+        public LayerMask TargetLayers => _targetLayers;
+        public float CastTime => _castTime;
+        public float Duration => _duration;
+        public bool CanMoveWhileCasting => _canMoveWhileCasting;
+        public bool CanBeCancelled => _canBeCancelled;
+        public GameObject VfxPrefab => _vfxPrefab;
+        public AudioClip SfxClip => _sfxClip;
+    }
+
+    public enum AbilityTargetType
+    {
+        Self,
+        SingleEnemy,
+        SingleAlly,
+        PointOnGround,
+        Direction,
+        AOE,
+        Cone,
+        None
+    }
+
+    [System.Serializable]
+    public struct ResourceCost
+    {
+        public ResourceType Type;
+        public float Amount;
+    }
+
+    public enum ResourceType
+    {
+        Mana,
+        Energy,
+        Stamina,
+        Health,
+        Rage,
+        Combo,
+        Ammo
+    }
+}

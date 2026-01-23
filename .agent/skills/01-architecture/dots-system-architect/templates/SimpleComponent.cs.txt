@@ -1,0 +1,33 @@
+// =============================================================================
+// SimpleComponent.cs - Basic ECS Component Template
+// Part of: dots-system-architect skill
+// =============================================================================
+
+using Unity.Entities;
+
+namespace {{NAMESPACE}}.ECS
+{
+    /// <summary>
+    /// Simple component containing data.
+    /// Components are pure data - no methods.
+    /// </summary>
+    public struct {{COMPONENT_NAME}}Component : IComponentData
+    {
+        public float Value;
+        public bool IsActive;
+    }
+    
+    /// <summary>
+    /// Tag component (zero-size marker).
+    /// </summary>
+    public struct {{TAG_NAME}}Tag : IComponentData { }
+    
+    /// <summary>
+    /// Component with buffer (dynamic array).
+    /// </summary>
+    [InternalBufferCapacity(8)]
+    public struct {{BUFFER_NAME}}Element : IBufferElementData
+    {
+        public int Value;
+    }
+}

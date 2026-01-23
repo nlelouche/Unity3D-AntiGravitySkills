@@ -1,0 +1,218 @@
+// =============================================================================
+// ParticlePoolManager.cs - Object Pool for Particle Systems
+// Template for efficient particle system management with pooling
+// =============================================================================
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace YourGame.VFX
+{
+    /// <summary>
+    /// Manages a pool of particle systems for efficient instantiation and reuse.
+    /// Reduces garbage collection by recycling particle effect instances.
+    /// </summary>
+    public class ParticlePoolManager : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Pool Settings")]
+        [SerializeField] private GameObject _particlePrefab;
+        [SerializeField] private int _initialPoolSize = 10;
+        [SerializeField] private bool _expandable = true;
+        [SerializeField] private int _maxPoolSize = 50;
+        
+        [Header("Behavior")]
+        [SerializeField] private bool _autoReturnToPool = true;
+        [SerializeField] private float _defaultLifetime = 2f;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private readonly Queue<ParticleSystem> _availableParticles = new();
+        private readonly List<ParticleSystem> _activeParticles = new();
+        private Transform _poolContainer;
+        
+        #endregion
+        
+        #region Properties
+        
+        public int AvailableCount => _availableParticles.Count;
+        public int ActiveCount => _activeParticles.Count;
+        public int TotalCount => AvailableCount + ActiveCount;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            InitializePool();
+        }
+        
+        private void Update()
+        {
+            if (_autoReturnToPool)
+            {
+                CheckAndReturnFinishedParticles();
+            }
+        }
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Spawns a particle effect at the specified position.
+        /// </summary>
+        public ParticleSystem Spawn(Vector3 position)
+        {
+            return Spawn(position, Quaternion.identity);
+        }
+        
+        /// <summary>
+        /// Spawns a particle effect at the specified position and rotation.
+        /// </summary>
+        public ParticleSystem Spawn(Vector3 position, Quaternion rotation)
+        {
+            var particle = GetFromPool();
+            
+            if (particle == null)
+            {
+                Debug.LogWarning("[ParticlePoolManager] Pool exhausted!");
+                return null;
+            }
+            
+            particle.transform.SetPositionAndRotation(position, rotation);
+            particle.gameObject.SetActive(true);
+            particle.Play();
+            
+            _activeParticles.Add(particle);
+            
+            return particle;
+        }
+        
+        /// <summary>
+        /// Spawns a particle effect attached to a parent transform.
+        /// </summary>
+        public ParticleSystem SpawnAttached(Transform parent, Vector3 localPosition = default)
+        {
+            var particle = GetFromPool();
+            
+            if (particle == null)
+            {
+                return null;
+            }
+            
+            particle.transform.SetParent(parent);
+            particle.transform.localPosition = localPosition;
+            particle.transform.localRotation = Quaternion.identity;
+            particle.gameObject.SetActive(true);
+            particle.Play();
+            
+            _activeParticles.Add(particle);
+            
+            return particle;
+        }
+        
+        /// <summary>
+        /// Returns a particle system to the pool.
+        /// </summary>
+        public void ReturnToPool(ParticleSystem particle)
+        {
+            if (particle == null) return;
+            
+            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            particle.gameObject.SetActive(false);
+            particle.transform.SetParent(_poolContainer);
+            
+            _activeParticles.Remove(particle);
+            _availableParticles.Enqueue(particle);
+        }
+        
+        /// <summary>
+        /// Returns all active particles to the pool.
+        /// </summary>
+        public void ReturnAllToPool()
+        {
+            for (int i = _activeParticles.Count - 1; i >= 0; i--)
+            {
+                ReturnToPool(_activeParticles[i]);
+            }
+        }
+        
+        /// <summary>
+        /// Warms up the pool by pre-instantiating particles.
+        /// </summary>
+        public void WarmUp(int count)
+        {
+            for (int i = 0; i < count && TotalCount < _maxPoolSize; i++)
+            {
+                CreateNewParticle();
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private void InitializePool()
+        {
+            _poolContainer = new GameObject($"{gameObject.name}_Pool").transform;
+            _poolContainer.SetParent(transform);
+            
+            for (int i = 0; i < _initialPoolSize; i++)
+            {
+                CreateNewParticle();
+            }
+        }
+        
+        private ParticleSystem GetFromPool()
+        {
+            if (_availableParticles.Count > 0)
+            {
+                return _availableParticles.Dequeue();
+            }
+            
+            if (_expandable && TotalCount < _maxPoolSize)
+            {
+                return CreateNewParticle();
+            }
+            
+            return null;
+        }
+        
+        private ParticleSystem CreateNewParticle()
+        {
+            var go = Instantiate(_particlePrefab, _poolContainer);
+            go.SetActive(false);
+            
+            var ps = go.GetComponent<ParticleSystem>();
+            
+            if (ps != null)
+            {
+                var main = ps.main;
+                main.stopAction = ParticleSystemStopAction.None;
+            }
+            
+            _availableParticles.Enqueue(ps);
+            return ps;
+        }
+        
+        private void CheckAndReturnFinishedParticles()
+        {
+            for (int i = _activeParticles.Count - 1; i >= 0; i--)
+            {
+                var particle = _activeParticles[i];
+                
+                if (particle != null && !particle.IsAlive(true))
+                {
+                    ReturnToPool(particle);
+                }
+            }
+        }
+        
+        #endregion
+    }
+}

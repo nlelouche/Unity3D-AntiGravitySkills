@@ -1,7 +1,9 @@
 ---
 name: automated-unit-testing
-description: Generates PlayMode and EditMode tests using NUnit.
-argument-hint: "arg1='value' arg2='value'"
+description: "Generates PlayMode and EditMode tests using NUnit."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 Generates PlayMode and EditMode tests using NUnit.
+
+## When to Use
+- Use when unit testing
+- Use when test automation
+- Use when TDD
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

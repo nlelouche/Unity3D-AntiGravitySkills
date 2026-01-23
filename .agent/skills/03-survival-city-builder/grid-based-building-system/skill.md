@@ -1,7 +1,9 @@
 ---
 name: grid-based-building-system
-description: Generates Grid Placement logic. Use to "snap to grid", "building system", or "place furniture".
-argument-hint: "name='BuildingManager' namespace='Game.Building'"
+description: "Generates Grid Placement logic. Use to "snap to grid", "building system", or "place furniture"."
+version: 1.0.0
+tags: []
+argument-hint: name='BuildingManager' namespace='Game.Building'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,13 @@ allowed-tools:
 
 ## Goal
 To translate mouse world-coordinates into discrete Grid coordinates (`Vector3Int`) for placement.
+
+## When to Use
+- Use when construction systems
+- Use when grid-based placement
+- Use when building mechanics
+- Use when automated builds
+- Use when CI/CD
 
 ## Core Math
 `x = Mathf.FloorToInt(worldPos.x / cellSize) * cellSize`

@@ -1,0 +1,136 @@
+// =============================================================================
+// GameEvents.cs - Example Game Event Definitions
+// Part of: event-bus-system skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Events
+{
+    // ==========================================================================
+    // GAMEPLAY EVENTS
+    // ==========================================================================
+    
+    /// <summary>
+    /// Fired when player takes damage.
+    /// </summary>
+    public struct PlayerDamagedEvent : IEvent
+    {
+        public float DamageAmount;
+        public float CurrentHealth;
+        public float MaxHealth;
+        public Vector3 DamageSourcePosition;
+    }
+    
+    /// <summary>
+    /// Fired when player dies.
+    /// </summary>
+    public struct PlayerDeathEvent : IEvent
+    {
+        public Vector3 DeathPosition;
+        public string KillerName;
+    }
+    
+    /// <summary>
+    /// Fired when player respawns.
+    /// </summary>
+    public struct PlayerRespawnEvent : IEvent
+    {
+        public Vector3 SpawnPosition;
+    }
+
+    // ==========================================================================
+    // ENEMY EVENTS
+    // ==========================================================================
+    
+    /// <summary>
+    /// Fired when an enemy is killed.
+    /// </summary>
+    public struct EnemyKilledEvent : IEvent
+    {
+        public int EnemyId;
+        public string EnemyType;
+        public Vector3 Position;
+        public int ExperienceReward;
+        public int GoldReward;
+    }
+    
+    /// <summary>
+    /// Fired when an enemy is spawned.
+    /// </summary>
+    public struct EnemySpawnedEvent : IEvent
+    {
+        public int EnemyId;
+        public string EnemyType;
+        public Vector3 Position;
+    }
+
+    // ==========================================================================
+    // PROGRESSION EVENTS
+    // ==========================================================================
+    
+    /// <summary>
+    /// Fired when player levels up.
+    /// </summary>
+    public struct LevelUpEvent : IEvent
+    {
+        public int NewLevel;
+        public int SkillPointsGained;
+    }
+    
+    /// <summary>
+    /// Fired when experience is gained.
+    /// </summary>
+    public struct ExperienceGainedEvent : IEvent
+    {
+        public int Amount;
+        public int CurrentTotal;
+        public int RequiredForNextLevel;
+    }
+
+    // ==========================================================================
+    // UI EVENTS
+    // ==========================================================================
+    
+    /// <summary>
+    /// Fired when UI panel state changes.
+    /// </summary>
+    public struct UIPanelEvent : IEvent
+    {
+        public string PanelName;
+        public bool IsOpening;
+    }
+    
+    /// <summary>
+    /// Fired when game is paused/unpaused.
+    /// </summary>
+    public struct GamePauseEvent : IEvent
+    {
+        public bool IsPaused;
+    }
+
+    // ==========================================================================
+    // SCENE/LEVEL EVENTS
+    // ==========================================================================
+    
+    /// <summary>
+    /// Fired when a level is completed.
+    /// </summary>
+    public struct LevelCompletedEvent : IEvent
+    {
+        public string LevelName;
+        public float CompletionTime;
+        public int Score;
+        public int StarsEarned;
+    }
+    
+    /// <summary>
+    /// Fired when scene loading starts.
+    /// </summary>
+    public struct SceneLoadingEvent : IEvent
+    {
+        public string SceneName;
+        public float Progress;
+        public bool IsComplete;
+    }
+}

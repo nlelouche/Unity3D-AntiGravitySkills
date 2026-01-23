@@ -1,10 +1,17 @@
 ---
 name: unity-dependency-injection-vcontainer
-description: Senior Architect for Dependency Injection and Service Management. Activate this skill when the user requests "connecting systems," "managing services," "setting up Managers," or when refactoring static Singletons (.Instance).
+description: "Senior Architect for Dependency Injection and Service Management. Activate this skill when the user requests "connecting systems," "managing services," "setting up Managers," or when refactoring static Singletons (.Instance)."
+version: 1.0.0
+tags: []
 ---
 
 # Dependency Injection (VContainer Agentic Standard 2.0)
 
+
+## When to Use
+- Use when quest tracking
+- Use when objective systems
+- Use when mission progression
 ## 🎯 Context & Goal
 [cite_start]The objective is to eliminate tight coupling and hidden dependencies that lead to rigid, untestable code and runtime `NullReferenceExceptions`[cite: 164, 173]. [cite_start]This skill mandates the use of **VContainer** to manage object lifecycles and service registration, ensuring a "Clean Architecture" where logic is decoupled from Unity's API[cite: 164, 165].
 

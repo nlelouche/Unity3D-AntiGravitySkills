@@ -1,0 +1,113 @@
+// =============================================================================
+// AsyncLoader.cs - Asset Loading Utilities
+// Part of: asynchronous-programming skill
+// =============================================================================
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+namespace {{NAMESPACE}}.Async
+{
+    /// <summary>
+    /// Async utilities for common Unity loading operations.
+    /// </summary>
+    public static class AsyncLoader
+    {
+        /// <summary>
+        /// Load a scene asynchronously with progress reporting.
+        /// </summary>
+        public static async Task LoadSceneAsync(
+            string sceneName, 
+            LoadSceneMode mode = LoadSceneMode.Single,
+            IProgress<float> progress = null,
+            CancellationToken token = default)
+        {
+            var operation = SceneManager.LoadSceneAsync(sceneName, mode);
+            operation.allowSceneActivation = true;
+            
+            while (!operation.isDone)
+            {
+                token.ThrowIfCancellationRequested();
+                progress?.Report(operation.progress);
+                await Task.Yield();
+            }
+            
+            progress?.Report(1f);
+        }
+        
+        /// <summary>
+        /// Unload a scene asynchronously.
+        /// </summary>
+        public static async Task UnloadSceneAsync(
+            string sceneName,
+            CancellationToken token = default)
+        {
+            var operation = SceneManager.UnloadSceneAsync(sceneName);
+            
+            while (!operation.isDone)
+            {
+                token.ThrowIfCancellationRequested();
+                await Task.Yield();
+            }
+        }
+
+        /// <summary>
+        /// Load a resource asynchronously.
+        /// </summary>
+        public static async Task<T> LoadResourceAsync<T>(
+            string path,
+            CancellationToken token = default) where T : UnityEngine.Object
+        {
+            var request = Resources.LoadAsync<T>(path);
+            
+            while (!request.isDone)
+            {
+                token.ThrowIfCancellationRequested();
+                await Task.Yield();
+            }
+            
+            return request.asset as T;
+        }
+
+        /// <summary>
+        /// Execute an async operation with timeout.
+        /// </summary>
+        public static async Task<T> WithTimeout<T>(
+            Func<CancellationToken, Task<T>> operation,
+            TimeSpan timeout,
+            CancellationToken token = default)
+        {
+            using var timeoutCts = new CancellationTokenSource(timeout);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                token, timeoutCts.Token);
+            
+            try
+            {
+                return await operation(linkedCts.Token);
+            }
+            catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Operation timed out after {timeout.TotalSeconds}s");
+            }
+        }
+
+        /// <summary>
+        /// Run multiple async operations in parallel.
+        /// </summary>
+        public static async Task<T[]> WhenAll<T>(
+            params Func<CancellationToken, Task<T>>[] operations)
+        {
+            var tasks = new Task<T>[operations.Length];
+            
+            for (int i = 0; i < operations.Length; i++)
+            {
+                tasks[i] = operations[i](CancellationToken.None);
+            }
+            
+            return await Task.WhenAll(tasks);
+        }
+    }
+}

@@ -1,7 +1,9 @@
 ---
 name: localization-specialist
-description: Manages Localization Tables and String Keys.
-argument-hint: "arg1='value' arg2='value'"
+description: "Manages Localization Tables and String Keys."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 Manages Localization Tables and String Keys.
+
+## When to Use
+- Use when multi-language support
+- Use when translation
+- Use when localization
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

@@ -1,7 +1,9 @@
 ---
 name: analytics-heatmaps
-description: Event tracking wrapper for Unity Analytics or Firebase.
-argument-hint: "arg1='value' arg2='value'"
+description: "Event tracking wrapper for Unity Analytics or Firebase."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,13 @@ allowed-tools:
 
 ## Goal
 Event tracking wrapper for Unity Analytics or Firebase.
+
+## When to Use
+- Use when implementing decoupled communication
+- Use when creating publish-subscribe patterns
+- Use when reducing dependencies between systems
+- Use when event tracking
+- Use when player metrics
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

@@ -1,0 +1,54 @@
+// =============================================================================
+// ICommand.cs - Command Pattern Interface Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+namespace {{NAMESPACE}}.Patterns.Command
+{
+    /// <summary>
+    /// Command Pattern: Encapsulates a request as an object, allowing for
+    /// parameterization, queuing, logging, and undo/redo operations.
+    /// 
+    /// Use Cases:
+    /// - Input handling system
+    /// - Undo/Redo functionality
+    /// - Replay systems
+    /// - AI action queuing
+    /// - Ability/Skill queuing in RPGs
+    /// </summary>
+    public interface ICommand
+    {
+        /// <summary>
+        /// Execute the command.
+        /// </summary>
+        void Execute();
+    }
+
+    /// <summary>
+    /// Reversible command supporting undo operations.
+    /// </summary>
+    public interface IReversibleCommand : ICommand
+    {
+        /// <summary>
+        /// Undo the command's effects.
+        /// </summary>
+        void Undo();
+        
+        /// <summary>
+        /// Check if this command can be undone.
+        /// </summary>
+        bool CanUndo { get; }
+    }
+
+    /// <summary>
+    /// Command with execution context/receiver.
+    /// </summary>
+    /// <typeparam name="TReceiver">The type of object that executes the command.</typeparam>
+    public interface ICommand<in TReceiver>
+    {
+        /// <summary>
+        /// Execute the command on the specified receiver.
+        /// </summary>
+        void Execute(TReceiver receiver);
+    }
+}

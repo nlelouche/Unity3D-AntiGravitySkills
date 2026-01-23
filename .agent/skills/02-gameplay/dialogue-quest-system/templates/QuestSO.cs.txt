@@ -1,0 +1,100 @@
+// =============================================================================
+// QuestSO.cs - Quest Definition
+// Part of: dialogue-quest-system skill
+// =============================================================================
+
+using System;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Quests
+{
+    /// <summary>
+    /// ScriptableObject defining a quest.
+    /// Create via: Assets > Create > Game/Quests/Quest
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewQuest", menuName = "Game/Quests/Quest")]
+    public class QuestSO : ScriptableObject
+    {
+        [Header("Identity")]
+        [SerializeField] private string _questId;
+        [SerializeField] private string _questName;
+        [SerializeField, TextArea(2, 4)] private string _description;
+        [SerializeField] private Sprite _icon;
+        [SerializeField] private QuestType _type = QuestType.Side;
+        
+        [Header("Prerequisites")]
+        [SerializeField] private QuestSO[] _requiredQuests;
+        [SerializeField] private int _requiredLevel = 1;
+        
+        [Header("Objectives")]
+        [SerializeField] private QuestObjective[] _objectives;
+        
+        [Header("Rewards")]
+        [SerializeField] private QuestReward[] _rewards;
+        
+        [Header("Tracking")]
+        [SerializeField] private bool _showInTracker = true;
+        [SerializeField] private bool _autoComplete = false;
+        
+        // Properties
+        public string QuestId => _questId;
+        public string QuestName => _questName;
+        public string Description => _description;
+        public Sprite Icon => _icon;
+        public QuestType Type => _type;
+        public QuestSO[] RequiredQuests => _requiredQuests;
+        public int RequiredLevel => _requiredLevel;
+        public QuestObjective[] Objectives => _objectives;
+        public QuestReward[] Rewards => _rewards;
+        public bool ShowInTracker => _showInTracker;
+        public bool AutoComplete => _autoComplete;
+    }
+
+    public enum QuestType
+    {
+        Main,
+        Side,
+        Daily,
+        Weekly,
+        Hidden
+    }
+
+    [Serializable]
+    public class QuestObjective
+    {
+        public string ObjectiveId;
+        public ObjectiveType Type;
+        public string TargetId;
+        public int RequiredCount;
+        [TextArea(1, 2)] public string Description;
+        public bool IsOptional;
+    }
+
+    public enum ObjectiveType
+    {
+        Kill,           // Kill X enemies of type Y
+        Collect,        // Collect X items
+        Interact,       // Interact with object/NPC
+        Reach,          // Reach location
+        Escort,         // Escort NPC to location
+        Defend,         // Defend for X seconds
+        Talk            // Talk to NPC
+    }
+
+    [Serializable]
+    public class QuestReward
+    {
+        public RewardType Type;
+        public string ItemId;
+        public int Amount;
+    }
+
+    public enum RewardType
+    {
+        Experience,
+        Gold,
+        Item,
+        Reputation,
+        Skill
+    }
+}

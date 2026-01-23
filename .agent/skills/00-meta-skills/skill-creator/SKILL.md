@@ -1,7 +1,9 @@
 ---
 name: skill-creator
-description: Generates a new Production-Grade Skill (PG-Skill) with the correct folder structure and boilerplate files. Use this when the user asks to "create a new skill" or "bootstrap a skill".
-argument-hint: "skill_name='my-new-skill' category='01-architecture' description='What does it do?'"
+description: "Generates a new Production-Grade Skill (PG-Skill) with the correct folder structure and boilerplate files. Use this when the user asks to "create a new skill" or "bootstrap a skill"."
+version: 1.0.0
+tags: []
+argument-hint: skill_name='my-new-skill' category='01-architecture' description='What does it do?'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To bootstrap a new "Production-Grade Skill" folder structure that strictly adheres to the "Architecture Convergence" research paper standards. This ensures every new skill has a dedicated `scripts/` folder for Python logic and a standardized `SKILL.md`.
+
+## When to Use
+- Use when starting a new Unity project
+- Use when setting up initial architecture
+- Use when establishing project foundations
 
 ## Constraints & Rules
 - **Naming Convention**: Skill names must be `kebab-case` (e.g., `unity-build-commander`).

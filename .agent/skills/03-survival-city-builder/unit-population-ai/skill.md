@@ -1,7 +1,9 @@
 ---
 name: unit-population-ai
-description: Generates lightweight AI for crowds. Use to "manage 100 units", "rts movement", or "population controller".
-argument-hint: "name='PopulationManager' namespace='Game.AI'"
+description: "Generates lightweight AI for crowds. Use to "manage 100 units", "rts movement", or "population controller"."
+version: 1.0.0
+tags: []
+argument-hint: name='PopulationManager' namespace='Game.AI'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To manage large groups of units efficiently, often using a central Manager update loop instead of 1000 Update() calls.
+
+## When to Use
+- Use when unit management
+- Use when AI crowds
+- Use when worker assignment
 
 ## Architecture
 - **UnitManager**: Singleton iterating over a list of `IUnit`.

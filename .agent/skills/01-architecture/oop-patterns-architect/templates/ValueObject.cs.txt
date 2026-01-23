@@ -1,0 +1,71 @@
+// =============================================================================
+// ValueObject.cs - Immutable Value Object Template
+// Part of: oop-patterns-architect skill
+// =============================================================================
+
+using System;
+
+namespace {{NAMESPACE}}.Domain
+{
+    /// <summary>
+    /// Base class for value objects.
+    /// Value objects are compared by value, not reference.
+    /// </summary>
+    public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
+    {
+        public abstract bool Equals(T other);
+        
+        public override bool Equals(object obj)
+        {
+            return obj is T other && Equals(other);
+        }
+        
+        public abstract override int GetHashCode();
+        
+        public static bool operator ==(ValueObject<T> left, ValueObject<T> right)
+        {
+            if (left is null) return right is null;
+            return left.Equals(right);
+        }
+        
+        public static bool operator !=(ValueObject<T> left, ValueObject<T> right)
+        {
+            return !(left == right);
+        }
+    }
+
+    /// <summary>
+    /// Example: Money value object.
+    /// </summary>
+    public sealed class Money : ValueObject<Money>
+    {
+        public decimal Amount { get; }
+        public string Currency { get; }
+        
+        public Money(decimal amount, string currency)
+        {
+            if (amount < 0) throw new ArgumentException("Amount cannot be negative");
+            if (string.IsNullOrEmpty(currency)) throw new ArgumentException("Currency required");
+            
+            Amount = amount;
+            Currency = currency.ToUpperInvariant();
+        }
+        
+        public Money Add(Money other)
+        {
+            if (Currency != other.Currency)
+                throw new InvalidOperationException("Cannot add different currencies");
+            return new Money(Amount + other.Amount, Currency);
+        }
+        
+        public override bool Equals(Money other)
+        {
+            if (other is null) return false;
+            return Amount == other.Amount && Currency == other.Currency;
+        }
+        
+        public override int GetHashCode() => HashCode.Combine(Amount, Currency);
+        
+        public override string ToString() => $"{Amount} {Currency}";
+    }
+}

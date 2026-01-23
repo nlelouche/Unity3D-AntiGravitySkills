@@ -1,7 +1,9 @@
 ---
 name: monetization-iap
-description: Generates IAP Manager stubs. Use to "add in-app purchase", "buy gold", or "setup shop".
-argument-hint: "name='IAPManager' namespace='Game.IAP'"
+description: "Generates IAP Manager stubs. Use to "add in-app purchase", "buy gold", or "setup shop"."
+version: 1.0.0
+tags: []
+argument-hint: name='IAPManager' namespace='Game.IAP'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To wrap Unity's IAP system in a simpler Manager.
+
+## When to Use
+- Use when in-app purchases
+- Use when monetization
+- Use when store integration
 
 ## Procedure
 1.  **Generate Manager**: `IAPManager.cs`.

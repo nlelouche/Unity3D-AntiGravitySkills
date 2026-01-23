@@ -1,7 +1,9 @@
 ---
 name: custom-editor-scripting
-description: Generates Editor Windows and Inspectors. Use to "create tools", "improver pipeline", or "debug window".
-argument-hint: "name='MapGenerator' namespace='Game.Editor'"
+description: "Generates Editor Windows and Inspectors. Use to "create tools", "improver pipeline", or "debug window"."
+version: 1.0.0
+tags: []
+argument-hint: name='MapGenerator' namespace='Game.Editor'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To accelerate development by building custom tools inside Unity.
+
+## When to Use
+- Use when custom inspectors
+- Use when editor windows
+- Use when tooling
 
 ## Architecture
 - **EditorWindow**: Floating windows (`MenuItem`).

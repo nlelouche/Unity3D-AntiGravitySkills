@@ -1,7 +1,9 @@
 ---
 name: horde-wave-logic
-description: Generates a Wave Spawner system. Use to "create enemy waves", "tower defense spawning", or "horde mode".
-argument-hint: "name='WaveSpawner' namespace='Game.Combat'"
+description: "Generates a Wave Spawner system. Use to "create enemy waves", "tower defense spawning", or "horde mode"."
+version: 1.0.0
+tags: []
+argument-hint: name='WaveSpawner' namespace='Game.Combat'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To manage spawning of enemies in waves, typical of Tower Defense or Survival modes.
+
+## When to Use
+- Use when wave-based spawning
+- Use when enemy waves
+- Use when horde survival mechanics
 
 ## Architecture
 - **WaveConfig (SO)**: Defines *what* and *how many* to spawn.

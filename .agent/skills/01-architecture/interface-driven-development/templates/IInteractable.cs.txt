@@ -1,0 +1,50 @@
+// =============================================================================
+// IInteractable.cs - Interaction System Interface
+// Part of: interface-driven-development skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Interfaces
+{
+    /// <summary>
+    /// Interface for any object the player can interact with.
+    /// Implemented by: Door, Chest, NPC, Lever, Pickup, Terminal, etc.
+    /// 
+    /// The interaction system only needs to know about this interface,
+    /// not the dozens of different interactable types.
+    /// </summary>
+    public interface IInteractable
+    {
+        /// <summary>
+        /// Text shown to player when in range (e.g., "Press E to Open").
+        /// </summary>
+        string InteractionPrompt { get; }
+        
+        /// <summary>
+        /// Whether interaction is currently possible.
+        /// </summary>
+        bool CanInteract { get; }
+        
+        /// <summary>
+        /// Optional icon for UI display.
+        /// </summary>
+        Sprite InteractionIcon { get; }
+        
+        /// <summary>
+        /// Perform the interaction.
+        /// </summary>
+        /// <param name="interactor">The GameObject performing the interaction (usually player).</param>
+        void Interact(GameObject interactor);
+        
+        /// <summary>
+        /// Called when player enters interaction range.
+        /// </summary>
+        void OnFocus();
+        
+        /// <summary>
+        /// Called when player leaves interaction range.
+        /// </summary>
+        void OnUnfocus();
+    }
+}

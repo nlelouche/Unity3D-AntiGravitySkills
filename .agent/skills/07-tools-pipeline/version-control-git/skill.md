@@ -1,7 +1,9 @@
 ---
 name: version-control-git
-description: Setup for .gitignore and LFS attributes.
-argument-hint: "arg1='value' arg2='value'"
+description: "Setup for .gitignore and LFS attributes."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 Setup for .gitignore and LFS attributes.
+
+## When to Use
+- Use when version control
+- Use when Git workflow
+- Use when branching strategy
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

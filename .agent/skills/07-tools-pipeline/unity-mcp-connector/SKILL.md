@@ -1,7 +1,9 @@
 ---
 name: unity-mcp-connector
-description: Checks if the Unity Editor is connected via MCP and exposes runtime capabilities. Use to "check editor status", "find selected object", or "list scene objects".
-argument-hint: "action='check_connection'"
+description: "Checks if the Unity Editor is connected via MCP and exposes runtime capabilities. Use to "check editor status", "find selected object", or "list scene objects"."
+version: 1.0.0
+tags: []
+argument-hint: action='check_connection'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -16,6 +18,13 @@ allowed-tools:
 
 ## Goal
 To serve as the **Bridge** between the Agent's file-system view and the running Unity Editor. It enables "Scene Awareness".
+
+## When to Use
+- Use when custom inspectors
+- Use when editor windows
+- Use when tooling
+- Use when Unity MCP
+- Use when AI integration
 
 ## Capabilities
 1.  **Health Check**: Verifies if `unityMCP` server is responding.

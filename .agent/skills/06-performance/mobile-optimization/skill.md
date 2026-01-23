@@ -1,7 +1,9 @@
 ---
 name: mobile-optimization
-description: Sets up Target Frame Rate, VSync, and Resolution Scaling. Use for "Android performance", "limit fps", or "battery saving".
-argument-hint: "name='AppConfig' namespace='Game.Core'"
+description: "Sets up Target Frame Rate, VSync, and Resolution Scaling. Use for "Android performance", "limit fps", or "battery saving"."
+version: 1.0.0
+tags: []
+argument-hint: name='AppConfig' namespace='Game.Core'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To ensure the game runs smoothly on devices without draining battery or overheating.
+
+## When to Use
+- Use when mobile optimization
+- Use when platform constraints
+- Use when battery/thermal
 
 ## Architecture
 - **AppConfig**: MonoBehaviour running on startup (`[RuntimeInitializeOnLoadMethod]` or Start).

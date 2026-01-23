@@ -1,7 +1,9 @@
 ---
 name: resource-management-system
-description: Generates an Economy/Resource system. Use for "wood/stone counter", "wallet system", or "crafting cost check".
-argument-hint: "name='EconomyManager' namespace='Game.Economy'"
+description: "Generates an Economy/Resource system. Use for "wood/stone counter", "wallet system", or "crafting cost check"."
+version: 1.0.0
+tags: []
+argument-hint: name='EconomyManager' namespace='Game.Economy'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To manage integer values associated with ScriptableObject keys (Resources), typical in RTS/Survival games.
+
+## When to Use
+- Use when resource gathering
+- Use when economy systems
+- Use when production chains
 
 ## Architecture
 - **ResourceType (SO)**: The key (Gold, Wood).

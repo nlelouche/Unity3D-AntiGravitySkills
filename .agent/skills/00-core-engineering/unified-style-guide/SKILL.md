@@ -1,7 +1,9 @@
 ---
 name: unified-style-guide
-description: Enforces a unified C# coding style and generates .editorconfig files. Use this to "fix formatting", "install style guide", or "check conventions".
-argument-hint: "action='install' project_root='.'"
+description: "Enforces a unified C# coding style and generates .editorconfig files. Use this to "fix formatting", "install style guide", or "check conventions"."
+version: 1.0.0
+tags: []
+argument-hint: action='install' project_root='.'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 To maintain a consistent codebase by enforcing a standard `.editorconfig` across the project. This prevents "tab vs space" wars and ensures generated code matches the project's style.
+
+## When to Use
+- Use when custom inspectors
+- Use when editor windows
+- Use when tooling
 
 ## Rules
 - **Naming**: Interfaces start with `I`, Private fields start with `_`.

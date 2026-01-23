@@ -1,0 +1,257 @@
+// =============================================================================
+// JuiceFeedback.cs - Game Feel and Juice Effects
+// Template for satisfying visual and audio feedback
+// =============================================================================
+
+using System;
+using UnityEngine;
+using DG.Tweening;
+
+namespace YourGame.Juice
+{
+    /// <summary>
+    /// Provides juicy feedback effects for game actions.
+    /// Combines visual, audio, and timing effects for satisfying gameplay.
+    /// </summary>
+    public class JuiceFeedback : MonoBehaviour
+    {
+        #region Serialized Fields
+        
+        [Header("Visual Settings")]
+        [SerializeField] private float _punchScale = 0.2f;
+        [SerializeField] private float _punchDuration = 0.2f;
+        [SerializeField] private int _punchVibrato = 10;
+        
+        [Header("Shake Settings")]
+        [SerializeField] private float _shakeDuration = 0.1f;
+        [SerializeField] private float _shakeStrength = 0.2f;
+        [SerializeField] private int _shakeVibrato = 20;
+        
+        [Header("Flash Settings")]
+        [SerializeField] private Color _flashColor = Color.white;
+        [SerializeField] private float _flashDuration = 0.1f;
+        
+        [Header("Audio")]
+        [SerializeField] private AudioSource _audioSource;
+        
+        [Header("Particles")]
+        [SerializeField] private ParticleSystem _impactParticles;
+        
+        #endregion
+        
+        #region Private Fields
+        
+        private SpriteRenderer _spriteRenderer;
+        private Color _originalColor;
+        private Vector3 _originalScale;
+        private Tween _currentTween;
+        
+        #endregion
+        
+        #region Unity Lifecycle
+        
+        private void Awake()
+        {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+            _originalScale = transform.localScale;
+            
+            if (_spriteRenderer != null)
+            {
+                _originalColor = _spriteRenderer.color;
+            }
+        }
+        
+        private void OnDestroy()
+        {
+            _currentTween?.Kill();
+        }
+        
+        #endregion
+        
+        #region Public Methods - Scale Effects
+        
+        /// <summary>
+        /// Punch scale effect (elastic pop).
+        /// </summary>
+        public void PunchScale(float? scale = null, float? duration = null)
+        {
+            _currentTween?.Kill();
+            transform.localScale = _originalScale;
+            
+            float s = scale ?? _punchScale;
+            float d = duration ?? _punchDuration;
+            
+            _currentTween = transform.DOPunchScale(Vector3.one * s, d, _punchVibrato, 0.5f)
+                .SetEase(Ease.OutElastic);
+        }
+        
+        /// <summary>
+        /// Pop in effect (scale from 0 to original).
+        /// </summary>
+        public void PopIn(float duration = 0.3f)
+        {
+            _currentTween?.Kill();
+            transform.localScale = Vector3.zero;
+            
+            _currentTween = transform.DOScale(_originalScale, duration)
+                .SetEase(Ease.OutBack);
+        }
+        
+        /// <summary>
+        /// Pop out effect (scale to 0).
+        /// </summary>
+        public void PopOut(float duration = 0.2f, Action onComplete = null)
+        {
+            _currentTween?.Kill();
+            
+            _currentTween = transform.DOScale(Vector3.zero, duration)
+                .SetEase(Ease.InBack)
+                .OnComplete(() => onComplete?.Invoke());
+        }
+        
+        #endregion
+        
+        #region Public Methods - Position Effects
+        
+        /// <summary>
+        /// Position shake effect.
+        /// </summary>
+        public void Shake(float? strength = null, float? duration = null)
+        {
+            _currentTween?.Kill();
+            
+            float s = strength ?? _shakeStrength;
+            float d = duration ?? _shakeDuration;
+            
+            _currentTween = transform.DOShakePosition(d, s, _shakeVibrato, 90f, false, true);
+        }
+        
+        /// <summary>
+        /// Jump effect with bounce.
+        /// </summary>
+        public void Jump(float height = 0.5f, float duration = 0.3f)
+        {
+            _currentTween?.Kill();
+            
+            _currentTween = transform.DOJump(transform.position, height, 1, duration)
+                .SetEase(Ease.OutQuad);
+        }
+        
+        #endregion
+        
+        #region Public Methods - Color Effects
+        
+        /// <summary>
+        /// Flash color effect.
+        /// </summary>
+        public void Flash(Color? color = null, float? duration = null)
+        {
+            if (_spriteRenderer == null) return;
+            
+            Color c = color ?? _flashColor;
+            float d = duration ?? _flashDuration;
+            
+            _spriteRenderer.DOColor(c, d * 0.5f)
+                .SetLoops(2, LoopType.Yoyo);
+        }
+        
+        /// <summary>
+        /// Damage flash (white flash).
+        /// </summary>
+        public void DamageFlash()
+        {
+            Flash(Color.white, 0.1f);
+        }
+        
+        /// <summary>
+        /// Heal flash (green flash).
+        /// </summary>
+        public void HealFlash()
+        {
+            Flash(Color.green, 0.15f);
+        }
+        
+        #endregion
+        
+        #region Public Methods - Combined Effects
+        
+        /// <summary>
+        /// Impact effect (shake + flash + particles + sound).
+        /// </summary>
+        public void Impact(AudioClip sound = null)
+        {
+            Shake();
+            Flash();
+            
+            if (_impactParticles != null)
+            {
+                _impactParticles.Play();
+            }
+            
+            if (sound != null && _audioSource != null)
+            {
+                _audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                _audioSource.PlayOneShot(sound);
+            }
+        }
+        
+        /// <summary>
+        /// Success effect (punch + particles + sound).
+        /// </summary>
+        public void Success(AudioClip sound = null)
+        {
+            PunchScale(0.3f, 0.25f);
+            
+            if (_impactParticles != null)
+            {
+                _impactParticles.Play();
+            }
+            
+            if (sound != null && _audioSource != null)
+            {
+                _audioSource.PlayOneShot(sound);
+            }
+        }
+        
+        /// <summary>
+        /// Collect effect (pop out towards target).
+        /// </summary>
+        public void CollectTo(Vector3 targetPosition, float duration = 0.5f, Action onComplete = null)
+        {
+            _currentTween?.Kill();
+            
+            var sequence = DOTween.Sequence();
+            
+            sequence.Append(transform.DOScale(_originalScale * 1.3f, 0.1f).SetEase(Ease.OutBack));
+            sequence.Append(transform.DOMove(targetPosition, duration).SetEase(Ease.InBack));
+            sequence.Join(transform.DOScale(Vector3.zero, duration * 0.5f).SetDelay(duration * 0.5f));
+            sequence.OnComplete(() => onComplete?.Invoke());
+            
+            _currentTween = sequence;
+        }
+        
+        #endregion
+        
+        #region Static Methods
+        
+        /// <summary>
+        /// Hitstop effect (freezes time briefly).
+        /// </summary>
+        public static void Hitstop(float duration = 0.05f)
+        {
+            Time.timeScale = 0f;
+            DOVirtual.DelayedCall(duration, () => Time.timeScale = 1f, true);
+        }
+        
+        /// <summary>
+        /// Slowmo effect.
+        /// </summary>
+        public static void Slowmo(float timeScale = 0.2f, float duration = 0.5f)
+        {
+            Time.timeScale = timeScale;
+            DOVirtual.DelayedCall(duration, () => Time.timeScale = 1f, true);
+        }
+        
+        #endregion
+    }
+}

@@ -1,0 +1,141 @@
+// =============================================================================
+// PatrolPath.cs - Waypoint Patrol System
+// Part of: navmesh-pathfinding skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.AI
+{
+    /// <summary>
+    /// Defines a patrol path with waypoints.
+    /// AI agents can follow this path in order or randomly.
+    /// </summary>
+    public class PatrolPath : MonoBehaviour
+    {
+        [Header("Waypoints")]
+        [SerializeField] private Transform[] _waypoints;
+        
+        [Header("Behavior")]
+        [SerializeField] private PatrolType _patrolType = PatrolType.Loop;
+        [SerializeField] private float _waitTimeAtWaypoint = 1f;
+        
+        [Header("Gizmos")]
+        [SerializeField] private Color _pathColor = Color.cyan;
+        [SerializeField] private float _waypointRadius = 0.3f;
+        
+        public Transform[] Waypoints => _waypoints;
+        public PatrolType Type => _patrolType;
+        public float WaitTime => _waitTimeAtWaypoint;
+        public int WaypointCount => _waypoints?.Length ?? 0;
+
+        /// <summary>
+        /// Get waypoint at index.
+        /// </summary>
+        public Vector3 GetWaypoint(int index)
+        {
+            if (_waypoints == null || _waypoints.Length == 0)
+                return transform.position;
+            
+            return _waypoints[Mathf.Clamp(index, 0, _waypoints.Length - 1)].position;
+        }
+
+        /// <summary>
+        /// Get next waypoint index based on patrol type.
+        /// </summary>
+        public int GetNextWaypointIndex(int currentIndex, ref bool reverse)
+        {
+            if (_waypoints == null || _waypoints.Length == 0)
+                return 0;
+            
+            switch (_patrolType)
+            {
+                case PatrolType.Loop:
+                    return (currentIndex + 1) % _waypoints.Length;
+                    
+                case PatrolType.PingPong:
+                    if (reverse)
+                    {
+                        int next = currentIndex - 1;
+                        if (next < 0)
+                        {
+                            reverse = false;
+                            return 1;
+                        }
+                        return next;
+                    }
+                    else
+                    {
+                        int next = currentIndex + 1;
+                        if (next >= _waypoints.Length)
+                        {
+                            reverse = true;
+                            return _waypoints.Length - 2;
+                        }
+                        return next;
+                    }
+                    
+                case PatrolType.Random:
+                    return Random.Range(0, _waypoints.Length);
+                    
+                case PatrolType.Once:
+                    return Mathf.Min(currentIndex + 1, _waypoints.Length - 1);
+                    
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        /// Get closest waypoint to a position.
+        /// </summary>
+        public int GetClosestWaypointIndex(Vector3 position)
+        {
+            if (_waypoints == null || _waypoints.Length == 0)
+                return 0;
+            
+            int closest = 0;
+            float closestDist = float.MaxValue;
+            
+            for (int i = 0; i < _waypoints.Length; i++)
+            {
+                float dist = Vector3.Distance(position, _waypoints[i].position);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closest = i;
+                }
+            }
+            
+            return closest;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (_waypoints == null || _waypoints.Length == 0) return;
+            
+            Gizmos.color = _pathColor;
+            
+            for (int i = 0; i < _waypoints.Length; i++)
+            {
+                if (_waypoints[i] == null) continue;
+                
+                Gizmos.DrawSphere(_waypoints[i].position, _waypointRadius);
+                
+                int next = (i + 1) % _waypoints.Length;
+                if (_waypoints[next] != null && (_patrolType != PatrolType.Once || i < _waypoints.Length - 1))
+                {
+                    Gizmos.DrawLine(_waypoints[i].position, _waypoints[next].position);
+                }
+            }
+        }
+    }
+
+    public enum PatrolType
+    {
+        Loop,       // A → B → C → A → B → ...
+        PingPong,   // A → B → C → B → A → ...
+        Random,     // Random waypoint each time
+        Once        // A → B → C → Stop
+    }
+}

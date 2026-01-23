@@ -1,0 +1,182 @@
+// =============================================================================
+// InventorySystem.cs - Core Inventory Controller
+// Part of: inventory-crafting-logic skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Inventory
+{
+    /// <summary>
+    /// Main inventory controller with slot-based storage.
+    /// </summary>
+    public class InventorySystem : MonoBehaviour
+    {
+        [Header("Configuration")]
+        [SerializeField] private int _slotCount = 20;
+        
+        private InventorySlot[] _slots;
+        
+        public int SlotCount => _slotCount;
+        public IReadOnlyList<InventorySlot> Slots => _slots;
+        
+        public event Action<int> OnSlotChanged;
+        public event Action OnInventoryChanged;
+
+        private void Awake()
+        {
+            _slots = new InventorySlot[_slotCount];
+            for (int i = 0; i < _slotCount; i++)
+            {
+                _slots[i] = new InventorySlot();
+            }
+        }
+
+        /// <summary>
+        /// Add an item to inventory. Returns amount that couldn't fit.
+        /// </summary>
+        public int AddItem(ItemDataSO item, int amount = 1)
+        {
+            int remaining = amount;
+            
+            // First, try to stack with existing
+            if (item.IsStackable)
+            {
+                for (int i = 0; i < _slotCount && remaining > 0; i++)
+                {
+                    if (_slots[i].Item == item && _slots[i].Count < item.MaxStackSize)
+                    {
+                        int canAdd = Mathf.Min(remaining, item.MaxStackSize - _slots[i].Count);
+                        _slots[i].Count += canAdd;
+                        remaining -= canAdd;
+                        OnSlotChanged?.Invoke(i);
+                    }
+                }
+            }
+            
+            // Then, find empty slots
+            for (int i = 0; i < _slotCount && remaining > 0; i++)
+            {
+                if (_slots[i].IsEmpty)
+                {
+                    int canAdd = item.IsStackable ? Mathf.Min(remaining, item.MaxStackSize) : 1;
+                    _slots[i].Item = item;
+                    _slots[i].Count = canAdd;
+                    remaining -= canAdd;
+                    OnSlotChanged?.Invoke(i);
+                }
+            }
+            
+            if (remaining < amount)
+                OnInventoryChanged?.Invoke();
+            
+            return remaining;
+        }
+
+        /// <summary>
+        /// Remove an item from inventory.
+        /// </summary>
+        public bool RemoveItem(ItemDataSO item, int amount = 1)
+        {
+            int toRemove = amount;
+            
+            for (int i = 0; i < _slotCount && toRemove > 0; i++)
+            {
+                if (_slots[i].Item == item)
+                {
+                    int canRemove = Mathf.Min(toRemove, _slots[i].Count);
+                    _slots[i].Count -= canRemove;
+                    toRemove -= canRemove;
+                    
+                    if (_slots[i].Count <= 0)
+                        _slots[i].Clear();
+                    
+                    OnSlotChanged?.Invoke(i);
+                }
+            }
+            
+            if (toRemove < amount)
+            {
+                OnInventoryChanged?.Invoke();
+                return toRemove == 0;
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Check if inventory has enough of an item.
+        /// </summary>
+        public bool HasItem(ItemDataSO item, int amount = 1)
+        {
+            return GetItemCount(item) >= amount;
+        }
+
+        /// <summary>
+        /// Get total count of an item.
+        /// </summary>
+        public int GetItemCount(ItemDataSO item)
+        {
+            int count = 0;
+            foreach (var slot in _slots)
+            {
+                if (slot.Item == item)
+                    count += slot.Count;
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Swap two slots.
+        /// </summary>
+        public void SwapSlots(int slotA, int slotB)
+        {
+            if (slotA < 0 || slotA >= _slotCount || slotB < 0 || slotB >= _slotCount)
+                return;
+            
+            (_slots[slotA], _slots[slotB]) = (_slots[slotB], _slots[slotA]);
+            OnSlotChanged?.Invoke(slotA);
+            OnSlotChanged?.Invoke(slotB);
+            OnInventoryChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Use an item from a slot.
+        /// </summary>
+        public bool UseItem(int slotIndex)
+        {
+            if (slotIndex < 0 || slotIndex >= _slotCount) return false;
+            
+            var slot = _slots[slotIndex];
+            if (slot.IsEmpty || !slot.Item.IsConsumable) return false;
+            
+            if (slot.Item.Use(gameObject))
+            {
+                slot.Count--;
+                if (slot.Count <= 0) slot.Clear();
+                OnSlotChanged?.Invoke(slotIndex);
+                OnInventoryChanged?.Invoke();
+                return true;
+            }
+            
+            return false;
+        }
+    }
+
+    [System.Serializable]
+    public class InventorySlot
+    {
+        public ItemDataSO Item;
+        public int Count;
+        
+        public bool IsEmpty => Item == null || Count <= 0;
+        
+        public void Clear()
+        {
+            Item = null;
+            Count = 0;
+        }
+    }
+}

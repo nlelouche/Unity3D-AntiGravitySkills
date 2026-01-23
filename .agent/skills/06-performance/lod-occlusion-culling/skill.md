@@ -1,7 +1,9 @@
 ---
 name: lod-occlusion-culling
-description: Setup for LOD Groups and Occlusion Area baking.
-argument-hint: "arg1='value' arg2='value'"
+description: "Setup for LOD Groups and Occlusion Area baking."
+version: 1.0.0
+tags: []
+argument-hint: arg1='value' arg2='value'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -13,6 +15,11 @@ allowed-tools:
 
 ## Goal
 Setup for LOD Groups and Occlusion Area baking.
+
+## When to Use
+- Use when level of detail
+- Use when occlusion culling
+- Use when rendering optimization
 
 ## Constraints
 - Run safely and do not modify files without confirmation.

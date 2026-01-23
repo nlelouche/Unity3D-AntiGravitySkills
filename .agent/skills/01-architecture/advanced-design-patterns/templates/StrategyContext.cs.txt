@@ -1,0 +1,70 @@
+// =============================================================================
+// StrategyContext.cs - Strategy Pattern Context Template
+// Part of: advanced-design-patterns skill
+// =============================================================================
+
+using UnityEngine;
+
+namespace {{NAMESPACE}}.Patterns.Strategy
+{
+    /// <summary>
+    /// Context class that uses a Strategy. The context maintains a reference
+    /// to a Strategy object and delegates algorithm execution to it.
+    /// </summary>
+    /// <typeparam name="TContext">The context data type passed to strategies.</typeparam>
+    public abstract class StrategyContext<TContext> : MonoBehaviour where TContext : class
+    {
+        [Header("Strategy Configuration")]
+        [SerializeField] private bool _executeOnStart = false;
+        
+        private IStrategy<TContext> _currentStrategy;
+        
+        /// <summary>
+        /// The currently active strategy.
+        /// </summary>
+        public IStrategy<TContext> CurrentStrategy => _currentStrategy;
+        
+        protected virtual void Start()
+        {
+            if (_executeOnStart && _currentStrategy != null)
+            {
+                ExecuteStrategy();
+            }
+        }
+        
+        /// <summary>
+        /// Set a new strategy at runtime.
+        /// </summary>
+        /// <param name="strategy">The new strategy to use.</param>
+        public void SetStrategy(IStrategy<TContext> strategy)
+        {
+            _currentStrategy = strategy;
+            OnStrategyChanged(strategy);
+        }
+        
+        /// <summary>
+        /// Execute the current strategy.
+        /// </summary>
+        public void ExecuteStrategy()
+        {
+            if (_currentStrategy == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] No strategy set. Cannot execute.");
+                return;
+            }
+            
+            var context = GetStrategyContext();
+            _currentStrategy.Execute(context);
+        }
+        
+        /// <summary>
+        /// Override this to provide the context data for strategies.
+        /// </summary>
+        protected abstract TContext GetStrategyContext();
+        
+        /// <summary>
+        /// Called when the strategy changes. Override for custom behavior.
+        /// </summary>
+        protected virtual void OnStrategyChanged(IStrategy<TContext> newStrategy) { }
+    }
+}

@@ -1,7 +1,9 @@
 ---
 name: object-pooling-system
-description: Generates Object Pools to reuse GameObjects (bullets, enemies) and avoid GC spikes.
-argument-hint: "name='BulletPool' namespace='Game.Performance'"
+description: "Generates Object Pools to reuse GameObjects (bullets, enemies) and avoid GC spikes."
+version: 1.0.0
+tags: []
+argument-hint: name='BulletPool' namespace='Game.Performance'
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
@@ -14,6 +16,11 @@ allowed-tools:
 
 ## Goal
 To recycle objects instead of Destroy/Instantiate, crucial for mobile and console performance.
+
+## When to Use
+- Use when object pooling
+- Use when spawn optimization
+- Use when memory efficiency
 
 ## Architecture
 - **PoolManager**: Holds a `Queue<GameObject>`.

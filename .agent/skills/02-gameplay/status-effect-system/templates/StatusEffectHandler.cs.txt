@@ -1,0 +1,226 @@
+// =============================================================================
+// StatusEffectHandler.cs - Component for Effect Management
+// Part of: status-effect-system skill
+// =============================================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace {{NAMESPACE}}.StatusEffects
+{
+    /// <summary>
+    /// Manages status effects on an entity.
+    /// Attach to any GameObject that can receive buffs/debuffs.
+    /// </summary>
+    public class StatusEffectHandler : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private Transform _vfxAnchor;
+        
+        private List<ActiveStatusEffect> _activeEffects = new();
+        private Dictionary<string, GameObject> _activeVfx = new();
+        
+        public IReadOnlyList<ActiveStatusEffect> ActiveEffects => _activeEffects;
+        
+        public event Action<StatusEffectSO, int> OnEffectApplied;
+        public event Action<StatusEffectSO> OnEffectRemoved;
+        public event Action<StatusEffectSO, float> OnEffectTick;
+
+        private void Update()
+        {
+            UpdateEffects(Time.deltaTime);
+        }
+
+        /// <summary>
+        /// Apply a status effect.
+        /// </summary>
+        public void ApplyEffect(StatusEffectSO effect, int stacks = 1)
+        {
+            if (effect == null) return;
+            
+            var existing = _activeEffects.Find(e => e.Effect.EffectId == effect.EffectId);
+            
+            if (existing != null)
+            {
+                HandleExistingEffect(existing, effect, stacks);
+            }
+            else
+            {
+                CreateNewEffect(effect, stacks);
+            }
+        }
+
+        private void HandleExistingEffect(ActiveStatusEffect existing, StatusEffectSO effect, int stacks)
+        {
+            switch (effect.StackBehavior)
+            {
+                case StackBehavior.RefreshDuration:
+                    existing.RemainingDuration = effect.Duration;
+                    break;
+                    
+                case StackBehavior.AddDuration:
+                    existing.RemainingDuration += effect.Duration;
+                    break;
+                    
+                case StackBehavior.AddStack:
+                    existing.Stacks = Mathf.Min(existing.Stacks + stacks, effect.MaxStacks);
+                    existing.RemainingDuration = effect.Duration;
+                    break;
+                    
+                case StackBehavior.Ignore:
+                    return;
+            }
+            
+            OnEffectApplied?.Invoke(effect, existing.Stacks);
+        }
+
+        private void CreateNewEffect(StatusEffectSO effect, int stacks)
+        {
+            var active = new ActiveStatusEffect
+            {
+                Effect = effect,
+                RemainingDuration = effect.Duration,
+                TickTimer = 0f,
+                Stacks = Mathf.Min(stacks, effect.MaxStacks)
+            };
+            
+            _activeEffects.Add(active);
+            
+            // Apply stat modifiers
+            ApplyStatModifiers(effect, active.Stacks);
+            
+            // Spawn VFX
+            if (effect.VfxPrefab != null)
+            {
+                var vfx = Instantiate(effect.VfxPrefab, _vfxAnchor ?? transform);
+                _activeVfx[effect.EffectId] = vfx;
+            }
+            
+            OnEffectApplied?.Invoke(effect, active.Stacks);
+        }
+
+        /// <summary>
+        /// Remove a status effect.
+        /// </summary>
+        public void RemoveEffect(StatusEffectSO effect)
+        {
+            var existing = _activeEffects.Find(e => e.Effect.EffectId == effect.EffectId);
+            if (existing != null)
+            {
+                RemoveStatModifiers(effect, existing.Stacks);
+                _activeEffects.Remove(existing);
+                
+                if (_activeVfx.TryGetValue(effect.EffectId, out var vfx))
+                {
+                    Destroy(vfx);
+                    _activeVfx.Remove(effect.EffectId);
+                }
+                
+                OnEffectRemoved?.Invoke(effect);
+            }
+        }
+
+        /// <summary>
+        /// Check if a specific effect is active.
+        /// </summary>
+        public bool HasEffect(StatusEffectSO effect)
+        {
+            return _activeEffects.Exists(e => e.Effect.EffectId == effect.EffectId);
+        }
+
+        /// <summary>
+        /// Get stack count for an effect.
+        /// </summary>
+        public int GetStacks(StatusEffectSO effect)
+        {
+            var existing = _activeEffects.Find(e => e.Effect.EffectId == effect.EffectId);
+            return existing?.Stacks ?? 0;
+        }
+
+        /// <summary>
+        /// Clear all status effects.
+        /// </summary>
+        public void ClearAllEffects()
+        {
+            foreach (var active in _activeEffects.ToArray())
+            {
+                RemoveEffect(active.Effect);
+            }
+        }
+
+        private void UpdateEffects(float deltaTime)
+        {
+            for (int i = _activeEffects.Count - 1; i >= 0; i--)
+            {
+                var active = _activeEffects[i];
+                
+                // Update tick
+                if (active.Effect.HasTick)
+                {
+                    active.TickTimer += deltaTime;
+                    if (active.TickTimer >= active.Effect.TickInterval)
+                    {
+                        active.TickTimer = 0f;
+                        ProcessTick(active);
+                    }
+                }
+                
+                // Update duration
+                if (!active.Effect.IsPermanent)
+                {
+                    active.RemainingDuration -= deltaTime;
+                    if (active.RemainingDuration <= 0f)
+                    {
+                        RemoveEffect(active.Effect);
+                    }
+                }
+            }
+        }
+
+        private void ProcessTick(ActiveStatusEffect active)
+        {
+            float multiplier = active.Stacks;
+            
+            if (active.Effect.TickDamage > 0f)
+            {
+                // Apply tick damage (integrate with damage system)
+                float damage = active.Effect.TickDamage * multiplier;
+                OnEffectTick?.Invoke(active.Effect, -damage);
+            }
+            
+            if (active.Effect.TickHeal > 0f)
+            {
+                float heal = active.Effect.TickHeal * multiplier;
+                OnEffectTick?.Invoke(active.Effect, heal);
+            }
+        }
+
+        private void ApplyStatModifiers(StatusEffectSO effect, int stacks)
+        {
+            // TODO: Integrate with stats system
+            foreach (var mod in effect.StatModifiers)
+            {
+                Debug.Log($"[StatusEffect] Apply {mod.Stat} {mod.Type} {mod.Value * stacks}");
+            }
+        }
+
+        private void RemoveStatModifiers(StatusEffectSO effect, int stacks)
+        {
+            // TODO: Integrate with stats system
+            foreach (var mod in effect.StatModifiers)
+            {
+                Debug.Log($"[StatusEffect] Remove {mod.Stat} {mod.Type} {mod.Value * stacks}");
+            }
+        }
+    }
+
+    [System.Serializable]
+    public class ActiveStatusEffect
+    {
+        public StatusEffectSO Effect;
+        public float RemainingDuration;
+        public float TickTimer;
+        public int Stacks;
+    }
+}
