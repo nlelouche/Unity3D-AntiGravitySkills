@@ -21,7 +21,7 @@ context_discovery:
 performance_budget:
   gc_alloc_per_frame: "0 bytes target in hot paths"
   max_update_cost: "O(n) - profiler-guided"
-tdd_first: false
+tdd_first: true
 ---
 
 # Unified Style Guide
