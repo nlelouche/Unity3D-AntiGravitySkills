@@ -18,7 +18,7 @@ context_discovery:
 performance_budget:
   gc_alloc_per_frame: "0 bytes (event-driven, no Update polling)"
   max_update_cost: "N/A — event callbacks only"
-tdd_first: false
+tdd_first: true
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:

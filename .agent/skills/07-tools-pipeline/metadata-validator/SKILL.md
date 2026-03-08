@@ -16,7 +16,7 @@ context_discovery:
 performance_budget:
   gc_alloc_per_frame: "N/A — Editor/CLI tool"
   max_update_cost: "N/A — one-shot audit"
-tdd_first: false
+tdd_first: true
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:

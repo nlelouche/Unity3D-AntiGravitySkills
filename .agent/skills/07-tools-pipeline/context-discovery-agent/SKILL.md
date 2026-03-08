@@ -16,7 +16,7 @@ context_discovery:
 performance_budget:
   gc_alloc_per_frame: "N/A — Editor Tool"
   max_update_cost: "N/A — Editor Tool"
-tdd_first: false
+tdd_first: true
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
