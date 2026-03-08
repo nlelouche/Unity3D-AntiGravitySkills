@@ -194,13 +194,13 @@ Ejecútalo desde la raíz de tu proyecto en Unity:
 
 ```bash
 # 1. Busca en el catálogo el sistema que necesitas
-npx @antigravity/skills list
+npx github:nlelouche/Unity3D-AntiGravitySkills list
 
 # 2. Revisa sus requisitos (versión Unity, paquetes) antes de instalar
-npx @antigravity/skills info event-bus-system
+npx github:nlelouche/Unity3D-AntiGravitySkills info event-bus-system
 
 # 3. Inyecta el código de forma segura en tu proyecto
-npx @antigravity/skills add event-bus-system
+npx github:nlelouche/Unity3D-AntiGravitySkills add event-bus-system
 ```
 
 *Nota para Agentes de IA locales: Aún puedes clonar el repositorio completo en `.agent/skills/` si prefieres que tu agente tenga acceso permanente offline a todo el grafo de conocimiento.*
