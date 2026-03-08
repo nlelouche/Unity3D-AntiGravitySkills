@@ -3,9 +3,8 @@
     "version": "2.0.0",
     "description": "AntiGravity Skills CLI — install Unity skills into any project via npx",
     "type": "module",
-    "bin": {
-        "skills": "./bin/cli.js"
-    },
+    "main": "bin/cli.js",
+    "bin": "./bin/cli.js",
     "files": [
         "bin/",
         "lib/",
