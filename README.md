@@ -177,7 +177,33 @@ This ensures every generated script is **compatible with your exact environment*
 5.  **Implement**: Inject from `templates/`, adapt to project context.
 6.  **Review**: Run `@ai-code-reviewer` before committing.
 
-### FOR HUMANS (Installation)
+### 🧑‍💻 FOR HUMANS: Stop "Vibe Coding" Garbage
+
+The biggest mistake developers make with AI tools (Copilot, Cursor, Gemini) is **"Vibe Coding"** — asking the AI to build systems without providing strict architectural boundaries. This results in spaghetti code, memory leaks, and unscalable games.
+
+**AntiGravity Skills CLI** solves this by injecting production-ready, Senior-level patterns directly into your project.
+
+#### Why use this?
+*   **For Juniors:** Stop guessing how to build an Object Pool or an Event Bus. The CLI injects clean, heavily-commented, industry-standard C# code directly into your project for you to study and use.
+*   **For Seniors & AI:** Every installed skill includes a `SKILL.md` file. When you ask your AI assistant to modify the injected code, it reads this file first. The strict rules inside prevent the AI from hallucinating or breaking the architecture.
+
+#### How to use it (Zero Installation)
+Thanks to `npx`, **no local installation or repo cloning is required**. The CLI checks your Unity version and Render Pipeline to prevent compatibility issues, then injects bare C# code ("Zero-Lock-In") directly into `Assets/Plugins/AntiGravitySkills/`.
+
+Run this from your Unity project root:
+
+```bash
+# 1. Search the catalog for the system you need
+npx @antigravity/skills list
+
+# 2. Check its requirements (Unity version, packages) before installing
+npx @antigravity/skills info event-bus-system
+
+# 3. Inject the code safely into your project
+npx @antigravity/skills add event-bus-system
+```
+
+*Note for local AI Agents: You can still clone the full repo into `.agent/skills/` if you want your agent to have permanent offline access to the entire knowledge graph.*
 ```bash
 git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
 ```

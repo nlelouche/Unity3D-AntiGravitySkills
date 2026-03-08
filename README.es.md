@@ -177,7 +177,33 @@ Esto garantiza que cada script generado sea **compatible con tu entorno exacto**
 5.  **Implementar**: Inyectar desde `templates/`, adaptar al contexto del proyecto.
 6.  **Revisar**: Ejecutar `@ai-code-reviewer` antes de hacer commit.
 
-### PARA HUMANOS (Instalación)
+### 🧑‍💻 PARA HUMANOS: Deja de generar código basura ("Vibe Coding")
+
+El mayor error que cometen los desarrolladores con herramientas de IA (Copilot, Cursor, Gemini) es el **"Vibe Coding"** — pedirle a la IA que construya sistemas sin proporcionarle límites arquitectónicos estrictos. Esto resulta en código espagueti, fugas de memoria y juegos que no escalan.
+
+La **CLI de AntiGravity Skills** resuelve esto inyectando patrones de nivel Senior, listos para producción, directamente en tu proyecto.
+
+#### ¿Por qué usar esto?
+*   **Para Juniors:** Deja de adivinar cómo construir un Object Pool o un Event Bus. La CLI inyecta código C# limpio, fuertemente comentado y con estándares de la industria directamente en tu proyecto para que lo estudies y uses.
+*   **Para Seniors e IA:** Cada skill instalado incluye un archivo `SKILL.md` como "córtex". Cuando le pides a tu asistente de IA que modifique el código inyectado, la IA lee este archivo primero. Las reglas estrictas en su interior evitan que alucine o rompa la arquitectura.
+
+#### Cómo usarlo (Cero Instalación)
+Gracias a `npx`, **no necesitas instalar nada localmente ni clonar el repositorio**. La CLI verifica tu versión de Unity y Render Pipeline para prevenir errores, y luego inyecta código C# limpio ("Zero-Lock-In") en `Assets/Plugins/AntiGravitySkills/`.
+
+Ejecútalo desde la raíz de tu proyecto en Unity:
+
+```bash
+# 1. Busca en el catálogo el sistema que necesitas
+npx @antigravity/skills list
+
+# 2. Revisa sus requisitos (versión Unity, paquetes) antes de instalar
+npx @antigravity/skills info event-bus-system
+
+# 3. Inyecta el código de forma segura en tu proyecto
+npx @antigravity/skills add event-bus-system
+```
+
+*Nota para Agentes de IA locales: Aún puedes clonar el repositorio completo en `.agent/skills/` si prefieres que tu agente tenga acceso permanente offline a todo el grafo de conocimiento.*
 ```bash
 git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
 ```
