@@ -1,7 +1,7 @@
----
+﻿---
 name: mobile-optimization
 description: "Mobile-specific optimization for Android/iOS including framerate, resolution, thermal, and battery management."
-version: 1.0.0
+version: 2.0.0
 tags: ["performance", "mobile", "Android", "iOS", "battery"]
 argument-hint: "fps='60' OR quality='medium' thermal='true'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: true
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes (target)"
+  max_update_cost: "Profiler-verified"
+tdd_first: false
 ---
 
 # Mobile Optimization

@@ -1,7 +1,7 @@
----
+﻿---
 name: advanced-character-controller
 description: "Complete 3D character controller with ground detection, jumping, slopes, and state-based movement."
-version: 1.0.0
+version: 2.0.0
 tags: ["gameplay", "character", "controller", "movement", "platformer"]
 argument-hint: "speed='5' jump_height='2' gravity='-20'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Advanced Character Controller

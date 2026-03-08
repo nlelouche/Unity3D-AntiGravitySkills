@@ -1,7 +1,7 @@
----
+﻿---
 name: shader-graph-expert
 description: "Unity Shader Graph specialist for creating custom shaders, materials, and visual effects without code."
-version: 1.0.0
+version: 2.0.0
 tags: ["visuals", "shaders", "Shader-Graph", "materials", "rendering"]
 argument-hint: "shader_type='Lit' effect='dissolve' OR property='_MainColor'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: true
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Shader Graph Expert

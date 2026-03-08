@@ -1,7 +1,7 @@
----
+﻿---
 name: procedural-animation-ik
 description: "Procedural animation and IK specialist for dynamic, responsive character motion."
-version: 1.0.0
+version: 2.0.0
 tags: ["animation", "IK", "procedural", "rigging", "motion"]
 argument-hint: "ik_type='foot' OR target='hand' weight='1.0'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: true
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Procedural Animation & IK

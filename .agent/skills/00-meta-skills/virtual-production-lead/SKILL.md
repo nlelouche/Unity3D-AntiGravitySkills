@@ -1,7 +1,7 @@
----
+﻿---
 name: virtual-production-lead
 description: "Acts as a Project Director. Reads Game Design Documents (GDD), creates production roadmaps, and orchestrates other AntiGravity skills to build the game."
-version: 1.0.0
+version: 2.0.0
 tags: ["meta", "planning", "gdd", "roadmap", "orchestration"]
 argument-hint: "action='AnalyzeGDD' path='Design/GDD.md' OR action='GenerateRoadmap'"
 disable-model-invocation: false
@@ -11,6 +11,18 @@ allowed-tools:
   - list_dir
   - write_to_file
   - read_resource
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Virtual Production Lead
@@ -68,3 +80,14 @@ The Lead operates in 3 steps:
 ## Templates
 - `GDD_Template.md`: Standard Design Doc structure.
 - `ProductionRoadmap.md`: Output format.
+
+## Best Practices
+- Follow the patterns and constraints documented in this skill.
+- Always run @context-discovery-agent before applying this skill to verify environment compatibility.
+- Apply TDD where applicable: write the interface contract first, then implement.
+- Zero GC in hot paths: cache references, avoid LINQ and 
+ew allocations in Update loops.
+## Related Skills
+- @context-discovery-agent - Verify Unity version and package compatibility before proceeding
+- @unified-style-guide - Naming and formatting conventions
+- @automated-unit-testing - TDD scaffolding for this skill's components

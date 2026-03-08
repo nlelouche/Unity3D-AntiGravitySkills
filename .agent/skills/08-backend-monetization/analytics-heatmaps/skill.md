@@ -1,7 +1,7 @@
----
+﻿---
 name: analytics-heatmaps
 description: "Implementation of comprehensive analytics tracking and heatmap data collection for player behavior analysis."
-version: 1.0.0
+version: 2.0.0
 tags: ["analytics", "tracking", "heatmaps", "metrics", "telemetry"]
 argument-hint: "event='LevelComplete' params='time,score' OR heatmap='death_pos'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "N/A - async or editor-only"
+  max_update_cost: "N/A"
+tdd_first: false
 ---
 
 # Analytics & Heatmaps

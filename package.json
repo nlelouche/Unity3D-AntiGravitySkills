@@ -1,0 +1,39 @@
+{
+    "name": "@antigravity/skills",
+    "version": "2.0.0",
+    "description": "AntiGravity Skills CLI — install Unity skills into any project via npx",
+    "type": "module",
+    "bin": {
+        "skills": "./bin/cli.js"
+    },
+    "files": [
+        "bin/",
+        "lib/",
+        "skills-index.json"
+    ],
+    "keywords": [
+        "unity",
+        "gamedev",
+        "skills",
+        "ai-agent",
+        "cli",
+        "scaffolding"
+    ],
+    "author": "AntiGravity",
+    "license": "MIT",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "commander": "^12.1.0",
+        "js-yaml": "^4.1.0",
+        "ora": "^8.1.0",
+        "prompts": "^2.4.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nlelouche/Unity3D-AntiGravitySkills.git"
+    },
+    "homepage": "https://github.com/nlelouche/Unity3D-AntiGravitySkills#readme"
+}

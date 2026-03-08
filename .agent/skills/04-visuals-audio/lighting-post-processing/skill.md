@@ -1,7 +1,7 @@
----
+﻿---
 name: lighting-post-processing
 description: "Unity lighting and post-processing specialist for atmosphere, mood, and visual polish."
-version: 1.0.0
+version: 2.0.0
 tags: ["visuals", "lighting", "post-processing", "URP", "HDRP"]
 argument-hint: "effect='bloom' intensity='1.5' OR light_type='directional'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: true
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Lighting & Post-Processing

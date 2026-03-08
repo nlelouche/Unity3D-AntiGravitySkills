@@ -1,7 +1,7 @@
----
+﻿---
 name: multiplayer-netcode
 description: "Setup for Unity Netcode for GameObjects (NGO). Handles connection, synchronization, RPCs, and NetworkVariables."
-version: 1.0.0
+version: 2.0.0
 tags: ["multiplayer", "networking", "ngo", "sync", "rpc"]
 argument-hint: "role='Host' OR action='Spawn' prefab='Player'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "N/A - async or editor-only"
+  max_update_cost: "N/A"
+tdd_first: false
 ---
 
 # Multiplayer Netcode (NGO)

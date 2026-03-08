@@ -1,4 +1,4 @@
----
+﻿---
 name: skill-creator
 description: "Meta-skill for generating new Production-Grade Skills. Ensures consistency across the AntiGravity library by scaffolding folders and files."
 version: 2.0.0
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Skill Creator (Meta)
