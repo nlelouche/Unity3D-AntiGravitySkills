@@ -16,7 +16,7 @@ context_discovery:
 performance_budget:
   gc_alloc_per_frame: "0 bytes (feature-dependent — see table)"
   max_update_cost: "Depends on usage pattern"
-tdd_first: false
+tdd_first: true
 disable-model-invocation: false
 user-invocable: true
 allowed-tools:
