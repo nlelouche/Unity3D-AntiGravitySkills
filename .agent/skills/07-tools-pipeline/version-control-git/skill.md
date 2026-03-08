@@ -1,7 +1,7 @@
----
+﻿---
 name: version-control-git
 description: "Best practices for Unity Git workflows, LFS configuration, and branching strategies."
-version: 1.0.0
+version: 2.0.0
 tags: ["git", "version-control", "lfs", "workflow", "collaborative"]
 argument-hint: "action='gitignore' OR config='LFS' strategy='gitflow'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Version Control Git
@@ -136,3 +148,10 @@ Rules:
 ## Related Skills
 - `@tools-pipeline` - CI/CD setup
 - `@unity-mcp-connector` - Editor integration
+
+## Best Practices
+- Follow the patterns and constraints documented in this skill.
+- Always run @context-discovery-agent before applying this skill to verify environment compatibility.
+- Apply TDD where applicable: write the interface contract first, then implement.
+- Zero GC in hot paths: cache references, avoid LINQ and 
+ew allocations in Update loops.

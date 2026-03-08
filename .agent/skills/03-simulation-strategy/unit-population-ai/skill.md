@@ -1,7 +1,7 @@
----
+﻿---
 name: unit-population-ai
 description: "Optimization-focused AI manager for handling large crowds or populations. Uses time-sliced updates to prevent performance bottlenecks."
-version: 1.0.0
+version: 2.0.0
 tags: ["ai", "population", "crowds", "optimization", "rts"]
 argument-hint: "action='Register' count=100 OR type='Worker'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Unit Population AI

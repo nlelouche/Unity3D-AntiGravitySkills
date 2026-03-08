@@ -1,7 +1,7 @@
----
+﻿---
 name: unity-build-commander
 description: "Executes a headless Unity build for the target platform (Windows/Android/iOS), parses the Editor.log for compilation errors, and reports the build status. Use this when the user asks to "build the game" or "check for compile errors"."
-version: 1.0.0
+version: 2.0.0
 tags: []
 argument-hint: target='StandaloneWindows64' build_path='Builds/Win64'
 disable-model-invocation: false
@@ -9,9 +9,23 @@ user-invocable: true
 allowed-tools:
   - run_command
   - list_dir
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "N/A - async or editor-only"
+  max_update_cost: "N/A"
+tdd_first: false
 ---
 
 # Unity Build Commander
+
+## Overview
 
 ## Goal
 To autonomously execute a Unity build process via the CLI, capture the output logs, parse them for errors, and provide a definitive success/failure report. This allows the agent to verify its own code changes.
@@ -47,3 +61,14 @@ To autonomously execute a Unity build process via the CLI, capture the output lo
 2.  Runs: `python .../build_wrapper.py --target StandaloneWindows64 --check-only`
 3.  Output: `{"status": "failure", "errors": [{"file": "PlayerController.cs", "line": 42, "msg": "; expected"}]}`
 4.  Response: "Compilation failed. There is a syntax error in PlayerController.cs at line 42: '; expected'. Shall I fix it?"
+
+## Best Practices
+- Follow the patterns and constraints documented in this skill.
+- Always run @context-discovery-agent before applying this skill to verify environment compatibility.
+- Apply TDD where applicable: write the interface contract first, then implement.
+- Zero GC in hot paths: cache references, avoid LINQ and 
+ew allocations in Update loops.
+## Related Skills
+- @context-discovery-agent - Verify Unity version and package compatibility before proceeding
+- @unified-style-guide - Naming and formatting conventions
+- @automated-unit-testing - TDD scaffolding for this skill's components

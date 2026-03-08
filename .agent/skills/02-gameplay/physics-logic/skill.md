@@ -1,7 +1,7 @@
----
+﻿---
 name: physics-logic
 description: "Unity physics systems: Rigidbody, collisions, triggers, layers, and physics queries (Raycast, OverlapSphere)."
-version: 1.0.0
+version: 2.0.0
 tags: ["gameplay", "physics", "collisions", "rigidbody", "raycast"]
 argument-hint: "action='raycast' layer='Enemy' distance='10'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Physics Logic
@@ -113,3 +125,10 @@ bool isGrounded = Physics.SphereCast(
 
 ## Template Files
 Available in templates/ folder.
+
+## Best Practices
+- Follow the patterns and constraints documented in this skill.
+- Always run @context-discovery-agent before applying this skill to verify environment compatibility.
+- Apply TDD where applicable: write the interface contract first, then implement.
+- Zero GC in hot paths: cache references, avoid LINQ and 
+ew allocations in Update loops.

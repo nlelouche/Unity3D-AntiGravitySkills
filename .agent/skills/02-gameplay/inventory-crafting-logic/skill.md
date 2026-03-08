@@ -1,7 +1,7 @@
----
+﻿---
 name: inventory-crafting-logic
 description: "Complete inventory system with slot-based storage, item stacking, and recipe-based crafting."
-version: 1.0.0
+version: 2.0.0
 tags: ["gameplay", "inventory", "crafting", "items", "RPG"]
 argument-hint: "action='create_item' name='Health Potion' rarity='Common'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Inventory Crafting Logic

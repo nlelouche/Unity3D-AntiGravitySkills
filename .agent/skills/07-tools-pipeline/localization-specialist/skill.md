@@ -1,7 +1,7 @@
----
+﻿---
 name: localization-specialist
 description: "Integration of Unity Localization package for multi-language support, covering Tables, Smart Strings, and CSV workflows."
-version: 1.0.0
+version: 2.0.0
 tags: ["localization", "i18n", "translation", "language", "csv"]
 argument-hint: "key='MainMenu_Play' OR language='es-ES' table='UI_Text'"
 disable-model-invocation: false
@@ -10,6 +10,18 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Localization Specialist

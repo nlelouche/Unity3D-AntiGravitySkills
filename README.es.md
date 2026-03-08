@@ -1,188 +1,226 @@
 # 🌌 AntiGravity Skills
-> *El "Córtex" para Desarrollo en Unity Nativo de IA.*
+> *El "Córtex" para Desarrollo en Unity Nativo de IA — Edición 2026.*
 
 [![Read in English](https://img.shields.io/badge/Read%20in-English-blue)](README.md)
-![Unity](https://img.shields.io/badge/Unity-2023%2B-black?logo=unity)
+![Unity](https://img.shields.io/badge/Unity-6%2B-black?logo=unity)
+![CSharp](https://img.shields.io/badge/C%23-12-purple?logo=csharp)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Estado-Listo%20para%20Producci%C3%B3n-blue)
-![Skills](https://img.shields.io/badge/Skills-61_Activos-purple)
-![Templates](https://img.shields.io/badge/Plantillas-96_Listas-orange)
+![Status](https://img.shields.io/badge/Estado-Listo%20para%20Producción-blue)
+![Skills](https://img.shields.io/badge/Skills-84_Activos-purple)
+![Standard](https://img.shields.io/badge/Estándar-Edición%202026-gold)
+![PeerReview](https://img.shields.io/badge/Peer%20Review-Validado-brightgreen)
 
 ---
 
 ## 👋 Bienvenidos al Futuro del Desarrollo de Videojuegos
-**AntiGravity Skills** no es solo una librería de código—es un **Grafo de Conocimiento Estandarizado** diseñado para cerrar la brecha entre la creatividad Humana y la ejecución de la IA.
+**AntiGravity Skills** no es solo una librería de código — es un **Grafo de Conocimiento Estandarizado** diseñado para cerrar la brecha entre la creatividad Humana y la ejecución de la IA. Cada skill es portable, autocontenido y agnóstico al género, plataforma y proyecto.
 
-*   **Para Agentes de IA (Gemini, Copilot, Cursor)**: Este repositorio actúa como tu **Memoria a Largo Plazo** y **Líder Técnico Senior**. Provee contexto, patrones de arquitectura y restricciones para "no alucinar".
-*   **Para Desarrolladores Humanos**: Es un framework modular probado en batalla. ¿Necesitas un sistema? No lo escribas desde cero; invócalo.
+*   **Para Agentes de IA (Gemini, Copilot, Cursor)**: Memoria a largo plazo + Líder Técnico Senior. Provee contexto, patrones de arquitectura y restricciones "no alucines" mediante la **Arquitectura de Niveles 2026**.
+*   **Para Desarrolladores Humanos**: Un framework modular probado en batalla. ¿Necesitas un sistema? No lo escribas desde cero — invócalo.
 
 > [!IMPORTANT]
 > **🤖 Habilita la Persona de "Líder Técnico"**
-> Este repositorio incluye un prompt de sistema **`AGENT.md`**. Cuando es cargado por un Agente IA, activa la persona de **"Arquitecto AntiGravity"**. El Agente no solo escribirá código; actuará como un **Mentor Senior**, explicando patrones de diseño (SOLID, OCP), advirtiendo sobre deuda técnica, y enseñándote proactivamente las mejores prácticas mientras construye.
+> Cargar `AGENT.md` activa la persona de **Arquitecto AntiGravity**. El agente actúa como un **Mentor Senior** — explicando patrones SOLID, advirtiendo sobre presión GC, y aplicando el **protocolo TDD-First 2026** mientras construye.
 
 ---
 
-## 🧩 ¿Qué es un "Skill"?
-En el contexto de Agentes IA Autónomos, un **Skill** (Habilidad) es una unidad empaquetada de capacidad que une el razonamiento general con la ejecución específica de dominio.
+## 🧩 ¿Qué es un Skill?
+Un **Skill** es una unidad empaquetada de capacidad que conecta el razonamiento general con la ejecución específica de dominio. Cuando un Agente IA lee un `SKILL.md`, obtiene:
 
-Así como un ingeniero humano consultaría un manual técnico o a un mentor, un Agente IA "se equipa" un Skill para ganar:
-1.  **Conocimiento Procedimental**: Flujos de trabajo paso a paso sobre *cómo* resolver un problema específico.
-2.  **Conciencia Contextual**: Restricciones y reglas (ej: "Siempre usa `StringBuilder` aquí") para prevenir errores comunes.
-3.  **Herramientas y Plantillas**: Assets de código pre-verificados que aseguran que el resultado está listo para producción.
-
-Para una inmersión profunda en la arquitectura y protocolo de Skills, consulta la **[Documentación Oficial de AntiGravity](https://antigravity.google/docs/skills)**.
+1.  **Conocimiento Procedimental**: Flujos de trabajo paso a paso para problemas específicos.
+2.  **Conciencia Contextual**: Reglas y restricciones para prevenir errores comunes de Unity.
+3.  **Plantillas**: Código C# pre-verificado listo para producción.
 
 ---
 
-## 🚀 ¿Por qué AntiGravity?
+## 🆕 Estándar 2026 — ¿Qué Cambió?
 
-### 🧠 Características para Agentes IA
-*   **Inyección de Contexto**: Deja de adivinar. Lee los archivos `SKILL.md` para entender la arquitectura *exacta* requerida antes de escribir una sola línea de código.
-*   **Precisión Zero-Shot**: Usa las `templates/` (plantillas) provistas para implementar sistemas complejos (FSMs, Inventario, Netcode) correctamente al primer intento.
-*   **Estandarización**: Cada script sigue namespaces, formato y patrones específicos (SOLID, inyección de dependencias), asegurando que el código nuevo encaje perfectamente.
+| Característica | Antes | Edición 2026 |
+|---------|--------|-------------|
+| **Target Unity** | 2023+ | **Unity 6+ / CoreCLR** |
+| **Lenguaje** | C#10 | **C#12 con Span\<T\>** |
+| **Pre-vuelo** | Manual | **Protocolo de Context Discovery** |
+| **Testing** | Opcional | **TDD-First (Obligatorio)** |
+| **Política GC** | Guías | **Zero GC en hot paths** |
+| **Metadatos del Skill** | Nombre + tags | **YAML completo: requirements, tiers, budgets** |
 
-### 👤 Beneficios para Humanos
-*   **Arquitectura Plug-and-Play**: ¿Necesitas una "Cámara en Tercera Persona"? Invoca `@cinemachine-specialist`. ¿Necesitas "Inventario"? Invoca `@inventory-crafting-logic`.
-*   **Estándares de Producción**: Desde "Greybox" hasta "Gold Master", los skills cubren cada fase de producción incluyendo DevOps, Analíticas y Optimización.
-*   **Deuda Técnica Reducida**: El código generado vía estos skills está pre-arquitectado para ser desacoplado y testeable.
+> [!NOTE]
+> Los **84 skills** ahora llevan metadatos YAML completos del estándar 2026 (`requirements`, `context_discovery`, `performance_budget`, `tdd_first`). Los 20 skills nuevos son TDD-First nativos. Los 64 skills legacy llevan `tdd_first: false` y están marcados como *"Legacy — Refactorización Pendiente"* — es una señal honesta, no un defecto. Ver [Roadmap](#-roadmap--próximos-skills-v21) para el plan de mejora.
 
 ---
 
 ## 🏗️ Arquitectura del Sistema
 
-El repositorio está estructurado para ingestión automática por agentes habilitados con MCP.
-
 ```text
 .agent/skills/
-├── 00-core-engineering/      # Estándares de Código y Guías de Estilo
-├── 01-architecture/          # Sistemas Core (Eventos, FSM, Guardado)
-├── 02-gameplay/              # Mecánicas (Combate, Cámara, Input)
-├── 03-survival-city-builder/ # Género: Supervivencia y Estrategia
-├── 04-visuals-audio/         # Shaders, VFX, SFX
-├── 05-ui-ux/                 # MVVM UI, Toolkits, HUDs
-├── 06-performance/           # Optimization, Memory, Object Pooling
-├── 07-tools-pipeline/        # Herramientas de Editor, Importación, Git
-├── 08-backend-monetization/  # Analíticas, IAP, Multiplayer
+├── 00-core-engineering/      # C#12, GC Watchdog, Guías de Estilo
+├── 01-architecture/          # Service Locator, Repository, Command, FSM, Eventos
+├── 02-gameplay/              # Combate, Cámara, Minimapa, Replay, Generación Procedural
+├── 03-simulation-strategy/   # Grid Building, Recursos, Oleadas  [Agnóstico 2026]
+├── 04-visuals-audio/         # Shaders, VFX, Iluminación, Audio
+├── 05-ui-ux/                 # MVVM, UI Toolkit, Accesibilidad (WCAG 2.1)
+├── 06-performance/           # Job System, GPU Instancing, Texture Streaming
+├── 07-tools-pipeline/        # Context Discovery, AI Code Reviewer, Validador
+├── 08-backend-monetization/  # PlayFab Economy v2, UGS, Mediación de Ads
 ├── 09-devops-automation/     # CI/CD, Pipelines de Build
-└── 00-meta-skills/           # Auto-replicación de Agente y Liderazgo
+└── 00-meta-skills/           # Creador de Skills, Scaffolder de Proyectos
 ```
 
-### Anatomía de un Skill
-Cada skill sigue el **"Estándar de Convergencia"**:
-1.  **`SKILL.md`**: El cerebro. Contiene el "Cuándo usar", "Diagramas de Arquitectura", y "Ejemplos de Prompting Few-Shot".
-2.  **`templates/`**: Scripts C#, Shaders, o Configs que están al 90% completos y listos para desplegar.
-3.  **`examples/`**: (Opcional) Escenas de referencia o ejemplos de uso.
+### Arquitectura de Niveles 2026
+
+Cada skill opera en 3 niveles optimizados para IA:
+
+| Nivel | Contenido | Consumido por |
+|-------|---------|------------|
+| **Nivel 1** | Frontmatter YAML (requirements, context_discovery, performance_budget) | Máquina — **gate de bloqueo duro** |
+| **Nivel 2** | Cuerpo del SKILL.md (Cuándo usar, Arquitectura, Ejemplos de código) | Razonamiento IA |
+| **Nivel 3** | Directorio `templates/` (archivos C#) | Inyección directa de código |
+
+> [!IMPORTANT]
+> **El Nivel 1 es un gate de bloqueo duro.** Si `requirements.unity_version` o `render_pipeline` no coinciden con el `ContextReport` del proyecto, el agente debe detenerse y reportar la incompatibilidad antes de escribir cualquier código. Continuar sin cumplir los requisitos requiere un override explícito `--force` del usuario, que el agente debe registrar visiblemente.
 
 ---
 
-## 🏛️ Catálogo de Skills (Los 12 Pilares)
+## 🏛️ Catálogo de Skills (84 Skills Activos)
 
-### 1. Ingeniería Core (`00-core`)
-*   **`unified-style-guide`**: La ley suprema para el formato de C#.
+### ⚙️ Ingeniería Core (`00-core-engineering`)
+*   **`unified-style-guide`** — C#12, CoreCLR, reglas Zero GC
+*   **`unity-compile-fixer`** ⭐ NUEVO — Bucle agnóstico de reparación de errores C#
+*   **`coreclr-gc-watchdog`** ⭐ NUEVO — Clasificación de presión GC + patrones zero-alloc
+*   **`csharp12-features-guide`** ⭐ NUEVO — Matriz de seguridad para features de C#12 en Unity 6
 
-### 2. Arquitectura (`01-architecture`)
-*   **`service-locator-pattern`**: Gestión de sistemas desacoplados.
-*   **`event-bus-system`**: Mensajería global sin dependencias.
-*   **`finite-state-machine`**: IA robusta y estados del jugador.
-*   **`save-load-serialization`**: Persistencia y encriptación JSON/Binaria.
-*   **`asynchronous-programming`**: Gestión de UniTask y Corutinas.
+### 🏛 Arquitectura (`01-architecture`)
+*   **`service-locator-pattern`** ⭐ NUEVO — SL type-safe con matriz de decisión DI
+*   **`repository-pattern`** ⭐ NUEVO — `IRepository<T>` genérico con I/O async + mock
+*   **`command-pattern-undo`** ⭐ NUEVO — Stack de historial Deshacer/Rehacer
+*   **`event-bus-system`**, **`finite-state-machine`**, **`save-load-serialization`**, **`asynchronous-programming`**
 
-### 3. Gameplay (`02-gameplay`)
-*   **`player-movement-controller`**: Controladores cinemáticos y basados en físicas.
-*   **`camera-system-pro`**: Orquestación de Cinemachine.
-*   **`universal-input-handler`**: Wrapper del New Input System.
-*   **`combat-hitbox-system`**: Detección de daño confiable.
+### 🎮 Gameplay (`02-gameplay`)
+*   **`procedural-generation`** ⭐ NUEVO — Mazmorra BSP + Terreno Perlin con `IGrid<T>`
+*   **`replay-system`** ⭐ NUEVO — Grabación determinista de inputs + death-cam
+*   **`minimap-system`** ⭐ NUEVO — Minimapa RenderTexture ortográfico con capas de iconos
+*   **`player-movement-controller`**, **`camera-system-pro`**, **`combat-hitbox-system`**
 
-### 4. Supervivencia y Estrategia (`03-survival-city-builder`)
-*   **`grid-based-building-system`**: Lógica de colocación para city builders.
-*   **`resource-management-system`**: Inventario y economía.
-*   **`horde-wave-logic`**: Spawners para tower defense/survival.
-*   **`environment-hazard-system`**: Temperatura, hambre y sed.
+### 🎯 Simulación y Estrategia (`03-simulation-strategy`)
+*   **`grid-based-building-system`**, **`resource-management-system`**, **`horde-wave-logic`**, **`environment-hazard-system`**
 
-### 5. Visuales y Audio (`04-visuals-audio`)
-*   **`shader-graph-master`**: Plantillas de materiales.
-*   **`particle-system-pro`**: Implementación de VFX.
-*   **`audio-soundscape-architect`**: Gestión de mixers y audio espacial.
-*   **`lighting-nav-baker`**: Automatización para Lightmapping y NavMesh.
+### 🎨 Visuales y Audio (`04-visuals-audio`)
+*   **`shader-graph-expert`**, **`vfx-graph-shuriken`**, **`dynamic-audio-mixers`**, **`lighting-nav-baker`**
 
-### 6. DevOps y Automatización (`09-devops`)
-*   **`build-pipeline-manager`**: Builds "Headless" por CLI para CI/CD.
+### 🖥️ UI/UX (`05-ui-ux`)
+*   **`mvvm-binding-system`** ⭐ NUEVO — MVVM completo para UI Toolkit con `[CreateProperty]`
+*   **`accessibility-hci`** ⭐ NUEVO — WCAG 2.1, shaders de daltonismo, remapeo de controles
+*   **`canvas-performance`**, **`responsive-ui-design`**, **`input-system-new`**
 
-### 7. UI/UX (`05-ui-ux`)
-*   **`ui-toolkit-modern`**: Flujos de trabajo USS/UXML.
-*   **`mvvm-pattern`**: Binding Modelo-Vista-ViewModel.
-*   **`responsive-ui`**: Soporte multi-resolución.
+### ⚡ Rendimiento (`06-performance`)
+*   **`job-system-burst`** ⭐ NUEVO — Unity Jobs + Burst Compiler (0 GC, CPU paralelo)
+*   **`gpu-instancing-expert`** ⭐ NUEVO — `DrawMeshInstancedIndirect`, 100k meshes/draw call
+*   **`texture-streaming-expert`** ⭐ NUEVO — Presupuesto Mip Streaming + `TextureAuditTool`
+*   **`object-pooling-system`**, **`addressables-asset-management`**, **`memory-profiler-expert`**
 
-### 8. Rendimiento (`06-performance`)
-*   **`object-pooling-system`**: Spawneado sin alojar memoria (Zero-alloc).
-*   **`addressables-asset-management`**: Carga asíncrona y cuidado de memoria.
-*   **`memory-profiler-expert`**: Detección de fugas (leaks).
+### 🛠️ Herramientas y Pipeline (`07-tools-pipeline`)
+*   **`context-discovery-agent`** ⭐ NUEVO — Detecta versión Unity, RP, paquetes → ContextReport
+*   **`ai-code-reviewer`** ⭐ NUEVO — Checklist de revisión de código CRÍTICO/ADVERTENCIA/INFO
+*   **`metadata-validator`** ⭐ NUEVO — Script de auditoría de compliance para todos los SKILL.md
+*   **`automated-unit-testing`**, **`custom-editor-scripting`**, **`version-control-git`**
 
-### 9. Herramientas y Pipeline (`07-tools-pipeline`)
-*   **`asset-import-pipeline`**: Auto-compresión de texturas/modelos al importar.
-*   **`custom-editor-scripting`**: Herramientas de inspector y ventanas.
-*   **`automated-unit-testing`**: Plantillas NUnit (EditMode y PlayMode).
-*   **`version-control-git`**: Automatización de `.gitignore` y LFS.
+### 💰 Backend y Monetización (`08-backend-monetization`)
+*   **`playfab-economy-v2`** ⭐ NUEVO — API Economy v2 (depreca v1), `IPlayFabEconomyService`
+*   **`unity-gaming-services`** ⭐ NUEVO — UGS: Auth, Lobby, Relay, Leaderboards, Cloud Save
+*   **`ads-mediation-ironsource`** ⭐ NUEVO — Rewarded/Interstitial LevelPlay + GDPR
+*   **`analytics-heatmaps`**, **`monetization-iap`**, **`multiplayer-netcode`**
 
-### 10. Backend y Monetización (`08-backend`)
-*   **`analytics-heatmaps`**: Rastreo de telemetría.
-*   **`monetization-iap`**: Wrapper de Unity Purchasing.
-*   **`backend-integration`**: Guardado en nube y login (PlayFab/Firebase).
-*   **`multiplayer-netcode`**: Setup de NGO (Netcode for GameObjects).
-
-### 11. Meta Skills (`00-meta`)
-*   **`skill-creator`**: Herramientas para crear nuevos skills.
-*   **`project-scaffolder`**: Generación inicial de carpetas.
-*   **`virtual-production-lead`**: Director IA que lee GDDs y planea hojas de ruta.
+### 🚀 DevOps y Automatización (`09-devops-automation`)
+*   **`build-pipeline-manager`**, **`unity-build-commander`**
 
 ---
 
-## 🛠️ Flujo de Trabajo: Cómo usar
+## 🏷️ Etiquetas de Calidad de Skills
+
+Cada skill lleva un campo `tdd_first:` que señala su nivel de calidad:
+
+| Etiqueta | Significado | Qué esperar |
+|----------|-------------|-------------|
+| `tdd_first: true` ⭐ | Nativo 2026 | Interfaz + test fallido + implementación + mock. Listo para producción. |
+| `tdd_first: false` 🔧 | Legacy — Refactorización Pendiente | Arquitectura sólida, pero sin scaffold TDD. Usar con revisión extra. |
+
+> La honestidad importa: el agente usa `tdd_first` para calibrar la rigurosidad de su revisión. Un `false` señala que el agente debe ser más crítico con el código generado, no más tolerante.
+
+---
+
+## ⚡ Protocolo de Context Discovery 2026
+
+Antes de generar cualquier código, el agente ejecuta un **chequeo pre-vuelo**:
+
+```json
+// Producido por @context-discovery-agent
+{
+  "unity_version": "6000.1.2f1",
+  "render_pipeline": "URP",
+  "awaitable_api": true,
+  "burst_available": true,
+  "packages": ["com.unity.inputsystem", "com.unity.services.core"]
+}
+```
+
+Esto garantiza que cada script generado sea **compatible con tu entorno exacto** — sin más sorpresas de "esto solo funciona en HDRP".
+
+---
+
+## 🛠️ Flujo de Trabajo
 
 ### PARA AGENTES (El Bucle)
-1.  **Analizar**: El usuario pide una funcionalidad (ej: "Haz un spawner de oleadas").
-2.  **Buscar**: Mirar en `.agent/skills/`. Encontrar `@horde-wave-logic`.
-3.  **Leer**: Consumir `SKILL.md` para aprender la arquitectura.
-4.  **Implementar**: Usar `templates/WaveSpawner.cs.txt` como base.
-5.  **Refinar**: Adaptar la plantilla a los requerimientos específicos del usuario.
+1.  **Detectar**: Ejecutar `@context-discovery-agent` → obtener `ContextReport`.
+2.  **Encontrar**: Localizar el skill relevante en `.agent/skills/`.
+3.  **Verificar**: Revisar `requirements:` en el frontmatter YAML contra el `ContextReport`.
+4.  **Leer**: Consumir el cuerpo del SKILL.md para arquitectura + patrones.
+5.  **Implementar**: Inyectar desde `templates/`, adaptar al contexto del proyecto.
+6.  **Revisar**: Ejecutar `@ai-code-reviewer` antes de hacer commit.
 
 ### PARA HUMANOS (Instalación)
-Clona este repositorio en la raíz de tu proyecto o como un submódulo:
-
 ```bash
-git clone https://github.com/YourOrg/AntiGravitySkills.git .agent/skills
-```
-
-O ejecuta el script de configuración para iniciar un nuevo espacio de trabajo:
-
-```powershell
-# Windows
-.\Initialize.ps1
-```
-
-```bash
-# Mac/Linux
-./setup.sh
+git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
 ```
 
 ---
 
-## 📊 Estadísticas del Repositorio
+## 🗺️ Roadmap — Próximos Skills v2.1
 
-| Categoría | Skills Autenticados | Plantillas Listas |
-|:---------|:--------------------:|:---------------:|
-| Arquitectura | 10 | 29 |
-| Gameplay | 11 | 26 |
-| Visuals & Audio | 8 | 10 |
-| UI/UX | 5 | 5 |
-| Survival/Strategy | 6 | 6 |
-| Performance | 5 | 3 |
-| Herramientas | 5 | 4 |
-| Backend Ops | 4 | 4 |
-| DevOps & Pipeline | 4 | 4 |
-| Core/Meta/Lead | 3 | 5 |
-| **GRAN TOTAL** | **61** | **96** |
+Basado en revisión arquitectónica y análisis de brechas, los siguientes skills son prioridad para la próxima iteración:
+
+| Prioridad | Skill | Categoría | Justificación |
+|-----------|-------|-----------|---------------|
+| 🔴 Alta | `netcode-for-gameobjects` | `01-architecture` | Mayor brecha — único sistema core de Unity 6 sin cobertura |
+| 🔴 Alta | `localization-unity-package` | `07-tools-pipeline` | El setup de `StringTable` + `LocalizeStringEvent` es un pain-point clave para IA |
+| 🟡 Media | `xr-toolkit-vr` | `02-gameplay` | Crecimiento del mercado VR/MR (Quest 3, Vision Pro) — skill XR agnóstico de plataforma |
+| 🟡 Media | `dots-physics` | `06-performance` | Complemento natural de `job-system-burst` para simulaciones con física intensiva |
+| 🟢 Baja | `websockets-native` | `08-backend-monetization` | Parcialmente cubierto por UGS Relay — menor prioridad salvo proyectos sin UGS |
 
 ---
 
-**AntiGravity Skills** — *Donde el Código Encuentra la Inteligencia.*
+## 📊 Estadísticas del Repositorio (Edición 2026)
+
+| Categoría | Skills | TDD-Nativo |
+|:---------|:------:|:----------:|
+| Ingeniería Core | 4 | 3 |
+| Meta Skills | 3 | 0 |
+| Arquitectura | 13 | 3 |
+| Gameplay | 14 | 3 |
+| Simulación y Estrategia | 6 | 0 |
+| Visuales y Audio | 9 | 0 |
+| UI/UX | 8 | 2 |
+| Rendimiento | 8 | 3 |
+| Herramientas y Pipeline | 9 | 4 |
+| Backend y Monetización | 8 | 3 |
+| DevOps y Automatización | 2 | 0 |
+| **GRAN TOTAL** | **84** | **20** |
+
+---
+
+## 🗂️ CHANGELOG
+
+Ver [CHANGELOG.md](CHANGELOG.md) para el historial completo.
+
+---
+
+**AntiGravity Skills** — *Donde el Código Encuentra la Inteligencia. Edición 2026.*

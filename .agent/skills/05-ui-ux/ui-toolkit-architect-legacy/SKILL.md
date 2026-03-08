@@ -1,7 +1,7 @@
----
+﻿---
 name: ui-toolkit-architect
 description: "Generates UI Toolkit assets (UXML, USS) and C# Controllers following MVVM. Use when creating "menus", "HUDs", or "interface panels"."
-version: 1.0.0
+version: 2.0.0
 tags: []
 argument-hint: panel_name='MainMenu' namespace='Game.UI'
 disable-model-invocation: false
@@ -10,9 +10,23 @@ allowed-tools:
   - run_command
   - list_dir
   - write_to_file
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # UI Toolkit Architect
+
+## Overview
 
 ## Goal
 
@@ -40,3 +54,14 @@ Agent:
 1.  Creates `PauseMenu.uxml` with "Resume" and "Quit" buttons.
 2.  Creates `PauseMenu.uss` with styling.
 3.  Creates `PauseMenuController.cs` that binds `root.Q<Button>("Resume")` to `Time.timeScale = 1`.
+
+## Best Practices
+- Follow the patterns and constraints documented in this skill.
+- Always run @context-discovery-agent before applying this skill to verify environment compatibility.
+- Apply TDD where applicable: write the interface contract first, then implement.
+- Zero GC in hot paths: cache references, avoid LINQ and 
+ew allocations in Update loops.
+## Related Skills
+- @context-discovery-agent - Verify Unity version and package compatibility before proceeding
+- @unified-style-guide - Naming and formatting conventions
+- @automated-unit-testing - TDD scaffolding for this skill's components

@@ -1,7 +1,7 @@
----
+﻿---
 name: unity-mcp-connector
 description: "Orchestration bridge between AI Agents and the running Unity Editor instance via MCP (Model Context Protocol)."
-version: 1.0.0
+version: 2.0.0
 tags: ["mcp", "integration", "editor-api", "automation", "bridge"]
 argument-hint: "action='ping' OR target='selection' scope='scene'"
 disable-model-invocation: false
@@ -13,6 +13,18 @@ allowed-tools:
   - mcp_unityMCP_manage_components
   - run_command
   - list_dir
+requirements:
+  unity_version: ">=6.0"
+  render_pipeline: "Any"
+  dependencies: []
+context_discovery:
+  check_unity_version: true
+  check_render_pipeline: false
+  scan_manifest_for: []
+performance_budget:
+  gc_alloc_per_frame: "0 bytes target in hot paths"
+  max_update_cost: "O(n) - profiler-guided"
+tdd_first: false
 ---
 
 # Unity MCP Connector
