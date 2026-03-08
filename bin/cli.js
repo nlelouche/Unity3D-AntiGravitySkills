@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // bin/cli.js — AntiGravity Skills CLI entry point
 // Usage:
-//   npx @antigravity/skills list [--category <cat>] [--tdd]
-//   npx @antigravity/skills add <skill-name> [--force]
+//   npx github:nlelouche/Unity3D-AntiGravitySkills list [--category <cat>] [--tdd]
+//   npx github:nlelouche/Unity3D-AntiGravitySkills add <skill-name> [--force]
 
 import { program } from 'commander';
 import { addSkill } from '../lib/commands/add.js';
@@ -39,6 +39,21 @@ program
     .action(async (skillName, opts) => {
         try {
             await addSkill(skillName, { force: opts.force });
+        } catch (err) {
+            console.error('\n  ✖  Unexpected error:', err.message);
+            process.exit(1);
+        }
+    });
+
+// ── skills add-all ────────────────────────────────────────────────────────────
+program
+    .command('add-all')
+    .description('Install ALL available skills into the current Unity project at once')
+    .option('-f, --force', 'Skip confirmations')
+    .action(async (opts) => {
+        try {
+            const { addAllSkills } = await import('../lib/commands/add-all.js');
+            await addAllSkills({ force: opts.force });
         } catch (err) {
             console.error('\n  ✖  Unexpected error:', err.message);
             process.exit(1);
