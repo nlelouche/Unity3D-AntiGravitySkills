@@ -34,11 +34,12 @@ program
 // ── skills add <name> ─────────────────────────────────────────────────────────
 program
     .command('add <skill-name>')
-    .description('Install a skill into the current Unity project')
+    .description('Install a skill into the current Unity project (or globally with -g)')
     .option('-f, --force', 'Override requirement failures and skip confirmations')
+    .option('-g, --global', 'Install globally to ~/.antigravity/skills instead of the Unity project')
     .action(async (skillName, opts) => {
         try {
-            await addSkill(skillName, { force: opts.force });
+            await addSkill(skillName, { force: opts.force, global: opts.global });
         } catch (err) {
             console.error('\n  ✖  Unexpected error:', err.message);
             process.exit(1);
@@ -48,12 +49,13 @@ program
 // ── skills add-all ────────────────────────────────────────────────────────────
 program
     .command('add-all')
-    .description('Install ALL available skills into the current Unity project at once')
+    .description('Install ALL available skills into the current Unity project at once (or globally with -g)')
     .option('-f, --force', 'Skip confirmations')
+    .option('-g, --global', 'Install globally to ~/.antigravity/skills instead of the Unity project')
     .action(async (opts) => {
         try {
             const { addAllSkills } = await import('../lib/commands/add-all.js');
-            await addAllSkills({ force: opts.force });
+            await addAllSkills({ force: opts.force, global: opts.global });
         } catch (err) {
             console.error('\n  ✖  Unexpected error:', err.message);
             process.exit(1);
@@ -106,11 +108,12 @@ program
 // ── skills init ───────────────────────────────────────────────────────────────
 program
     .command('init')
-    .description('Inject the AntiGravity Architect persona into this project')
-    .action(async () => {
+    .description('Inject the AntiGravity Architect persona into this project (or globally with -g)')
+    .option('-g, --global', 'Install globally to ~/.antigravity/AGENT.md instead of the Unity project')
+    .action(async (opts) => {
         try {
             const { initAgent } = await import('../lib/commands/init.js');
-            await initAgent();
+            await initAgent({ global: opts.global });
         } catch (err) {
             console.error('\n  ✖  Unexpected error:', err.message);
             process.exit(1);
