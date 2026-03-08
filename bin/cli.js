@@ -84,7 +84,7 @@ program
         console.log(chalk.dim(`  ${meta.description ?? ''}\n`));
         console.log(`  Category   : ${chalk.cyan(meta.category)}`);
         console.log(`  Version    : ${chalk.white(fm?.version ?? 'N/A')}`);
-        console.log(`  TDD-First  : ${fm?.tdd_first ? chalk.green('✔ true') : chalk.yellow('✖ false (Legacy)')}`);
+        console.log(`  TDD-First  : ${fm?.tdd_first ? chalk.green('✔ true') : chalk.yellow('✖ false (Standard)')}`);
 
         if (fm?.requirements) {
             console.log(`\n  Requirements:`);
