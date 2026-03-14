@@ -194,18 +194,18 @@ Run this from your Unity project root:
 
 ```bash
 # 1. Search the catalog for the system you need
-npx github:nlelouche/Unity3D-AntiGravitySkills list
+npx github:nlelouche/Unity-SkillForge list
 
 # 2. Check its requirements (Unity version, packages) before installing
-npx github:nlelouche/Unity3D-AntiGravitySkills info event-bus-system
+npx github:nlelouche/Unity-SkillForge info event-bus-system
 
 # 3. Inject the code safely into your project
-npx github:nlelouche/Unity3D-AntiGravitySkills add event-bus-system
+npx github:nlelouche/Unity-SkillForge add event-bus-system
 ```
 
 *Note for local AI Agents: You can still clone the full repo into `.agent/skills/` if you want your agent to have permanent offline access to the entire knowledge graph.*
 ```bash
-git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
+git clone https://github.com/nlelouche/Unity-SkillForge.git .agent/skills
 ```
 
 ---

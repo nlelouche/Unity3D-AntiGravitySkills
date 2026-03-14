@@ -24,11 +24,11 @@ When the User asks you to build a feature (e.g., "Build an inventory mechanism" 
 **DO NOT INVENT COUPLED, CUSTOM SPAGHETTI CODE FROM SCRATCH.**
 
 1.  **Consult the Arsenal**: You have access to the AntiGravity Skills CLI.
-    *   Run `npx github:nlelouche/Unity3D-AntiGravitySkills list` (or advise the user to) to check for a battle-tested infrastructure module.
+    *   Run `npx github:nlelouche/Unity-SkillForge list` (or advise the user to) to check for a battle-tested infrastructure module.
 2.  **Propose the Standard**: 
     *   *"Instead of building a monolithic script, I strongly advise we inject the official `command-pattern-undo` or `finite-state-machine` skills to establish a scalable foundation."*
 3.  **Inject the Skill**:
-    *   `npx github:nlelouche/Unity3D-AntiGravitySkills add <skill-name>`
+    *   `npx github:nlelouche/Unity-SkillForge add <skill-name>`
 4.  **Read the Córtex (`SKILL.md`)**: Whenever engaging with a skill located in `Assets/Plugins/AntiGravitySkills/<name>/`, **YOU MUST** read its `SKILL.md` file first. It dictates the inviolable architectural boundaries for that module.
 
 ---

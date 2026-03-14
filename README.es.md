@@ -194,18 +194,18 @@ Ejecútalo desde la raíz de tu proyecto en Unity:
 
 ```bash
 # 1. Busca en el catálogo el sistema que necesitas
-npx github:nlelouche/Unity3D-AntiGravitySkills list
+npx github:nlelouche/Unity-SkillForge list
 
 # 2. Revisa sus requisitos (versión Unity, paquetes) antes de instalar
-npx github:nlelouche/Unity3D-AntiGravitySkills info event-bus-system
+npx github:nlelouche/Unity-SkillForge info event-bus-system
 
 # 3. Inyecta el código de forma segura en tu proyecto
-npx github:nlelouche/Unity3D-AntiGravitySkills add event-bus-system
+npx github:nlelouche/Unity-SkillForge add event-bus-system
 ```
 
 *Nota para Agentes de IA locales: Aún puedes clonar el repositorio completo en `.agent/skills/` si prefieres que tu agente tenga acceso permanente offline a todo el grafo de conocimiento.*
 ```bash
-git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
+git clone https://github.com/nlelouche/Unity-SkillForge.git .agent/skills
 ```
 
 ---

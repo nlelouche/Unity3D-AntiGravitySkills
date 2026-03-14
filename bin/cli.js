@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// bin/cli.js — AntiGravity Skills CLI entry point
+// bin/cli.js — Unity-SkillForge CLI entry point
 // Usage:
-//   npx github:nlelouche/Unity3D-AntiGravitySkills list [--category <cat>] [--tdd]
-//   npx github:nlelouche/Unity3D-AntiGravitySkills add <skill-name> [--force]
+//   npx github:nlelouche/Unity-SkillForge list [--category <cat>] [--tdd]
+//   npx github:nlelouche/Unity-SkillForge add <skill-name> [--force]
 
 import { program } from 'commander';
 import { addSkill } from '../lib/commands/add.js';
