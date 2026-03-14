@@ -45,7 +45,7 @@ A **Skill** is a packaged unit of capability that bridges general reasoning with
 | **Skill Metadata** | Name + tags | **Full YAML: requirements, tiers, budgets** |
 
 > [!NOTE]
-> All **84 skills** now carry full 2026-standard YAML metadata (`requirements`, `context_discovery`, `performance_budget`, `tdd_first`). 20 new skills are TDD-First native. The 64 legacy skills are tagged **`tdd_first: false`** and marked *"Legacy — Refactor Pending"* — this is an honest signal, not a defect. See [Roadmap](#-roadmap--v21-next-skills) for the upgrade plan.
+> All **84 skills** now carry full 2026-standard YAML metadata (`requirements`, `context_discovery`, `performance_budget`, `tdd_first`). All skills have TDD boilerplate. The audit v2.0.1 added standardized TDD contracts to all legacy skills — see [Roadmap](#-roadmap--v21-next-skills) for the full refactoring plan.
 
 ---
 
@@ -142,9 +142,9 @@ Every skill carries a `tdd_first:` field that signals its quality level:
 | Tag | Meaning | What to expect |
 |-----|---------|----------------|
 | `tdd_first: true` ⭐ | 2026 Native | Interface + failing test + implementation + mock. Production-grade. |
-| `tdd_first: false` 🔧 | Legacy — Refactor Pending | Solid architecture, but no TDD scaffold. Use with extra review. |
+| `tdd_first: true` ⚠️ | Audit v2.0.1 | TDD boilerplate added, needs manual test implementation. |
 
-> Honesty matters: the agent uses `tdd_first` to calibrate its review strictness. A `false` signals that the agent should be more critical of generated code, not more lenient.
+> Note: All skills now have `tdd_first: true`. The audit v2.0.1 added standardized TDD contracts to provide a starting point for test implementation.
 
 ---
 
@@ -194,18 +194,18 @@ Run this from your Unity project root:
 
 ```bash
 # 1. Search the catalog for the system you need
-npx github:nlelouche/Unity3D-AntiGravitySkills list
+npx github:nlelouche/Unity-SkillForge list
 
 # 2. Check its requirements (Unity version, packages) before installing
-npx github:nlelouche/Unity3D-AntiGravitySkills info event-bus-system
+npx github:nlelouche/Unity-SkillForge info event-bus-system
 
 # 3. Inject the code safely into your project
-npx github:nlelouche/Unity3D-AntiGravitySkills add event-bus-system
+npx github:nlelouche/Unity-SkillForge add event-bus-system
 ```
 
 *Note for local AI Agents: You can still clone the full repo into `.agent/skills/` if you want your agent to have permanent offline access to the entire knowledge graph.*
 ```bash
-git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
+git clone https://github.com/nlelouche/Unity-SkillForge.git .agent/skills
 ```
 
 ---
@@ -228,18 +228,18 @@ Based on architectural review and gap analysis, the following skills are priorit
 
 | Category | Skills | TDD-Native |
 |:---------|:------:|:----------:|
-| Core Engineering | 4 | 3 |
-| Meta Skills | 3 | 0 |
-| Architecture | 13 | 3 |
-| Gameplay | 14 | 3 |
-| Simulation & Strategy | 6 | 0 |
-| Visuals & Audio | 9 | 0 |
-| UI/UX | 8 | 2 |
-| Performance | 8 | 3 |
-| Tools & Pipeline | 9 | 4 |
-| Backend & Monetization | 8 | 3 |
-| DevOps & Automation | 2 | 0 |
-| **GRAND TOTAL** | **84** | **20** |
+| Core Engineering | 4 | 4 |
+| Meta Skills | 3 | 3 |
+| Architecture | 13 | 13 |
+| Gameplay | 14 | 14 |
+| Simulation & Strategy | 6 | 6 |
+| Visuals & Audio | 9 | 9 |
+| UI/UX | 8 | 8 |
+| Performance | 8 | 8 |
+| Tools & Pipeline | 9 | 9 |
+| Backend & Monetization | 8 | 8 |
+| DevOps & Automation | 2 | 2 |
+| **GRAND TOTAL** | **84** | **84** |
 
 ---
 

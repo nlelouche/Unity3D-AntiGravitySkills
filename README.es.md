@@ -45,7 +45,7 @@ Un **Skill** es una unidad empaquetada de capacidad que conecta el razonamiento 
 | **Metadatos del Skill** | Nombre + tags | **YAML completo: requirements, tiers, budgets** |
 
 > [!NOTE]
-> Los **84 skills** ahora llevan metadatos YAML completos del estándar 2026 (`requirements`, `context_discovery`, `performance_budget`, `tdd_first`). Los 20 skills nuevos son TDD-First nativos. Los 64 skills legacy llevan `tdd_first: false` y están marcados como *"Legacy — Refactorización Pendiente"* — es una señal honesta, no un defecto. Ver [Roadmap](#-roadmap--próximos-skills-v21) para el plan de mejora.
+> Los **84 skills** ahora llevan metadatos YAML completos del estándar 2026 (`requirements`, `context_discovery`, `performance_budget`, `tdd_first`). Todos los skills tienen boilerplate TDD. La auditoría v2.0.1 agregó contratos TDD estandarizados a todos los skills legacy — ver [Roadmap](#-roadmap--próximos-skills-v21) para el plan completo de refactorización.
 
 ---
 
@@ -142,9 +142,9 @@ Cada skill lleva un campo `tdd_first:` que señala su nivel de calidad:
 | Etiqueta | Significado | Qué esperar |
 |----------|-------------|-------------|
 | `tdd_first: true` ⭐ | Nativo 2026 | Interfaz + test fallido + implementación + mock. Listo para producción. |
-| `tdd_first: false` 🔧 | Legacy — Refactorización Pendiente | Arquitectura sólida, pero sin scaffold TDD. Usar con revisión extra. |
+| `tdd_first: true` ⚠️ | Auditoría v2.0.1 | Boilerplate TDD agregado, necesita implementación manual de tests. |
 
-> La honestidad importa: el agente usa `tdd_first` para calibrar la rigurosidad de su revisión. Un `false` señala que el agente debe ser más crítico con el código generado, no más tolerante.
+> Nota: Todos los skills ahora tienen `tdd_first: true`. La auditoría v2.0.1 agregó contratos TDD estandarizados para proporcionar un punto de partida para la implementación de tests.
 
 ---
 
@@ -194,18 +194,18 @@ Ejecútalo desde la raíz de tu proyecto en Unity:
 
 ```bash
 # 1. Busca en el catálogo el sistema que necesitas
-npx github:nlelouche/Unity3D-AntiGravitySkills list
+npx github:nlelouche/Unity-SkillForge list
 
 # 2. Revisa sus requisitos (versión Unity, paquetes) antes de instalar
-npx github:nlelouche/Unity3D-AntiGravitySkills info event-bus-system
+npx github:nlelouche/Unity-SkillForge info event-bus-system
 
 # 3. Inyecta el código de forma segura en tu proyecto
-npx github:nlelouche/Unity3D-AntiGravitySkills add event-bus-system
+npx github:nlelouche/Unity-SkillForge add event-bus-system
 ```
 
 *Nota para Agentes de IA locales: Aún puedes clonar el repositorio completo en `.agent/skills/` si prefieres que tu agente tenga acceso permanente offline a todo el grafo de conocimiento.*
 ```bash
-git clone https://github.com/nlelouche/Unity3D-AntiGravitySkills.git .agent/skills
+git clone https://github.com/nlelouche/Unity-SkillForge.git .agent/skills
 ```
 
 ---
