@@ -1,506 +1,506 @@
 {
-    "dialogue-quest-system":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/02-gameplay/dialogue-quest-system/SKILL.md",
-                                  "category":  "02-gameplay",
-                                  "description":  "Complete dialogue and quest system with branching conversations, quest stages, and event t"
-                              },
-    "inventory-crafting-logic":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/02-gameplay/inventory-crafting-logic/SKILL.md",
-                                     "category":  "02-gameplay",
-                                     "description":  "Complete inventory system with slot-based storage, item stacking, and recipe-based craftin"
-                                 },
-    "replay-system":  {
-                          "tdd_first":  true,
-                          "path":  ".agent/skills/02-gameplay/replay-system/SKILL.md",
-                          "category":  "02-gameplay",
-                          "description":  "Implements a deterministic input-based replay system for Unity. Records player inputs per "
-                      },
-    "juice-game-feel":  {
-                            "tdd_first":  false,
-                            "path":  ".agent/skills/04-visuals-audio/juice-game-feel/SKILL.md",
-                            "category":  "04-visuals-audio",
-                            "description":  "Game feel and juice specialist for satisfying feedback, animations, and polish."
-                        },
-    "gpu-instancing-expert":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/06-performance/gpu-instancing-expert/SKILL.md",
-                                  "category":  "06-performance",
-                                  "description":  "Implements GPU instancing and indirect rendering to render thousands of identical meshes i"
-                              },
-    "job-system-burst":  {
-                             "tdd_first":  true,
-                             "path":  ".agent/skills/06-performance/job-system-burst/SKILL.md",
-                             "category":  "06-performance",
-                             "description":  "Implements high-performance parallel CPU workloads using the Unity Job System and Burst Co"
-                         },
-    "ai-code-reviewer":  {
-                             "tdd_first":  false,
-                             "path":  ".agent/skills/07-tools-pipeline/ai-code-reviewer/SKILL.md",
-                             "category":  "07-tools-pipeline",
-                             "description":  "Agentic code review checklist for Unity C# scripts. Identifies SOLID violations, GC alloca"
-                         },
-    "custom-editor-scripting":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/07-tools-pipeline/custom-editor-scripting/SKILL.md",
-                                    "category":  "07-tools-pipeline",
-                                    "description":  "Expert creation of Unity Editor tools, Inspector extensions, and Property Drawers to accel"
-                                },
-    "ui-toolkit-architect-legacy":  {
-                                        "tdd_first":  false,
-                                        "path":  ".agent/skills/05-ui-ux/ui-toolkit-architect-legacy/SKILL.md",
-                                        "category":  "05-ui-ux",
-                                        "description":  "Generates UI Toolkit assets (UXML, USS) and C# Controllers following MVVM. Use when creati"
-                                    },
-    "cinemachine-specialist":  {
-                                   "tdd_first":  false,
-                                   "path":  ".agent/skills/04-visuals-audio/cinemachine-specialist/SKILL.md",
-                                   "category":  "04-visuals-audio",
-                                   "description":  "Unity Cinemachine specialist for dynamic cameras, cutscenes, and cinematic gameplay."
-                               },
-    "interface-driven-development":  {
-                                         "tdd_first":  false,
-                                         "path":  ".agent/skills/01-architecture/interface-driven-development/SKILL.md",
-                                         "category":  "01-architecture",
-                                         "description":  "Senior Architect for Contract-Based Modularity. Create interfaces for decoupled, testable "
-                                     },
-    "unity-build-commander":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/09-devops-automation/unity-build-commander/SKILL.md",
-                                  "category":  "09-devops-automation",
-                                  "description":  "Executes a headless Unity build for the target platform (Windows/Android/iOS), parses the "
-                              },
-    "accessibility-hci":  {
-                              "tdd_first":  false,
-                              "path":  ".agent/skills/05-ui-ux/accessibility-hci/SKILL.md",
-                              "category":  "05-ui-ux",
-                              "description":  "Implements accessibility (A11y) standards for Unity games: WCAG 2.1 color contrast, font s"
-                          },
-    "status-effect-system":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/02-gameplay/status-effect-system/SKILL.md",
-                                 "category":  "02-gameplay",
-                                 "description":  "Complete buff/debuff system with stacking, timed effects, tick damage/heal, and stat modif"
-                             },
-    "context-discovery-agent":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/07-tools-pipeline/context-discovery-agent/SKILL.md",
-                                    "category":  "07-tools-pipeline",
-                                    "description":  "Auto-detects the Unity project environment (version, render pipeline, installed packages) "
-                                },
-    "playfab-economy-v2":  {
-                               "tdd_first":  true,
-                               "path":  ".agent/skills/08-backend-monetization/playfab-economy-v2/SKILL.md",
-                               "category":  "08-backend-monetization",
-                               "description":  "Full integration guide for PlayFab Economy v2: Catalogs, Inventory, Virtual Currencies, St"
-                           },
-    "advanced-design-patterns":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/01-architecture/advanced-design-patterns/SKILL.md",
-                                     "category":  "01-architecture",
-                                     "description":  "Principal Architect for SOLID \u0026 GoF Patterns in Unity 3D. Activate for complex systems, sc"
-                                 },
-    "audio-soundscape-architect":  {
-                                       "tdd_first":  false,
-                                       "path":  ".agent/skills/04-visuals-audio/audio-soundscape-architect/SKILL.md",
-                                       "category":  "04-visuals-audio",
-                                       "description":  "Unity audio system specialist for immersive soundscapes, music, and audio management."
-                                   },
-    "unit-population-ai":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/03-simulation-strategy/unit-population-ai/SKILL.md",
-                               "category":  "03-simulation-strategy",
-                               "description":  "Optimization-focused AI manager for handling large crowds or populations. Uses time-sliced"
-                           },
-    "analytics-heatmaps":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/08-backend-monetization/analytics-heatmaps/SKILL.md",
-                               "category":  "08-backend-monetization",
-                               "description":  "Implementation of comprehensive analytics tracking and heatmap data collection for player "
-                           },
-    "environment-hazard-system":  {
-                                      "tdd_first":  false,
-                                      "path":  ".agent/skills/03-simulation-strategy/environment-hazard-system/SKILL.md",
-                                      "category":  "03-simulation-strategy",
-                                      "description":  "Implementation of survival mechanics including hunger, thirst, temperature, and atmospheri"
-                                  },
-    "input-system-new":  {
-                             "tdd_first":  false,
-                             "path":  ".agent/skills/05-ui-ux/input-system-new/SKILL.md",
-                             "category":  "05-ui-ux",
-                             "description":  "Unity New Input System wrapper with ScriptableObject events for multi-device input handlin"
-                         },
-    "lighting-post-processing":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/04-visuals-audio/lighting-post-processing/SKILL.md",
-                                     "category":  "04-visuals-audio",
-                                     "description":  "Unity lighting and post-processing specialist for atmosphere, mood, and visual polish."
-                                 },
-    "ability-skill-system":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/02-gameplay/ability-skill-system/SKILL.md",
-                                 "category":  "02-gameplay",
-                                 "description":  "Data-driven ability system with ScriptableObject definitions, cooldowns, resource costs, t"
-                             },
-    "ads-mediation-ironsource":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/08-backend-monetization/ads-mediation-ironsource/SKILL.md",
-                                     "category":  "08-backend-monetization",
-                                     "description":  "Full integration guide for IronSource/LevelPlay mediation: banner, interstitial, and rewar"
-                                 },
-    "lod-occlusion-culling":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/06-performance/lod-occlusion-culling/SKILL.md",
-                                  "category":  "06-performance",
-                                  "description":  "LOD Groups and Occlusion Culling for rendering optimization in 3D environments."
-                              },
-    "scriptableobject-architecture":  {
-                                          "tdd_first":  false,
-                                          "path":  ".agent/skills/01-architecture/scriptableobject-architecture/SKILL.md",
-                                          "category":  "01-architecture",
-                                          "description":  "Senior Architect for Data-Driven Design using ScriptableObjects. Create SO-based event cha"
-                                      },
-    "metadata-validator":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/07-tools-pipeline/metadata-validator/SKILL.md",
-                               "category":  "07-tools-pipeline",
-                               "description":  "Audits all SKILL.md files in the repository for 2026 standard compliance. Reports missing "
-                           },
-    "physics-logic":  {
-                          "tdd_first":  false,
-                          "path":  ".agent/skills/02-gameplay/physics-logic/SKILL.md",
-                          "category":  "02-gameplay",
-                          "description":  "Unity physics systems: Rigidbody, collisions, triggers, layers, and physics queries (Rayca"
-                      },
-    "advanced-character-controller":  {
-                                          "tdd_first":  false,
-                                          "path":  ".agent/skills/02-gameplay/advanced-character-controller/SKILL.md",
-                                          "category":  "02-gameplay",
-                                          "description":  "Complete 3D character controller with ground detection, jumping, slopes, and state-based m"
-                                      },
-    "build-pipeline-manager":  {
-                                   "tdd_first":  false,
-                                   "path":  ".agent/skills/09-devops-automation/build-pipeline-manager/SKILL.md",
-                                   "category":  "09-devops-automation",
-                                   "description":  "Command Line Interface (CLI) wrapper for automating Unity Builds (Android, iOS, Windows). "
-                               },
-    "responsive-ui-design":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/05-ui-ux/responsive-ui-design/SKILL.md",
-                                 "category":  "05-ui-ux",
-                                 "description":  "Responsive and adaptive UI design for multi-device support using UI Toolkit flexbox and me"
-                             },
-    "shader-graph-expert":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/04-visuals-audio/shader-graph-expert/SKILL.md",
-                                "category":  "04-visuals-audio",
-                                "description":  "Unity Shader Graph specialist for creating custom shaders, materials, and visual effects w"
-                            },
-    "virtual-production-lead":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/00-meta-skills/virtual-production-lead/SKILL.md",
-                                    "category":  "00-meta-skills",
-                                    "description":  "Acts as a Project Director. Reads Game Design Documents (GDD), creates production roadmaps"
-                                },
-    "asset-import-pipeline":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/07-tools-pipeline/asset-import-pipeline/SKILL.md",
-                                  "category":  "07-tools-pipeline",
-                                  "description":  "Automated AssetPostprocessor logic to sanitize and optimize assets (Textures, Models, Audi"
-                              },
-    "lighting-nav-baker":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/04-visuals-audio/lighting-nav-baker/SKILL.md",
-                               "category":  "04-visuals-audio",
-                               "description":  "Automation tool for baking static lighting (Lightmaps) and AI Navigation (NavMesh) in one "
-                           },
-    "project-scaffolder":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/00-meta-skills/project-scaffolder/SKILL.md",
-                               "category":  "00-meta-skills",
-                               "description":  "Generates the initial folder structure, installs essential packages (Manifest), and config"
-                           },
-    "csharp12-features-guide":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/00-core-engineering/csharp12-features-guide/SKILL.md",
-                                    "category":  "00-core-engineering",
-                                    "description":  "Practical guide to C#12 and C#13 language features in the Unity 6 / CoreCLR context. Cover"
-                                },
-    "mvvm-binding-system":  {
-                                "tdd_first":  true,
-                                "path":  ".agent/skills/05-ui-ux/mvvm-binding-system/SKILL.md",
-                                "category":  "05-ui-ux",
-                                "description":  "Implements a full Model-View-ViewModel (MVVM) architecture for Unity UI Toolkit. Features "
-                            },
-    "minimap-system":  {
-                           "tdd_first":  false,
-                           "path":  ".agent/skills/02-gameplay/minimap-system/SKILL.md",
-                           "category":  "02-gameplay",
-                           "description":  "Implements a runtime minimap using a second orthographic camera rendering to a RenderTextu"
-                       },
-    "command-pattern-undo":  {
-                                 "tdd_first":  true,
-                                 "path":  ".agent/skills/01-architecture/command-pattern-undo/SKILL.md",
-                                 "category":  "01-architecture",
-                                 "description":  "Implements the Command Pattern with a full undo/redo history stack. Applicable to editor t"
-                             },
-    "backend-integration":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/08-backend-monetization/backend-integration/SKILL.md",
-                                "category":  "08-backend-monetization",
-                                "description":  "Integration with Backend-as-a-Service (BaaS) platforms like PlayFab, Firebase, or custom A"
-                            },
-    "service-layer-generator":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/08-backend-monetization/service-layer-generator/SKILL.md",
-                                    "category":  "08-backend-monetization",
-                                    "description":  "Generates Backend Service interfaces and implementations. Use to "
-                                },
-    "oop-patterns-architect":  {
-                                   "tdd_first":  false,
-                                   "path":  ".agent/skills/01-architecture/oop-patterns-architect/SKILL.md",
-                                   "category":  "01-architecture",
-                                   "description":  "Object-Oriented design patterns specialist for clean, maintainable Unity architectures."
-                               },
-    "tech-tree-research":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/03-simulation-strategy/tech-tree-research/SKILL.md",
-                               "category":  "03-simulation-strategy",
-                               "description":  "Directed Acyclic Graph (DAG) based Tech Tree. Manages unlock states, prerequisites, and re"
-                           },
-    "resource-management-system":  {
-                                       "tdd_first":  false,
-                                       "path":  ".agent/skills/03-simulation-strategy/resource-management-system/SKILL.md",
-                                       "category":  "03-simulation-strategy",
-                                       "description":  "Economy system for tracking integer-based resources (Gold, Wood, Food) with ScriptableObje"
-                                   },
-    "texture-streaming-expert":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/06-performance/texture-streaming-expert/SKILL.md",
-                                     "category":  "06-performance",
-                                     "description":  "Manages texture memory via Unity\u0027s Mip Streaming system and streaming budget configuration"
-                                 },
-    "dots-system-architect":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/01-architecture/dots-system-architect/SKILL.md",
-                                  "category":  "01-architecture",
-                                  "description":  "Unity DOTS architecture specialist for ECS, Jobs, and Burst Compiler performance systems."
-                              },
-    "automated-unit-testing":  {
-                                   "tdd_first":  false,
-                                   "path":  ".agent/skills/07-tools-pipeline/automated-unit-testing/SKILL.md",
-                                   "category":  "07-tools-pipeline",
-                                   "description":  "Implementation of NUnit tests for Unity, covering EditMode and PlayMode scenarios for reli"
-                               },
-    "mobile-optimization":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/06-performance/mobile-optimization/SKILL.md",
-                                "category":  "06-performance",
-                                "description":  "Mobile-specific optimization for Android/iOS including framerate, resolution, thermal, and"
-                            },
-    "di-container-manager":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/01-architecture/di-container-manager/SKILL.md",
-                                 "category":  "01-architecture",
-                                 "description":  "Dependency Injection specialist for decoupled, testable Unity architectures using DI conta"
-                             },
-    "menu-navigation-flow":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/05-ui-ux/menu-navigation-flow/SKILL.md",
-                                 "category":  "05-ui-ux",
-                                 "description":  "UI navigation and screen management with stack-based flow, transitions, and history."
-                             },
-    "unified-style-guide":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/00-core-engineering/unified-style-guide/SKILL.md",
-                                "category":  "00-core-engineering",
-                                "description":  "Establish and enforce a consistent C# coding style for Unity projects. Includes .editorcon"
-                            },
-    "advanced-game-bootstrapper":  {
-                                       "tdd_first":  false,
-                                       "path":  ".agent/skills/01-architecture/advanced-game-bootstrapper/SKILL.md",
-                                       "category":  "01-architecture",
-                                       "description":  "Implements the Bootstrap Scene pattern. Guarantees deterministic initialization of global "
-                                   },
-    "navmesh-pathfinding":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/02-gameplay/navmesh-pathfinding/SKILL.md",
-                                "category":  "02-gameplay",
-                                "description":  "Unity NavMesh integration for AI pathfinding with agents, obstacles, and off-mesh links."
-                            },
-    "save-load-serialization":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/02-gameplay/save-load-serialization/SKILL.md",
-                                    "category":  "02-gameplay",
-                                    "description":  "Complete save/load system with ISaveable interface, JSON serialization, save slots, and en"
-                                },
-    "event-bus-system":  {
-                             "tdd_first":  false,
-                             "path":  ".agent/skills/01-architecture/event-bus-system/SKILL.md",
-                             "category":  "01-architecture",
-                             "description":  "Implements a global decoupled Event Bus for cross-system communication. Zero-allocation st"
-                         },
-    "multiplayer-netcode":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/08-backend-monetization/multiplayer-netcode/SKILL.md",
-                                "category":  "08-backend-monetization",
-                                "description":  "Setup for Unity Netcode for GameObjects (NGO). Handles connection, synchronization, RPCs, "
-                            },
-    "unity-mcp-connector":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/07-tools-pipeline/unity-mcp-connector/SKILL.md",
-                                "category":  "07-tools-pipeline",
-                                "description":  "Orchestration bridge between AI Agents and the running Unity Editor instance via MCP (Mode"
-                            },
-    "unity-gaming-services":  {
-                                  "tdd_first":  true,
-                                  "path":  ".agent/skills/08-backend-monetization/unity-gaming-services/SKILL.md",
-                                  "category":  "08-backend-monetization",
-                                  "description":  "Complete setup guide for Unity Gaming Services (UGS): Authentication, Lobby, Relay, Leader"
-                              },
-    "memory-profiler-expert":  {
-                                   "tdd_first":  false,
-                                   "path":  ".agent/skills/06-performance/memory-profiler-expert/SKILL.md",
-                                   "category":  "06-performance",
-                                   "description":  "Unity memory and performance profiling expertise for identifying bottlenecks and optimizin"
-                               },
-    "coreclr-gc-watchdog":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/00-core-engineering/coreclr-gc-watchdog/SKILL.md",
-                                "category":  "00-core-engineering",
-                                "description":  "Detects, diagnoses, and eliminates Garbage Collector pressure in Unity (CoreCLR). Provides"
-                            },
-    "procedural-generation":  {
-                                  "tdd_first":  true,
-                                  "path":  ".agent/skills/02-gameplay/procedural-generation/SKILL.md",
-                                  "category":  "02-gameplay",
-                                  "description":  "Implements procedural content generation algorithms: BSP dungeon rooms, Wave Function Coll"
-                              },
-    "asynchronous-programming":  {
-                                     "tdd_first":  false,
-                                     "path":  ".agent/skills/01-architecture/asynchronous-programming/SKILL.md",
-                                     "category":  "01-architecture",
-                                     "description":  "Master async/await patterns in Unity. Handle loading, network requests, and non-blocking o"
-                                 },
-    "state-machine-architect":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/01-architecture/state-machine-architect/SKILL.md",
-                                    "category":  "01-architecture",
-                                    "description":  "Generates a flexible State Machine system for player controllers, AI, or any state-based l"
-                                },
-    "ui-toolkit-modern":  {
-                              "tdd_first":  false,
-                              "path":  ".agent/skills/05-ui-ux/ui-toolkit-modern/SKILL.md",
-                              "category":  "05-ui-ux",
-                              "description":  "Unity UI Toolkit specialist for professional, scalable, responsive runtime UI with UXML an"
-                          },
-    "ai-behavior-trees":  {
-                              "tdd_first":  false,
-                              "path":  ".agent/skills/02-gameplay/ai-behavior-trees/SKILL.md",
-                              "category":  "02-gameplay",
-                              "description":  "Implements modular Behavior Trees for AI decision making with composite, decorator, and ac"
-                          },
-    "grid-based-building-system":  {
-                                       "tdd_first":  false,
-                                       "path":  ".agent/skills/03-simulation-strategy/grid-based-building-system/SKILL.md",
-                                       "category":  "03-simulation-strategy",
-                                       "description":  "Robust grid placement system for city builders and RTS games. Handles snapping, collision "
-                                   },
-    "monetization-iap":  {
-                             "tdd_first":  false,
-                             "path":  ".agent/skills/08-backend-monetization/monetization-iap/SKILL.md",
-                             "category":  "08-backend-monetization",
-                             "description":  "Setup for In-App Purchases (IAP) using Unity Purchasing. Handles product catalogs, receipt"
-                         },
-    "vfx-graph-shuriken":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/04-visuals-audio/vfx-graph-shuriken/SKILL.md",
-                               "category":  "04-visuals-audio",
-                               "description":  "Unity VFX Graph and Particle System specialist for creating stunning visual effects."
-                           },
-    "unity-compile-fixer":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/00-core-engineering/unity-compile-fixer/SKILL.md",
-                                "category":  "00-core-engineering",
-                                "description":  "Agentic repair loop for C# compilation errors. Reads compiler output, classifies errors by"
-                            },
-    "skill-creator":  {
-                          "tdd_first":  false,
-                          "path":  ".agent/skills/00-meta-skills/skill-creator/SKILL.md",
-                          "category":  "00-meta-skills",
-                          "description":  "Meta-skill for generating new Production-Grade Skills. Ensures consistency across the Anti"
-                      },
-    "object-pooling-system":  {
-                                  "tdd_first":  false,
-                                  "path":  ".agent/skills/06-performance/object-pooling-system/SKILL.md",
-                                  "category":  "06-performance",
-                                  "description":  "High-performance object pooling for GameObjects to eliminate GC spikes and allocation over"
-                              },
-    "localization-specialist":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/07-tools-pipeline/localization-specialist/SKILL.md",
-                                    "category":  "07-tools-pipeline",
-                                    "description":  "Integration of Unity Localization package for multi-language support, covering Tables, Sma"
-                                },
-    "procedural-animation-ik":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/04-visuals-audio/procedural-animation-ik/SKILL.md",
-                                    "category":  "04-visuals-audio",
-                                    "description":  "Procedural animation and IK specialist for dynamic, responsive character motion."
-                                },
-    "service-locator-pattern":  {
-                                    "tdd_first":  true,
-                                    "path":  ".agent/skills/01-architecture/service-locator-pattern/SKILL.md",
-                                    "category":  "01-architecture",
-                                    "description":  "Implements a lightweight, type-safe Service Locator as a decoupling bridge. Includes a dec"
-                                },
-    "loot-rng-management":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/02-gameplay/loot-rng-management/SKILL.md",
-                                "category":  "02-gameplay",
-                                "description":  "Loot table system with weighted drop rates, rarity tiers, and procedural generation."
-                            },
-    "repository-pattern":  {
-                               "tdd_first":  true,
-                               "path":  ".agent/skills/01-architecture/repository-pattern/SKILL.md",
-                               "category":  "01-architecture",
-                               "description":  "Implements the Repository Pattern to decouple game data access from business logic. Provid"
-                           },
-    "dynamic-audio-mixers":  {
-                                 "tdd_first":  false,
-                                 "path":  ".agent/skills/04-visuals-audio/dynamic-audio-mixers/SKILL.md",
-                                 "category":  "04-visuals-audio",
-                                 "description":  "Advanced Unity AudioMixer configuration for dynamic audio effects, snapshots, and ducking."
-                             },
-    "version-control-git":  {
-                                "tdd_first":  false,
-                                "path":  ".agent/skills/07-tools-pipeline/version-control-git/SKILL.md",
-                                "category":  "07-tools-pipeline",
-                                "description":  "Best practices for Unity Git workflows, LFS configuration, and branching strategies."
-                            },
-    "horde-wave-logic":  {
-                             "tdd_first":  false,
-                             "path":  ".agent/skills/03-simulation-strategy/horde-wave-logic/SKILL.md",
-                             "category":  "03-simulation-strategy",
-                             "description":  "Wave spawning system for Tower Defense and Survival games. Configurable waves, enemy types"
-                         },
-    "damage-health-framework":  {
-                                    "tdd_first":  false,
-                                    "path":  ".agent/skills/02-gameplay/damage-health-framework/SKILL.md",
-                                    "category":  "02-gameplay",
-                                    "description":  "Complete damage and health system with IDamageable interface, damage types, resistances, a"
-                                },
-    "canvas-performance":  {
-                               "tdd_first":  false,
-                               "path":  ".agent/skills/05-ui-ux/canvas-performance/SKILL.md",
-                               "category":  "05-ui-ux",
-                               "description":  "UI performance optimization for both UGUI Canvas and UI Toolkit runtime."
-                           },
-    "addressables-asset-management":  {
-                                          "tdd_first":  false,
-                                          "path":  ".agent/skills/06-performance/addressables-asset-management/SKILL.md",
-                                          "category":  "06-performance",
-                                          "description":  "Unity Addressables for async asset loading, memory management, and remote content delivery"
-                                      }
+  "dialogue-quest-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/dialogue-quest-system/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete dialogue and quest system with branching conversations, quest stages, and event t"
+  },
+  "inventory-crafting-logic": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/inventory-crafting-logic/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete inventory system with slot-based storage, item stacking, and recipe-based craftin"
+  },
+  "replay-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/replay-system/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Implements a deterministic input-based replay system for Unity. Records player inputs per "
+  },
+  "juice-game-feel": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/juice-game-feel/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Game feel and juice specialist for satisfying feedback, animations, and polish."
+  },
+  "gpu-instancing-expert": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/gpu-instancing-expert/SKILL.md",
+    "category": "06-performance",
+    "description": "Implements GPU instancing and indirect rendering to render thousands of identical meshes i"
+  },
+  "job-system-burst": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/job-system-burst/SKILL.md",
+    "category": "06-performance",
+    "description": "Implements high-performance parallel CPU workloads using the Unity Job System and Burst Co"
+  },
+  "ai-code-reviewer": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/ai-code-reviewer/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Agentic code review checklist for Unity C# scripts. Identifies SOLID violations, GC alloca"
+  },
+  "custom-editor-scripting": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/custom-editor-scripting/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Expert creation of Unity Editor tools, Inspector extensions, and Property Drawers to accel"
+  },
+  "ui-toolkit-architect-legacy": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/ui-toolkit-architect-legacy/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Generates UI Toolkit assets (UXML, USS) and C# Controllers following MVVM. Use when creati"
+  },
+  "cinemachine-specialist": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/cinemachine-specialist/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Unity Cinemachine specialist for dynamic cameras, cutscenes, and cinematic gameplay."
+  },
+  "interface-driven-development": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/interface-driven-development/SKILL.md",
+    "category": "01-architecture",
+    "description": "Senior Architect for Contract-Based Modularity. Create interfaces for decoupled, testable "
+  },
+  "unity-build-commander": {
+    "tdd_first": true,
+    "path": ".agent/skills/09-devops-automation/unity-build-commander/SKILL.md",
+    "category": "09-devops-automation",
+    "description": "Executes a headless Unity build for the target platform (Windows/Android/iOS), parses the "
+  },
+  "accessibility-hci": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/accessibility-hci/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Implements accessibility (A11y) standards for Unity games: WCAG 2.1 color contrast, font s"
+  },
+  "status-effect-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/status-effect-system/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete buff/debuff system with stacking, timed effects, tick damage/heal, and stat modif"
+  },
+  "context-discovery-agent": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/context-discovery-agent/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Auto-detects the Unity project environment (version, render pipeline, installed packages) "
+  },
+  "playfab-economy-v2": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/playfab-economy-v2/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Full integration guide for PlayFab Economy v2: Catalogs, Inventory, Virtual Currencies, St"
+  },
+  "advanced-design-patterns": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/advanced-design-patterns/SKILL.md",
+    "category": "01-architecture",
+    "description": "Principal Architect for SOLID & GoF Patterns in Unity 3D. Activate for complex systems, sc"
+  },
+  "audio-soundscape-architect": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/audio-soundscape-architect/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Unity audio system specialist for immersive soundscapes, music, and audio management."
+  },
+  "unit-population-ai": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/unit-population-ai/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Optimization-focused AI manager for handling large crowds or populations. Uses time-sliced"
+  },
+  "analytics-heatmaps": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/analytics-heatmaps/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Implementation of comprehensive analytics tracking and heatmap data collection for player "
+  },
+  "environment-hazard-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/environment-hazard-system/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Implementation of survival mechanics including hunger, thirst, temperature, and atmospheri"
+  },
+  "input-system-new": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/input-system-new/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Unity New Input System wrapper with ScriptableObject events for multi-device input handlin"
+  },
+  "lighting-post-processing": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/lighting-post-processing/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Unity lighting and post-processing specialist for atmosphere, mood, and visual polish."
+  },
+  "ability-skill-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/ability-skill-system/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Data-driven ability system with ScriptableObject definitions, cooldowns, resource costs, t"
+  },
+  "ads-mediation-ironsource": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/ads-mediation-ironsource/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Full integration guide for IronSource/LevelPlay mediation: banner, interstitial, and rewar"
+  },
+  "lod-occlusion-culling": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/lod-occlusion-culling/SKILL.md",
+    "category": "06-performance",
+    "description": "LOD Groups and Occlusion Culling for rendering optimization in 3D environments."
+  },
+  "scriptableobject-architecture": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/scriptableobject-architecture/SKILL.md",
+    "category": "01-architecture",
+    "description": "Senior Architect for Data-Driven Design using ScriptableObjects. Create SO-based event cha"
+  },
+  "metadata-validator": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/metadata-validator/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Audits all SKILL.md files in the repository for 2026 standard compliance. Reports missing "
+  },
+  "physics-logic": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/physics-logic/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Unity physics systems: Rigidbody, collisions, triggers, layers, and physics queries (Rayca"
+  },
+  "advanced-character-controller": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/advanced-character-controller/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete 3D character controller with ground detection, jumping, slopes, and state-based m"
+  },
+  "build-pipeline-manager": {
+    "tdd_first": true,
+    "path": ".agent/skills/09-devops-automation/build-pipeline-manager/SKILL.md",
+    "category": "09-devops-automation",
+    "description": "Command Line Interface (CLI) wrapper for automating Unity Builds (Android, iOS, Windows). "
+  },
+  "responsive-ui-design": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/responsive-ui-design/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Responsive and adaptive UI design for multi-device support using UI Toolkit flexbox and me"
+  },
+  "shader-graph-expert": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/shader-graph-expert/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Unity Shader Graph specialist for creating custom shaders, materials, and visual effects w"
+  },
+  "virtual-production-lead": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-meta-skills/virtual-production-lead/SKILL.md",
+    "category": "00-meta-skills",
+    "description": "Acts as a Project Director. Reads Game Design Documents (GDD), creates production roadmaps"
+  },
+  "asset-import-pipeline": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/asset-import-pipeline/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Automated AssetPostprocessor logic to sanitize and optimize assets (Textures, Models, Audi"
+  },
+  "lighting-nav-baker": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/lighting-nav-baker/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Automation tool for baking static lighting (Lightmaps) and AI Navigation (NavMesh) in one "
+  },
+  "project-scaffolder": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-meta-skills/project-scaffolder/SKILL.md",
+    "category": "00-meta-skills",
+    "description": "Generates the initial folder structure, installs essential packages (Manifest), and config"
+  },
+  "csharp12-features-guide": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-core-engineering/csharp12-features-guide/SKILL.md",
+    "category": "00-core-engineering",
+    "description": "Practical guide to C#12 and C#13 language features in the Unity 6 / CoreCLR context. Cover"
+  },
+  "mvvm-binding-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/mvvm-binding-system/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Implements a full Model-View-ViewModel (MVVM) architecture for Unity UI Toolkit. Features "
+  },
+  "minimap-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/minimap-system/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Implements a runtime minimap using a second orthographic camera rendering to a RenderTextu"
+  },
+  "command-pattern-undo": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/command-pattern-undo/SKILL.md",
+    "category": "01-architecture",
+    "description": "Implements the Command Pattern with a full undo/redo history stack. Applicable to editor t"
+  },
+  "backend-integration": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/backend-integration/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Integration with Backend-as-a-Service (BaaS) platforms like PlayFab, Firebase, or custom A"
+  },
+  "service-layer-generator": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/service-layer-generator/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Generates Backend Service interfaces and implementations. Use to "
+  },
+  "oop-patterns-architect": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/oop-patterns-architect/SKILL.md",
+    "category": "01-architecture",
+    "description": "Object-Oriented design patterns specialist for clean, maintainable Unity architectures."
+  },
+  "tech-tree-research": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/tech-tree-research/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Directed Acyclic Graph (DAG) based Tech Tree. Manages unlock states, prerequisites, and re"
+  },
+  "resource-management-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/resource-management-system/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Economy system for tracking integer-based resources (Gold, Wood, Food) with ScriptableObje"
+  },
+  "texture-streaming-expert": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/texture-streaming-expert/SKILL.md",
+    "category": "06-performance",
+    "description": "Manages texture memory via Unity's Mip Streaming system and streaming budget configuration"
+  },
+  "dots-system-architect": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/dots-system-architect/SKILL.md",
+    "category": "01-architecture",
+    "description": "Unity DOTS architecture specialist for ECS, Jobs, and Burst Compiler performance systems."
+  },
+  "automated-unit-testing": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/automated-unit-testing/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Implementation of NUnit tests for Unity, covering EditMode and PlayMode scenarios for reli"
+  },
+  "mobile-optimization": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/mobile-optimization/SKILL.md",
+    "category": "06-performance",
+    "description": "Mobile-specific optimization for Android/iOS including framerate, resolution, thermal, and"
+  },
+  "di-container-manager": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/di-container-manager/SKILL.md",
+    "category": "01-architecture",
+    "description": "Dependency Injection specialist for decoupled, testable Unity architectures using DI conta"
+  },
+  "menu-navigation-flow": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/menu-navigation-flow/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "UI navigation and screen management with stack-based flow, transitions, and history."
+  },
+  "unified-style-guide": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-core-engineering/unified-style-guide/SKILL.md",
+    "category": "00-core-engineering",
+    "description": "Establish and enforce a consistent C# coding style for Unity projects. Includes .editorcon"
+  },
+  "advanced-game-bootstrapper": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/advanced-game-bootstrapper/SKILL.md",
+    "category": "01-architecture",
+    "description": "Implements the Bootstrap Scene pattern. Guarantees deterministic initialization of global "
+  },
+  "navmesh-pathfinding": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/navmesh-pathfinding/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Unity NavMesh integration for AI pathfinding with agents, obstacles, and off-mesh links."
+  },
+  "save-load-serialization": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/save-load-serialization/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete save/load system with ISaveable interface, JSON serialization, save slots, and en"
+  },
+  "event-bus-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/event-bus-system/SKILL.md",
+    "category": "01-architecture",
+    "description": "Implements a global decoupled Event Bus for cross-system communication. Zero-allocation st"
+  },
+  "multiplayer-netcode": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/multiplayer-netcode/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Setup for Unity Netcode for GameObjects (NGO). Handles connection, synchronization, RPCs, "
+  },
+  "unity-mcp-connector": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/unity-mcp-connector/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Orchestration bridge between AI Agents and the running Unity Editor instance via MCP (Mode"
+  },
+  "unity-gaming-services": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/unity-gaming-services/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Complete setup guide for Unity Gaming Services (UGS): Authentication, Lobby, Relay, Leader"
+  },
+  "memory-profiler-expert": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/memory-profiler-expert/SKILL.md",
+    "category": "06-performance",
+    "description": "Unity memory and performance profiling expertise for identifying bottlenecks and optimizin"
+  },
+  "coreclr-gc-watchdog": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-core-engineering/coreclr-gc-watchdog/SKILL.md",
+    "category": "00-core-engineering",
+    "description": "Detects, diagnoses, and eliminates Garbage Collector pressure in Unity (CoreCLR). Provides"
+  },
+  "procedural-generation": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/procedural-generation/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Implements procedural content generation algorithms: BSP dungeon rooms, Wave Function Coll"
+  },
+  "asynchronous-programming": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/asynchronous-programming/SKILL.md",
+    "category": "01-architecture",
+    "description": "Master async/await patterns in Unity. Handle loading, network requests, and non-blocking o"
+  },
+  "state-machine-architect": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/state-machine-architect/SKILL.md",
+    "category": "01-architecture",
+    "description": "Generates a flexible State Machine system for player controllers, AI, or any state-based l"
+  },
+  "ui-toolkit-modern": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/ui-toolkit-modern/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "Unity UI Toolkit specialist for professional, scalable, responsive runtime UI with UXML an"
+  },
+  "ai-behavior-trees": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/ai-behavior-trees/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Implements modular Behavior Trees for AI decision making with composite, decorator, and ac"
+  },
+  "grid-based-building-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/grid-based-building-system/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Robust grid placement system for city builders and RTS games. Handles snapping, collision "
+  },
+  "monetization-iap": {
+    "tdd_first": true,
+    "path": ".agent/skills/08-backend-monetization/monetization-iap/SKILL.md",
+    "category": "08-backend-monetization",
+    "description": "Setup for In-App Purchases (IAP) using Unity Purchasing. Handles product catalogs, receipt"
+  },
+  "vfx-graph-shuriken": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/vfx-graph-shuriken/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Unity VFX Graph and Particle System specialist for creating stunning visual effects."
+  },
+  "unity-compile-fixer": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-core-engineering/unity-compile-fixer/SKILL.md",
+    "category": "00-core-engineering",
+    "description": "Agentic repair loop for C# compilation errors. Reads compiler output, classifies errors by"
+  },
+  "skill-creator": {
+    "tdd_first": true,
+    "path": ".agent/skills/00-meta-skills/skill-creator/SKILL.md",
+    "category": "00-meta-skills",
+    "description": "Meta-skill for generating new Production-Grade Skills. Ensures consistency across the Anti"
+  },
+  "object-pooling-system": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/object-pooling-system/SKILL.md",
+    "category": "06-performance",
+    "description": "High-performance object pooling for GameObjects to eliminate GC spikes and allocation over"
+  },
+  "localization-specialist": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/localization-specialist/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Integration of Unity Localization package for multi-language support, covering Tables, Sma"
+  },
+  "procedural-animation-ik": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/procedural-animation-ik/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Procedural animation and IK specialist for dynamic, responsive character motion."
+  },
+  "service-locator-pattern": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/service-locator-pattern/SKILL.md",
+    "category": "01-architecture",
+    "description": "Implements a lightweight, type-safe Service Locator as a decoupling bridge. Includes a dec"
+  },
+  "loot-rng-management": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/loot-rng-management/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Loot table system with weighted drop rates, rarity tiers, and procedural generation."
+  },
+  "repository-pattern": {
+    "tdd_first": true,
+    "path": ".agent/skills/01-architecture/repository-pattern/SKILL.md",
+    "category": "01-architecture",
+    "description": "Implements the Repository Pattern to decouple game data access from business logic. Provid"
+  },
+  "dynamic-audio-mixers": {
+    "tdd_first": true,
+    "path": ".agent/skills/04-visuals-audio/dynamic-audio-mixers/SKILL.md",
+    "category": "04-visuals-audio",
+    "description": "Advanced Unity AudioMixer configuration for dynamic audio effects, snapshots, and ducking."
+  },
+  "version-control-git": {
+    "tdd_first": true,
+    "path": ".agent/skills/07-tools-pipeline/version-control-git/SKILL.md",
+    "category": "07-tools-pipeline",
+    "description": "Best practices for Unity Git workflows, LFS configuration, and branching strategies."
+  },
+  "horde-wave-logic": {
+    "tdd_first": true,
+    "path": ".agent/skills/03-simulation-strategy/horde-wave-logic/SKILL.md",
+    "category": "03-simulation-strategy",
+    "description": "Wave spawning system for Tower Defense and Survival games. Configurable waves, enemy types"
+  },
+  "damage-health-framework": {
+    "tdd_first": true,
+    "path": ".agent/skills/02-gameplay/damage-health-framework/SKILL.md",
+    "category": "02-gameplay",
+    "description": "Complete damage and health system with IDamageable interface, damage types, resistances, a"
+  },
+  "canvas-performance": {
+    "tdd_first": true,
+    "path": ".agent/skills/05-ui-ux/canvas-performance/SKILL.md",
+    "category": "05-ui-ux",
+    "description": "UI performance optimization for both UGUI Canvas and UI Toolkit runtime."
+  },
+  "addressables-asset-management": {
+    "tdd_first": true,
+    "path": ".agent/skills/06-performance/addressables-asset-management/SKILL.md",
+    "category": "06-performance",
+    "description": "Unity Addressables for async asset loading, memory management, and remote content delivery"
+  }
 }
