@@ -174,6 +174,72 @@ propertyChanged?.Invoke(this, new(nameof(Health)));
 // Unity 2022 LTS → C#10 only.
 ```
 
+
+
+---
+
+## TDD Contract
+
+> ⚠️ **Legacy Skill — Refactor Pending**
+> Este skill NO tiene tests automatizados aún. El siguiente boilerplate es un punto de partida.
+
+```csharp
+// Escribe estos tests ANTES de implementar:
+
+// Test 1: should [expected behavior] when [condition]
+[Test]
+public void Csharp12FeaturesGuide_Should{ExpectedBehavior}_When{Condition}()
+{{
+    // Arrange
+    // TODO: Setup test fixtures
+    
+    // Act
+    // TODO: Execute system under test
+    
+    // Assert
+    Assert.Fail("Not implemented — write test first");
+}}
+
+// Test 2: should handle [edge case]
+[Test]
+public void Csharp12FeaturesGuide_ShouldHandle{EdgeCase}()
+{{
+    // Arrange
+    // TODO: Setup edge case scenario
+    
+    // Act
+    // TODO: Execute
+    
+    // Assert
+    Assert.Fail("Not implemented");
+}}
+
+// Test 3: should throw when [invalid input]
+[Test]
+public void Csharp12FeaturesGuide_ShouldThrow_When{InvalidInput}()
+{{
+    // Arrange
+    var invalidInput = default;
+    
+    // Act & Assert
+    Assert.Throws<Exception>(() => {{ /* execute */ }});
+}}
+```
+
+### Pasos para completar el TDD:
+
+1. **Descomenta** los tests above
+2. **Implementa** la funcionalidad mínima para que compile
+3. **Ejecuta** los tests — deben fallar (RED)
+4. **Implementa** la funcionalidad real
+5. **Verifica** que los tests pasen (GREEN)
+6. **Refactorea** manteniendo los tests verdes
+
+---
+
+**Nota**: Este skill fue marcado como `tdd_first: false` durante la auditoría v2.0.1. La sección TDD fue agregada automáticamente pero requiere customización manual para reflejar el comportamiento real del skill.
+
+
 ## Related Skills
 
 - `@unified-style-guide` — Enforces naming and formatting for new syntax

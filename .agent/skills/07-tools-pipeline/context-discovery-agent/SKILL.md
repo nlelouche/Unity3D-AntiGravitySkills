@@ -173,6 +173,72 @@ The **Context Discovery Agent** is the mandatory pre-flight skill. It reads the 
 
 **Agent**: Detects Built-in RP → "ℹ️ Your project uses Built-in Render Pipeline. The modern `Volume` framework is only available in URP/HDRP. I'll use the legacy Post Processing Stack v2 approach. Shall I also provide a URP migration guide?"
 
+
+
+---
+
+## TDD Contract
+
+> ⚠️ **Legacy Skill — Refactor Pending**
+> Este skill NO tiene tests automatizados aún. El siguiente boilerplate es un punto de partida.
+
+```csharp
+// Escribe estos tests ANTES de implementar:
+
+// Test 1: should [expected behavior] when [condition]
+[Test]
+public void ContextDiscoveryAgent_Should{ExpectedBehavior}_When{Condition}()
+{{
+    // Arrange
+    // TODO: Setup test fixtures
+    
+    // Act
+    // TODO: Execute system under test
+    
+    // Assert
+    Assert.Fail("Not implemented — write test first");
+}}
+
+// Test 2: should handle [edge case]
+[Test]
+public void ContextDiscoveryAgent_ShouldHandle{EdgeCase}()
+{{
+    // Arrange
+    // TODO: Setup edge case scenario
+    
+    // Act
+    // TODO: Execute
+    
+    // Assert
+    Assert.Fail("Not implemented");
+}}
+
+// Test 3: should throw when [invalid input]
+[Test]
+public void ContextDiscoveryAgent_ShouldThrow_When{InvalidInput}()
+{{
+    // Arrange
+    var invalidInput = default;
+    
+    // Act & Assert
+    Assert.Throws<Exception>(() => {{ /* execute */ }});
+}}
+```
+
+### Pasos para completar el TDD:
+
+1. **Descomenta** los tests above
+2. **Implementa** la funcionalidad mínima para que compile
+3. **Ejecuta** los tests — deben fallar (RED)
+4. **Implementa** la funcionalidad real
+5. **Verifica** que los tests pasen (GREEN)
+6. **Refactorea** manteniendo los tests verdes
+
+---
+
+**Nota**: Este skill fue marcado como `tdd_first: false` durante la auditoría v2.0.1. La sección TDD fue agregada automáticamente pero requiere customización manual para reflejar el comportamiento real del skill.
+
+
 ## Related Skills
 
 - `@unity-compile-fixer` — Uses context to validate package-related CS0234 errors
